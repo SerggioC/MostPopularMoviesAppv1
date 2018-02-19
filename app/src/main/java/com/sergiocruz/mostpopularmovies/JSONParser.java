@@ -1,12 +1,11 @@
 package com.sergiocruz.mostpopularmovies;
 
-import android.net.Uri;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Sergio on 18/02/2018.
@@ -14,39 +13,60 @@ import java.util.ArrayList;
 
 public class JSONParser {
 
-    public static ArrayList<MovieObject> parseDataFromJSON(String jsonDataFromAPI, String baseImageUrl, String imageSize) {
+    // JSON key names
+    public static final String RESULTS = "results";
+    public static final String VOTE_COUNT = "vote_count";
+    public static final String ID = "id";
+    public static final String VIDEO = "video";
+    public static final String VOTE_AVERAGE = "vote_average";
+    public static final String TITLE = "title";
+    public static final String POPULARITY = "popularity";
+    public static final String ORIGINAL_LANGUAGE = "original_language";
+    public static final String POSTER_PATH = "poster_path";
+    public static final String ORIGINAL_TITLE = "original_title";
+    public static final String GENRE_IDS = "genre_ids";
+    public static final String BACKDROP_PATH = "backdrop_path";
+    public static final String ADULT = "adult";
+    public static final String OVERVIEW = "overview";
+    public static final String RELEASE_DATE = "release_date";
+    public static final String NOT_AVAILABLE_FALLBACK = "(N/A)";
+    public static final String NO_LANGUAGE_FALLBACK = "en-US";
+
+    public static ArrayList<MovieObject> parseDataFromJSON(String jsonDataFromAPI) {
         ArrayList<MovieObject> movieObjects = new ArrayList<>();
         try {
             JSONObject jsonData = new JSONObject(jsonDataFromAPI);
-            JSONArray resultsArray = jsonData.optJSONArray("results");
+            JSONArray resultsArray = jsonData.optJSONArray(RESULTS);
             if (resultsArray == null) return null;
-            int length = resultsArray.length();
 
+            int length = resultsArray.length();
             for (int i = 0; i < length; i++) {
                 JSONObject movie = (JSONObject) resultsArray.get(i);
-                int voteCount = movie.optInt("vote_count", 0);
-                Integer id = movie.optInt("id", 0);
-                Boolean video = movie.optBoolean("video", false);
-                float voteAverage = ((float) movie.optLong("vote_average", 0));
-                String title = movie.optString("title", "");
-                float popularity = ((float) movie.optLong("popularity", 0));
-                String posterPath = getURL_Path(baseImageUrl, imageSize, movie.optString("poster_path", ""));
-                String originalLanguage = movie.optString("original_language", "");
-                String originalTitle = movie.optString("original_title", "");
-                JSONArray jsonGenreIds = movie.optJSONArray("genre_ids");
-                int[] genreIds;
-                if (jsonGenreIds == null) genreIds = new int[0];
+                int voteCount = movie.optInt(VOTE_COUNT, 0);
+                Integer id = movie.optInt(ID, 0);
+                Boolean video = movie.optBoolean(VIDEO, false);
+                float voteAverage = ((float) movie.optLong(VOTE_AVERAGE, 0));
+                String title = movie.optString(TITLE, NOT_AVAILABLE_FALLBACK);
+                float popularity = ((float) movie.optLong(POPULARITY, 0));
+                String posterPath = movie.optString(POSTER_PATH);
+                String originalLanguage = movie.optString(ORIGINAL_LANGUAGE, NO_LANGUAGE_FALLBACK);
+                String originalTitle = movie.optString(ORIGINAL_TITLE, NOT_AVAILABLE_FALLBACK);
 
-                int genreSize = jsonGenreIds.length();
-                genreIds = new int[genreSize];
-                for (int j = 0; j < genreSize; j++) {
-                    genreIds[j] = (int) jsonGenreIds.get(j);
+                JSONArray jsonGenreIds;
+                List<Integer> genreIds = null;
+                if (movie.has(GENRE_IDS)) {
+                    jsonGenreIds = movie.optJSONArray(GENRE_IDS);
+                    int genreSize = jsonGenreIds.length();
+                    genreIds = new ArrayList<>(genreSize);
+                    for (int j = 0; j < genreSize; j++) {
+                        genreIds.add((Integer) jsonGenreIds.get(j));
+                    }
                 }
 
-                String backdropPath = getURL_Path(baseImageUrl, imageSize, movie.optString("backdrop_path", ""));
-                Boolean adult = movie.optBoolean("adult", false);
-                String overview = movie.optString("overview", "");
-                String releaseDate = movie.optString("release_date", "");
+                String backdropPath = movie.optString(BACKDROP_PATH);
+                Boolean adult = movie.optBoolean(ADULT, false);
+                String overview = movie.optString(OVERVIEW, NOT_AVAILABLE_FALLBACK);
+                String releaseDate = movie.optString(RELEASE_DATE, NOT_AVAILABLE_FALLBACK);
                 movieObjects.add(new MovieObject(voteCount, id, video, voteAverage, title,
                         popularity, posterPath, originalLanguage, originalTitle, genreIds,
                         backdropPath, adult, overview, releaseDate));
@@ -61,7 +81,7 @@ public class JSONParser {
     }
 
     private static String getURL_Path(String baseImageUrl, String imageSize, String img_signature) {
-        return Uri.parse(baseImageUrl).buildUpon().appendPath(imageSize).appendEncodedPath(img_signature).build().toString();
+        return new StringBuilder(baseImageUrl).append(imageSize).append(img_signature).toString();
     }
 }
 

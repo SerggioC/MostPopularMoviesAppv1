@@ -3,22 +3,17 @@ package com.sergiocruz.mostpopularmovies;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Created by Sergio on 17/02/2018.
+ * Created by Sergio on 19/02/2018.
+ * Creating Parcelable with
+ * http://www.parcelabler.com/
  */
 
 class MovieObject implements Parcelable {
-    public static final Creator<MovieObject> CREATOR = new Creator<MovieObject>() {
-        @Override
-        public MovieObject createFromParcel(Parcel in) {
-            return new MovieObject(in);
-        }
 
-        @Override
-        public MovieObject[] newArray(int size) {
-            return new MovieObject[size];
-        }
-    };
     private Integer vote_count;
     private Integer id;
     private Boolean video;
@@ -28,13 +23,13 @@ class MovieObject implements Parcelable {
     private String poster_path;
     private String original_language;
     private String original_title;
-    private int[] genre_ids;
+    private List<Integer> genre_ids;
     private String backdrop_path;
     private Boolean adult;
     private String overview;
     private String release_date;
 
-    public MovieObject(Integer vote_count, Integer id, Boolean video, Float vote_average, String title, Float popularity, String poster_path, String original_language, String original_title, int[] genre_ids, String backdrop_path, Boolean adult, String overview, String release_date) {
+    public MovieObject(Integer vote_count, Integer id, Boolean video, Float vote_average, String title, Float popularity, String poster_path, String original_language, String original_title, List<Integer> genre_ids, String backdrop_path, Boolean adult, String overview, String release_date) {
         this.vote_count = vote_count;
         this.id = id;
         this.video = video;
@@ -52,62 +47,83 @@ class MovieObject implements Parcelable {
     }
 
     protected MovieObject(Parcel in) {
-        this.vote_count = in.readInt();
-        this.id = in.readInt();
-        this.video = in.readByte() == 1;
-        this.vote_average = in.readFloat();
-        this.title = in.readString();
-        this.popularity = in.readFloat();
-        this.poster_path = in.readString();
-        this.original_language = in.readString();
-        this.original_title = in.readString();
-        in.readIntArray(genre_ids);
-        this.backdrop_path = in.readString();
-        this.adult = in.readByte() == 1;
-        this.overview = in.readString();
-        this.release_date = in.readString();
+        vote_count = in.readByte() == 0x00 ? null : in.readInt();
+        id = in.readByte() == 0x00 ? null : in.readInt();
+        byte videoVal = in.readByte();
+        video = videoVal == 0x02 ? null : videoVal != 0x00;
+        vote_average = in.readByte() == 0x00 ? null : in.readFloat();
+        title = in.readString();
+        popularity = in.readByte() == 0x00 ? null : in.readFloat();
+        poster_path = in.readString();
+        original_language = in.readString();
+        original_title = in.readString();
+        if (in.readByte() == 0x01) {
+            genre_ids = new ArrayList<>();
+            in.readList(genre_ids, Integer.class.getClassLoader());
+        } else {
+            genre_ids = null;
+        }
+        backdrop_path = in.readString();
+        byte adultVal = in.readByte();
+        adult = adultVal == 0x02 ? null : adultVal != 0x00;
+        overview = in.readString();
+        release_date = in.readString();
     }
 
-    /**
-     * Describe the kinds of special objects contained in this Parcelable
-     * instance's marshaled representation. For example, if the object will
-     * include a file descriptor in the output of {@link #writeToParcel(Parcel, int)},
-     * the return value of this method must include the
-     * {@link #CONTENTS_FILE_DESCRIPTOR} bit.
-     *
-     * @return a bitmask indicating the set of special object types marshaled
-     * by this Parcelable object instance.
-     */
     @Override
     public int describeContents() {
         return 0;
     }
 
-    /**
-     * Flatten this object in to a Parcel.
-     *
-     * @param dest  The Parcel in which the object should be written.
-     * @param flags Additional flags about how the object should be written.
-     *              May be 0 or {@link #PARCELABLE_WRITE_RETURN_VALUE}.
-     */
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-
-        dest.writeInt(this.vote_count);
-        dest.writeInt(this.id);
-        dest.writeByte((byte) (this.video ? 1 : 0));
-        dest.writeFloat(this.vote_average);
-        dest.writeString(this.title);
-        dest.writeFloat(this.popularity);
-        dest.writeString(this.poster_path);
-        dest.writeString(this.original_language);
-        dest.writeString(this.original_title);
-        dest.writeIntArray(this.genre_ids);
-        dest.writeString(this.backdrop_path);
-        dest.writeByte((byte) (this.adult ? 1 : 0));
-        dest.writeString(this.overview);
-        dest.writeString(this.release_date);
-
+        if (vote_count == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeInt(vote_count);
+        }
+        if (id == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeInt(id);
+        }
+        if (video == null) {
+            dest.writeByte((byte) (0x02));
+        } else {
+            dest.writeByte((byte) (video ? 0x01 : 0x00));
+        }
+        if (vote_average == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeFloat(vote_average);
+        }
+        dest.writeString(title);
+        if (popularity == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeFloat(popularity);
+        }
+        dest.writeString(poster_path);
+        dest.writeString(original_language);
+        dest.writeString(original_title);
+        if (genre_ids == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(genre_ids);
+        }
+        dest.writeString(backdrop_path);
+        if (adult == null) {
+            dest.writeByte((byte) (0x02));
+        } else {
+            dest.writeByte((byte) (adult ? 0x01 : 0x00));
+        }
+        dest.writeString(overview);
+        dest.writeString(release_date);
     }
 
     public Integer getVote_count() {
@@ -134,10 +150,6 @@ class MovieObject implements Parcelable {
         return popularity;
     }
 
-    public String getPoster_path() {
-        return poster_path;
-    }
-
     public String getOriginal_language() {
         return original_language;
     }
@@ -146,7 +158,7 @@ class MovieObject implements Parcelable {
         return original_title;
     }
 
-    public int[] getGenre_ids() {
+    public List<Integer> getGenre_ids() {
         return genre_ids;
     }
 
@@ -165,25 +177,22 @@ class MovieObject implements Parcelable {
     public String getRelease_date() {
         return release_date;
     }
-}
 
-// example movie data:
-//                 "vote_count":5727,
-//                 "id":211672,
-//                 "video":false,
-//                 "vote_average":6.4,
-//                 "title":"Minions",
-//                 "popularity":599.701427,
-//                 "poster_path":"\/q0R4crx2SehcEEQEkYObktdeFy.jpg",
-//                 "original_language":"en",
-//                 "original_title":"Minions",
-//                 "genre_ids":[
-//                 10751,
-//                 16,
-//                 12,
-//                 35
-//                 ],
-//                 "backdrop_path":"\/qLmdjn2fv0FV2Mh4NBzMArdA0Uu.jpg",
-//                 "adult":false,
-//                 "overview":"Minions Stuart, Kevin and Bob are recruited by Scarlet Overkill, a super-villain who, alongside her inventor husband Herb, hatches a plot to take over the world.",
-//                 "release_date":"2015-06-17
+    public String getPoster_path() {
+        return poster_path;
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<MovieObject> CREATOR = new Parcelable.Creator<MovieObject>() {
+        @Override
+        public MovieObject createFromParcel(Parcel in) {
+            return new MovieObject(in);
+        }
+
+        @Override
+        public MovieObject[] newArray(int size) {
+            return new MovieObject[size];
+        }
+    };
+
+}

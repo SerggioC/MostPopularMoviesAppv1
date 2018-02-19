@@ -22,11 +22,16 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     final private PosterClickListener mPosterClickListener;
     Context mContext;
     private ArrayList<MovieObject> mMovieData;
+    String BASE_IMAGE_URL;
+    String imageSize;
 
     public MovieAdapter(Context context, PosterClickListener mPosterClickListener, ArrayList<MovieObject> movieData) {
         this.mContext = context;
         this.mPosterClickListener = mPosterClickListener;
         this.mMovieData = movieData;
+        this.BASE_IMAGE_URL = context.getString(R.string.base_image_url);
+        String[] imageSizes = context.getResources().getStringArray(R.array.image_sizes);
+        this.imageSize = imageSizes[2];
     }
 
     /**
@@ -78,7 +83,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     @Override
     public void onBindViewHolder(MovieViewHolder holder, int position) {
 
-        String posterPath = mMovieData.get(position).getPoster_path();
+        String posterPath = new StringBuilder(BASE_IMAGE_URL)
+                .append(imageSize)
+                .append(mMovieData.get(position).getPoster_path())
+                .toString();
 
         Glide.with(mContext)
                 .load(posterPath)

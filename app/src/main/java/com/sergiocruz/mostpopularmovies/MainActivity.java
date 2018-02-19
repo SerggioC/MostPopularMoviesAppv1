@@ -39,8 +39,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     public static String themoviedb_POPULAR_MOVIES_PATH;
     public static String themoviedb_TOP_RATED_MOVIES_PATH;
     public static String movieSection;
-    public static String BASE_IMAGE_URL;
-    public static String imageSize;
+
     // "https://api.themoviedb.org/3/movie/popular?api_key=<<api_key>>&language=en-US&page=1"
     // https://api.themoviedb.org/3/movie/top_rated?api_key=<<api_key>>&language=en-US&page=1
 
@@ -78,11 +77,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         themoviedb_MOVIES_PATH = getString(R.string.movie_apth);
         themoviedb_POPULAR_MOVIES_PATH = getString(R.string.popular_path);
         themoviedb_TOP_RATED_MOVIES_PATH = getString(R.string.top_rated_path);
-
-        BASE_IMAGE_URL = getString(R.string.base_image_url);
-        String[] IMAGE_SIZES = getResources().getStringArray(R.array.image_sizes);
-        imageSize = IMAGE_SIZES[2];
-
 
         // To make the App open for last selected section
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -250,12 +244,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     // getNativeAPIKeyV3()
 
     private static class MovieLoader extends AsyncTaskLoader<ArrayList<MovieObject>> {
-        Context context;
         String movieSectionPath; // requested movie section, popular or top rated
 
         MovieLoader(@NonNull Context context, String movieSectionPath) {
             super(context);
-            this.context = context;
             this.movieSectionPath = movieSectionPath;
         }
 
@@ -287,9 +279,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         @Nullable
         @Override
         public ArrayList<MovieObject> loadInBackground() {
-            if (!NetworkUtils.hasActiveNetworkConnection(context)) {
+            if (!NetworkUtils.hasActiveNetworkConnection(this.getContext()))
                 return null;
-            }
 
             // background call to API
             ArrayList<MovieObject> movieObjects;
@@ -301,16 +292,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
                     .appendQueryParameter(LANGUAGE_PARAM, "en-US")
                     .appendQueryParameter(PAGE_PARAM, "1")
                     .build();
+
             Log.i("Sergio>", this + " loadInBackground\nmovie query uri= " + uri);
 
             // "https://api.themoviedb.org/3/movie/popular?api_key=<<api_key>>&language=en-US&page=1"
 
-
             String jsonDataFromAPI = NetworkUtils.getJSONDataFromAPI(uri);
             if (jsonDataFromAPI == null) return null;
 
-
-            movieObjects = JSONParser.parseDataFromJSON(jsonDataFromAPI, BASE_IMAGE_URL, imageSize);
+            movieObjects = JSONParser.parseDataFromJSON(jsonDataFromAPI);
 
             Log.i("Sergio>", this + " loadInBackground\nmovieObjects= " + movieObjects);
 
