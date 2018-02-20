@@ -11,17 +11,11 @@
         app:showAsAction="always"/>
 
     <item
-        android:id="@+id/menu_most_popular"
+        android:title="Sort Options"
+        android:id="@+id/menu_sort_option"
         android:orderInCategory="2"
-        android:icon="@drawable/menu_indicator"
-        android:title="@string/action_most_popular"
-        app:showAsAction="never"/>
+        android:icon="@drawable/ic_tool"
+        app:showAsAction="always"/>
 
-    <item
-        android:id="@+id/menu_highest_rated"
-        android:orderInCategory="3"
-        android:icon="@drawable/menu_indicator"
-        android:title="@string/action_highest_rated"
-        app:showAsAction="never"/>
 
 </menu>

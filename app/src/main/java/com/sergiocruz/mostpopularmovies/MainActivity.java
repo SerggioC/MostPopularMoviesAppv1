@@ -3,6 +3,8 @@ package com.sergiocruz.mostpopularmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -13,8 +15,11 @@ import android.support.v4.content.Loader;
 import android.support.v4.os.OperationCanceledException;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.ListPopupWindow;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -69,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
 
         Bundle bundle = new Bundle(1);
         bundle.putString(LOADER_BUNDLE, movieSection);
+        bundle.putString("buldle2", "");
         getSupportLoaderManager().initLoader(LOADER_ID, bundle, this).startLoading();
 
     }
@@ -104,6 +110,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         return true;
     }
 
+
+
     /**
      * This hook is called whenever an item in your options menu is selected.
      * The default implementation simply returns false to have the normal
@@ -124,6 +132,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     public boolean onOptionsItemSelected(MenuItem item) {
         int menuID = item.getItemId();
         switch (menuID) {
+            case R.id.menu_sort_option: {
+                final View menuItemView = findViewById(R.id.menu_sort_option);
+                onListPopUp(menuItemView);
+                break;
+            }
             case R.id.menu_refresh: {
                 restartLoader(movieSection);
                 break;
@@ -217,9 +230,85 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         loading_indicator.setVisibility(View.VISIBLE);
     }
 
+
     // Source for saving API KEY in Native code
     // https://medium.com/@abhi007tyagi/storing-api-keys-using-android-ndk-6abb0adcadad
     // getNativeAPIKeyV3()
+
+
+
+    public class MenuOptions {
+        private Boolean hasIndicator;
+        private int menuIcon;
+        private String menuText;
+
+        public MenuOptions(Boolean hasIndicator, int menuIcon, String menuText) {
+            this.hasIndicator = hasIndicator;
+            this.menuIcon = menuIcon;
+            this.menuText = menuText;
+        }
+
+        public Boolean getHasIndicator() {
+            return hasIndicator;
+        }
+
+        public int getMenuIcon() {
+            return menuIcon;
+        }
+
+        public String getMenuText() {
+            return menuText;
+        }
+
+    }
+
+    // R.drawable.menu_indicator
+    // https://stackoverflow.com/questions/26775840/custom-actionbar-overflow-menu
+    public void onListPopUp(View anchor) {
+        // This a sample data to fill our ListView
+        ArrayList<MenuOptions> menuOptions = new ArrayList<>(3);
+        menuOptions.add(new MenuOptions(true, R.drawable.menu_indicator, getString(R.string.action_most_popular)));
+        menuOptions.add(new MenuOptions(false, R.drawable.menu_indicator, getString(R.string.action_highest_rated)));
+        menuOptions.add(new MenuOptions(false, R.drawable.menu_indicator, getString(R.string.action_saved_movies)));
+
+        ListPopupWindowAdapter mListPopUpAdapter = new ListPopupWindowAdapter(this, menuOptions);
+
+        //Initialise our ListPopupWindow instance
+        ListPopupWindow listPopupWindow = new ListPopupWindow(this);
+        // Configure ListPopupWindow properties
+        listPopupWindow.setAdapter(mListPopUpAdapter);
+        // Set the view below/above which ListPopupWindow dropdowns
+        listPopupWindow.setAnchorView(anchor);
+        // Setting this enables window to be dismissed by click outside ListPopupWindow
+        listPopupWindow.setModal(true);
+        // Sets the width of the ListPopupWindow
+        //listPopupWindow.setContentWidth(ListPopupWindow.MATCH_PARENT);
+
+        DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
+        int px = (int) (300 * (metrics.densityDpi / 160f));
+
+        listPopupWindow.setContentWidth(px);
+
+        // Sets the Height of the ListPopupWindow
+        listPopupWindow.setHeight(ListPopupWindow.WRAP_CONTENT);
+        // Set up a click listener for the ListView items
+        listPopupWindow.setOnItemClickListener((adapterView, view, position, l) -> {
+            // Dismiss the LisPopupWindow when a list item is clicked
+            listPopupWindow.dismiss();
+            Toast.makeText(MainActivity.this, "Clicked ListPopUp item " +
+                    ((MenuOptions) adapterView.getItemAtPosition(position)).getMenuText(), Toast.LENGTH_LONG).show();
+        });
+        listPopupWindow.show();
+    }
+
+    private int thisWindow() {
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+        int height = size.y;
+        return width;
+    }
 
     private static class MovieLoader extends AsyncTaskLoader<ArrayList<MovieObject>> {
         String movieSectionPath; // requested movie section, popular or top rated
@@ -254,7 +343,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
          * @see #isLoadInBackgroundCanceled
          * @see #cancelLoadInBackground
          * @see #onCanceled
-         *
+         * <p>
          * <Sample urls>
          * https://api.themoviedb.org/3/movie/popular?api_key=<<api_key>>&language=en-US&page=1
          * https://api.themoviedb.org/3/movie/top_rated?api_key=<<api_key>>&language=en-US&page=1
@@ -291,8 +380,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
          */
         @Override
         protected void onStartLoading() {
-            if (!NetworkUtils.hasActiveNetworkConnection(this.getContext()))
+            if (!NetworkUtils.hasActiveNetworkConnection(this.getContext())) {
                 Toast.makeText(getContext(), R.string.no_internet, Toast.LENGTH_SHORT).show();
+                return;
+            }
             if (movieObjectArrayList != null) {
                 // Delivers any previously loaded data immediately
                 deliverResult(movieObjectArrayList);
@@ -315,4 +406,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
             super.deliverResult(data);
         }
     }
+
+
 }
