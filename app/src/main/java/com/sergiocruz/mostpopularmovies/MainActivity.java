@@ -33,28 +33,24 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     public static final String LOADER_BUNDLE = "movie_loader_bundle";
     public static final int LOADER_ID = 1;
     public static final String INTENT_MOVIE_EXTRA = "intent_movie_extra";
-    public static final int GRID_SPAN_COUNT = 2;
     public static String themoviedb_BASE_API_URL_V3;
     public static String themoviedb_MOVIES_PATH;
     public static String themoviedb_POPULAR_MOVIES_PATH;
     public static String themoviedb_TOP_RATED_MOVIES_PATH;
     public static String movieSection;
 
-    // "https://api.themoviedb.org/3/movie/popular?api_key=<<api_key>>&language=en-US&page=1"
-    // https://api.themoviedb.org/3/movie/top_rated?api_key=<<api_key>>&language=en-US&page=1
-
     // used for C++ JNI method calls
     static {
         System.loadLibrary("keys");
     }
 
-    private ArrayList<MovieObject> movieObjectArrayList = new ArrayList<>();
     private MovieAdapter movieAdapter;
     private ProgressBar loading_indicator;
     private RecyclerView gridRecyclerView;
 
     public static native String getNativeAPIKeyV3();
 
+    // Unused key
     public static native String getNativeAPIKeyV4();
 
     @Override
@@ -64,9 +60,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
 
         gridRecyclerView = findViewById(R.id.recyclergridview);
         gridRecyclerView.setHasFixedSize(true);
-        GridLayoutManager manager = new GridLayoutManager(getApplicationContext(), GRID_SPAN_COUNT, VERTICAL, false);
+        GridLayoutManager manager = new GridLayoutManager(this, getResources().getInteger(R.integer.grid_span_count), VERTICAL, false);
         gridRecyclerView.setLayoutManager(manager);
-        movieAdapter = new MovieAdapter(this, this, movieObjectArrayList);
+        movieAdapter = new MovieAdapter(this, this);
         gridRecyclerView.setAdapter(movieAdapter);
 
 
@@ -86,13 +82,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         bundle.putString(LOADER_BUNDLE, movieSection);
         getSupportLoaderManager().initLoader(LOADER_ID, bundle, this).startLoading();
 
-
     }
 
     /**
      * Initialize the contents of the Activity's standard options menu.  You
      * should place your menu items in to <var>menu</var>.
-     * <p>
      * <p>This is only called once, the first time the options menu is
      * displayed.  To update the menu every time it is displayed, see
      * {@link #onPrepareOptionsMenu}.
@@ -120,7 +114,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-
 
     /**
      * This hook is called whenever an item in your options menu is selected.
@@ -170,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     }
 
     private void saveMovieSectionPreference(String section) {
+        movieSection = section;
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPrefs.edit().putString(this.getString(R.string.movie_section_key), section).apply();
     }
@@ -183,10 +177,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     }
 
     @Override
-    public void onPosterClicked(int position) {
+    public void onPosterClicked(MovieObject movie) {
         Intent detailsIntent = new Intent(MainActivity.this, DetailsActivity.class);
-        detailsIntent.putExtra(INTENT_MOVIE_EXTRA, movieObjectArrayList.get(position));
-
+        detailsIntent.putExtra(INTENT_MOVIE_EXTRA, movie);
         startActivity(detailsIntent);
     }
 
@@ -201,17 +194,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     public Loader<ArrayList<MovieObject>> onCreateLoader(int id, Bundle args) {
         String section = args.getString(LOADER_BUNDLE);
         MovieLoader movieloader = new MovieLoader(getApplicationContext(), section);
-        movieloader.forceLoad();
+        // forceLoad overridden in onStartLoading
+        //movieloader.forceLoad();
         return movieloader;
     }
-
 
     @Override
     public void onLoadFinished(Loader<ArrayList<MovieObject>> loader, ArrayList<MovieObject> data) {
         movieAdapter.swapMovieData(data);
-        //if (data.size() != 0) showDataView();
         showDataView();
-        movieObjectArrayList = data;
     }
 
     /**
@@ -224,7 +215,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     @Override
     public void onLoaderReset(Loader<ArrayList<MovieObject>> loader) {
         movieAdapter.swapMovieData(null);
-
     }
 
 
@@ -245,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
 
     private static class MovieLoader extends AsyncTaskLoader<ArrayList<MovieObject>> {
         String movieSectionPath; // requested movie section, popular or top rated
+        private ArrayList<MovieObject> movieObjectArrayList = null;
 
         MovieLoader(@NonNull Context context, String movieSectionPath) {
             super(context);
@@ -275,6 +266,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
          * @see #isLoadInBackgroundCanceled
          * @see #cancelLoadInBackground
          * @see #onCanceled
+         *
+         * <Sample urls>
+         * https://api.themoviedb.org/3/movie/popular?api_key=<<api_key>>&language=en-US&page=1
+         * https://api.themoviedb.org/3/movie/top_rated?api_key=<<api_key>>&language=en-US&page=1
          */
         @Nullable
         @Override
@@ -295,7 +290,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
 
             Log.i("Sergio>", this + " loadInBackground\nmovie query uri= " + uri);
 
-            // "https://api.themoviedb.org/3/movie/popular?api_key=<<api_key>>&language=en-US&page=1"
 
             String jsonDataFromAPI = NetworkUtils.getJSONDataFromAPI(uri);
             if (jsonDataFromAPI == null) return null;
@@ -307,6 +301,33 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
             return movieObjects;
         }
 
+        /**
+         * Subclasses must implement this to take care of loading their data,
+         * as per {@link #startLoading()}.  This is not called by clients directly,
+         * but as a result of a call to {@link #startLoading()}.
+         */
+        @Override
+        protected void onStartLoading() {
+            if (movieObjectArrayList != null) {
+                // Delivers any previously loaded data immediately
+                deliverResult(movieObjectArrayList);
+            } else {
+                // Force a new load
+                forceLoad();
+            }
+        }
 
+        /**
+         * Sends the result of the load to the registered listener. Should only be called by subclasses.
+         * <p>
+         * Must be called from the process's main thread.
+         *
+         * @param data the result of the load
+         */
+        @Override
+        public void deliverResult(@Nullable ArrayList<MovieObject> data) {
+            movieObjectArrayList = data;
+            super.deliverResult(data);
+        }
     }
 }

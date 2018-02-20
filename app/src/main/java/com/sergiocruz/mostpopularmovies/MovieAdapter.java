@@ -25,10 +25,9 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     String BASE_IMAGE_URL;
     String imageSize;
 
-    public MovieAdapter(Context context, PosterClickListener mPosterClickListener, ArrayList<MovieObject> movieData) {
+    public MovieAdapter(Context context, PosterClickListener mPosterClickListener) {
         this.mContext = context;
         this.mPosterClickListener = mPosterClickListener;
-        this.mMovieData = movieData;
         this.BASE_IMAGE_URL = context.getString(R.string.base_image_url);
         String[] imageSizes = context.getResources().getStringArray(R.array.image_sizes);
         this.imageSize = imageSizes[2];
@@ -90,23 +89,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
         Glide.with(mContext)
                 .load(posterPath)
-                .into(holder.posterImageView)
-//                .getSize(new SizeReadyCallback() {
-//                    /**
-//                     * A callback called on the main thread.
-//                     *
-//                     * @param width  The width in pixels of the target, or {@link Target#SIZE_ORIGINAL} to indicate
-//                     *               that we want the resource at its original width.
-//                     * @param height The height in pixels of the target, or {@link Target#SIZE_ORIGINAL} to indicate
-//                     */
-//                    @Override
-//                    public void onSizeReady(int width, int height) {
-//                        holder.posterImageView.setMinimumWidth(width);
-//                        holder.posterImageView.setMinimumHeight(height);
-//                    }
-//                })
-                //.onLoadFailed(ContextCompat.getDrawable(mContext, R.drawable.noimage))
-        ;
+                .into(holder.posterImageView);
 
         Log.i("Sergio>", this + " onBindViewHolder\nposterPath= " + posterPath);
     }
@@ -135,7 +118,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     }
 
     interface PosterClickListener {
-        void onPosterClicked(int position);
+        void onPosterClicked(MovieObject movie);
     }
 
     class MovieViewHolder extends RecyclerView.ViewHolder {
@@ -146,7 +129,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
             posterImageView = itemView.findViewById(R.id.movie_poster);
             posterImageView.setOnClickListener(v -> {
                 int clickedPosition = getAdapterPosition();
-                mPosterClickListener.onPosterClicked(clickedPosition);
+                mPosterClickListener.onPosterClicked(mMovieData.get(clickedPosition));
             });
         }
     }

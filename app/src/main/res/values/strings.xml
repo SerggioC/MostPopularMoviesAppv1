@@ -12,6 +12,8 @@
     <string name="base_image_url">http://image.tmdb.org/t/p/</string>
     <string name="base_api_url_v3">https://api.themoviedb.org/3/</string>
     <string name="tools_movie_title">Very Cool And Very Long Movie Title 2018</string>
+    <string name="no_movie_data">Error, no movie info.</string>
+    <string name="indicating">Indicating</string>
 
     // themoviedb image sizes "w92", "w154", "w185", "w342", "w500", "w780", or "original".
     <string-array name="image_sizes">

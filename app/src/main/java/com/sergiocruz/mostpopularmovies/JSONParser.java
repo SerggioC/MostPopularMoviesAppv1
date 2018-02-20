@@ -11,28 +11,28 @@ import java.util.List;
  * Created by Sergio on 18/02/2018.
  */
 
-public class JSONParser {
+class JSONParser {
 
     // JSON key names
-    public static final String RESULTS = "results";
-    public static final String VOTE_COUNT = "vote_count";
-    public static final String ID = "id";
-    public static final String VIDEO = "video";
-    public static final String VOTE_AVERAGE = "vote_average";
-    public static final String TITLE = "title";
-    public static final String POPULARITY = "popularity";
-    public static final String ORIGINAL_LANGUAGE = "original_language";
-    public static final String POSTER_PATH = "poster_path";
-    public static final String ORIGINAL_TITLE = "original_title";
-    public static final String GENRE_IDS = "genre_ids";
-    public static final String BACKDROP_PATH = "backdrop_path";
-    public static final String ADULT = "adult";
-    public static final String OVERVIEW = "overview";
-    public static final String RELEASE_DATE = "release_date";
-    public static final String NOT_AVAILABLE_FALLBACK = "(N/A)";
-    public static final String NO_LANGUAGE_FALLBACK = "en-US";
+    private static final String RESULTS = "results";
+    private static final String VOTE_COUNT = "vote_count";
+    private static final String ID = "id";
+    private static final String VIDEO = "video";
+    private static final String VOTE_AVERAGE = "vote_average";
+    private static final String TITLE = "title";
+    private static final String POPULARITY = "popularity";
+    private static final String ORIGINAL_LANGUAGE = "original_language";
+    private static final String POSTER_PATH = "poster_path";
+    private static final String ORIGINAL_TITLE = "original_title";
+    private static final String GENRE_IDS = "genre_ids";
+    private static final String BACKDROP_PATH = "backdrop_path";
+    private static final String ADULT = "adult";
+    private static final String OVERVIEW = "overview";
+    private static final String RELEASE_DATE = "release_date";
+    private static final String NOT_AVAILABLE_FALLBACK = "(N/A)";
+    private static final String NO_LANGUAGE_FALLBACK = "en-US";
 
-    public static ArrayList<MovieObject> parseDataFromJSON(String jsonDataFromAPI) {
+    static ArrayList<MovieObject> parseDataFromJSON(String jsonDataFromAPI) {
         ArrayList<MovieObject> movieObjects = new ArrayList<>();
         try {
             JSONObject jsonData = new JSONObject(jsonDataFromAPI);
@@ -80,9 +80,6 @@ public class JSONParser {
         return movieObjects;
     }
 
-    private static String getURL_Path(String baseImageUrl, String imageSize, String img_signature) {
-        return new StringBuilder(baseImageUrl).append(imageSize).append(img_signature).toString();
-    }
 }
 
 

@@ -72,7 +72,7 @@ public class DetailsActivity extends AppCompatActivity {
 
     private void closeNoData() {
         finish();
-        Toast.makeText(this, "Error, no movie info.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.no_movie_data, Toast.LENGTH_SHORT).show();
     }
 
     @Override

@@ -29,7 +29,7 @@ class MovieObject implements Parcelable {
     private String overview;
     private String release_date;
 
-    public MovieObject(Integer vote_count, Integer id, Boolean video, Float vote_average, String title, Float popularity, String poster_path, String original_language, String original_title, List<Integer> genre_ids, String backdrop_path, Boolean adult, String overview, String release_date) {
+    MovieObject(Integer vote_count, Integer id, Boolean video, Float vote_average, String title, Float popularity, String poster_path, String original_language, String original_title, List<Integer> genre_ids, String backdrop_path, Boolean adult, String overview, String release_date) {
         this.vote_count = vote_count;
         this.id = id;
         this.video = video;
@@ -46,7 +46,7 @@ class MovieObject implements Parcelable {
         this.release_date = release_date;
     }
 
-    protected MovieObject(Parcel in) {
+    MovieObject(Parcel in) {
         vote_count = in.readByte() == 0x00 ? null : in.readInt();
         id = in.readByte() == 0x00 ? null : in.readInt();
         byte videoVal = in.readByte();
@@ -126,59 +126,59 @@ class MovieObject implements Parcelable {
         dest.writeString(release_date);
     }
 
-    public Integer getVote_count() {
+    Integer getVote_count() {
         return vote_count;
     }
 
-    public Integer getId() {
+    Integer getId() {
         return id;
     }
 
-    public Boolean getVideo() {
+    Boolean getVideo() {
         return video;
     }
 
-    public Float getVote_average() {
+    Float getVote_average() {
         return vote_average;
     }
 
-    public String getTitle() {
+    String getTitle() {
         return title;
     }
 
-    public Float getPopularity() {
+    Float getPopularity() {
         return popularity;
     }
 
-    public String getOriginal_language() {
+    String getOriginal_language() {
         return original_language;
     }
 
-    public String getOriginal_title() {
+    String getOriginal_title() {
         return original_title;
     }
 
-    public List<Integer> getGenre_ids() {
+    List<Integer> getGenre_ids() {
         return genre_ids;
     }
 
-    public String getBackdrop_path() {
+    String getBackdrop_path() {
         return backdrop_path;
     }
 
-    public Boolean getAdult() {
+    Boolean getAdult() {
         return adult;
     }
 
-    public String getOverview() {
+    String getOverview() {
         return overview;
     }
 
-    public String getRelease_date() {
+    String getRelease_date() {
         return release_date;
     }
 
-    public String getPoster_path() {
+    String getPoster_path() {
         return poster_path;
     }
 
