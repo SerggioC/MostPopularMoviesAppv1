@@ -4,5 +4,6 @@
     android:id="@+id/movie_poster"
     android:layout_width="185dp"
     android:layout_height="277dp"
+    android:adjustViewBounds="true"
     android:contentDescription="@string/movie_poster"/>
 

@@ -114,7 +114,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
      */
     @Override
     public int getItemCount() {
-        return mMovieData.size();
+        return mMovieData == null ? 0 : mMovieData.size();
     }
 
     interface PosterClickListener {

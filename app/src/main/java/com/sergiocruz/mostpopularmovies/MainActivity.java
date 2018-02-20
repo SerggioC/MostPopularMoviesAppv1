@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -38,20 +39,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     public static String themoviedb_POPULAR_MOVIES_PATH;
     public static String themoviedb_TOP_RATED_MOVIES_PATH;
     public static String movieSection;
-
-    // used for C++ JNI method calls
-    static {
-        System.loadLibrary("keys");
-    }
-
     private MovieAdapter movieAdapter;
     private ProgressBar loading_indicator;
     private RecyclerView gridRecyclerView;
-
-    public static native String getNativeAPIKeyV3();
-
-    // Unused key
-    public static native String getNativeAPIKeyV4();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +55,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         movieAdapter = new MovieAdapter(this, this);
         gridRecyclerView.setAdapter(movieAdapter);
 
-
         loading_indicator = findViewById(R.id.loading_indicator);
         showLoadingView();
 
@@ -74,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         themoviedb_POPULAR_MOVIES_PATH = getString(R.string.popular_path);
         themoviedb_TOP_RATED_MOVIES_PATH = getString(R.string.top_rated_path);
 
-        // To make the App open for last selected section
+        // To make the App open in the last selected section
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         movieSection = sharedPrefs.getString(getString(R.string.movie_section_key), themoviedb_POPULAR_MOVIES_PATH);
 
@@ -228,7 +217,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         loading_indicator.setVisibility(View.VISIBLE);
     }
 
-
     // Source for saving API KEY in Native code
     // https://medium.com/@abhi007tyagi/storing-api-keys-using-android-ndk-6abb0adcadad
     // getNativeAPIKeyV3()
@@ -274,22 +262,17 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         @Nullable
         @Override
         public ArrayList<MovieObject> loadInBackground() {
-            if (!NetworkUtils.hasActiveNetworkConnection(this.getContext()))
-                return null;
-
-            // background call to API
             ArrayList<MovieObject> movieObjects;
 
             Uri uri = Uri.parse(themoviedb_BASE_API_URL_V3).buildUpon()
                     .appendPath(themoviedb_MOVIES_PATH)
                     .appendPath(movieSectionPath)
-                    .appendQueryParameter(API_KEY_PARAM, getNativeAPIKeyV3())
+                    .appendQueryParameter(API_KEY_PARAM, BuildConfig.THEMOVIEDB_API_KEY_V3)
                     .appendQueryParameter(LANGUAGE_PARAM, "en-US")
                     .appendQueryParameter(PAGE_PARAM, "1")
                     .build();
 
             Log.i("Sergio>", this + " loadInBackground\nmovie query uri= " + uri);
-
 
             String jsonDataFromAPI = NetworkUtils.getJSONDataFromAPI(uri);
             if (jsonDataFromAPI == null) return null;
@@ -308,6 +291,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
          */
         @Override
         protected void onStartLoading() {
+            if (!NetworkUtils.hasActiveNetworkConnection(this.getContext()))
+                Toast.makeText(getContext(), R.string.no_internet, Toast.LENGTH_SHORT).show();
             if (movieObjectArrayList != null) {
                 // Delivers any previously loaded data immediately
                 deliverResult(movieObjectArrayList);

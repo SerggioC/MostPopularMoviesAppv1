@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide;
 import static com.sergiocruz.mostpopularmovies.MainActivity.INTENT_MOVIE_EXTRA;
 
 public class DetailsActivity extends AppCompatActivity {
+    Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +31,8 @@ public class DetailsActivity extends AppCompatActivity {
 //                actionBar.setElevation(4);
 //            }
         }
+        context = getApplicationContext();
+
 
         // Intent that started this activity
         Intent intent = getIntent();
@@ -44,6 +47,11 @@ public class DetailsActivity extends AppCompatActivity {
             return;
         }
 
+        if (!NetworkUtils.hasActiveNetworkConnection(context)) {
+            Toast.makeText(context, R.string.no_internet, Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
         Log.i("Sergio>", this + " onCreate\nmoviedata= " + data);
 
         populateUI(data);
@@ -51,7 +59,6 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
     private void populateUI(MovieObject movieData) {
-        Context context = getApplicationContext();
         String baseImageUrl = context.getString(R.string.base_image_url);
         String[] imageSizes = context.getResources().getStringArray(R.array.image_sizes);
         String imageSize = imageSizes[0]; // "w92" thumbnail

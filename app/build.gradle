@@ -12,6 +12,7 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
+
     buildTypes {
         release {
             minifyEnabled true
@@ -24,12 +25,13 @@ android {
             buildConfigField "boolean", "LOG", "true"
         }
 
-        externalNativeBuild {
-            ndkBuild {
-                path 'src/main/jni/Android.mk'
-            }
-        }
     }
+
+    buildTypes.each{
+        it.buildConfigField 'String', 'THEMOVIEDB_API_KEY_V3', TheMovieDBAPIKeyV3
+        it.buildConfigField 'String', 'THEMOVIEDB_API_KEY_V4', TheMovieDBAPIKeyV4
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
