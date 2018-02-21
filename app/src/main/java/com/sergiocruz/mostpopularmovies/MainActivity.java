@@ -269,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         ArrayList<MenuOptions> menuOptions = new ArrayList<>(3);
         menuOptions.add(new MenuOptions(true, R.drawable.menu_indicator, getString(R.string.action_most_popular)));
         menuOptions.add(new MenuOptions(false, R.drawable.menu_indicator, getString(R.string.action_highest_rated)));
-        menuOptions.add(new MenuOptions(false, R.drawable.menu_indicator, getString(R.string.action_saved_movies)));
+        menuOptions.add(new MenuOptions(false, R.drawable.ic_favourite, getString(R.string.action_saved_movies)));
 
         ListPopupWindowAdapter mListPopUpAdapter = new ListPopupWindowAdapter(this, menuOptions);
 
@@ -282,8 +282,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         // Setting this enables window to be dismissed by click outside ListPopupWindow
         listPopupWindow.setModal(true);
         // Sets the width of the ListPopupWindow
-        //listPopupWindow.setContentWidth(ListPopupWindow.MATCH_PARENT);
-
         DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
         int px = (int) (300 * (metrics.densityDpi / 160f));
 
@@ -291,6 +289,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
 
         // Sets the Height of the ListPopupWindow
         listPopupWindow.setHeight(ListPopupWindow.WRAP_CONTENT);
+
+        listPopupWindow.setVerticalOffset(0);
+        listPopupWindow.setHorizontalOffset(50);
+
         // Set up a click listener for the ListView items
         listPopupWindow.setOnItemClickListener((adapterView, view, position, l) -> {
             // Dismiss the LisPopupWindow when a list item is clicked
