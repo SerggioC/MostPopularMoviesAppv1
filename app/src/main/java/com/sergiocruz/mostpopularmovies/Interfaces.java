@@ -15,4 +15,5 @@ public class Interfaces {
     interface OnInternetOffInterface {
         void onInternetOff();
     }
+
 }

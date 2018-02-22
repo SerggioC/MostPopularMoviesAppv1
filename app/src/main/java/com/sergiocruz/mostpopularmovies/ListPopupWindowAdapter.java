@@ -5,7 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -32,16 +32,16 @@ public class ListPopupWindowAdapter extends BaseAdapter {
         //Layout for the top row with profile picture /Avatar
         convertView = inflater.inflate(R.layout.custom_menu_item_layout, parent, false);
 
-        ImageView menu_indicator = convertView.findViewById(R.id.menu_image_indicator);
+        RadioButton menu_indicator = convertView.findViewById(R.id.radio_popular);
         if (hasMenuIndicator) {
-            menu_indicator.setImageResource(R.drawable.menu_indicator);
+            menu_indicator.setChecked(true);
         } else {
-            menu_indicator.setImageResource(0);
+            menu_indicator.setChecked(true);
         }
-        ImageView menu_icon = convertView.findViewById(R.id.menu_icon);
-        menu_icon.setImageResource(menuOptions.get(position).getMenuIcon());
+        RadioButton menu_icon = convertView.findViewById(R.id.radio_popular);
+        menu_icon.setChecked(true);
 
-        TextView menuTextView = convertView.findViewById(R.id.menu_textView);
+        TextView menuTextView = convertView.findViewById(R.id.menu_textView_0);
         menuTextView.setText(menuOptions.get(position).getMenuText());
 
         return convertView;

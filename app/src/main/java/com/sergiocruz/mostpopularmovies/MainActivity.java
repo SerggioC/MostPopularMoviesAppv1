@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -20,9 +21,12 @@ import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -44,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     public static String themoviedb_POPULAR_MOVIES_PATH;
     public static String themoviedb_TOP_RATED_MOVIES_PATH;
     public static String movieSection;
+    PopupWindow popupWindow;
     private MovieAdapter movieAdapter;
     private ProgressBar loading_indicator;
     private RecyclerView gridRecyclerView;
@@ -52,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         gridRecyclerView = findViewById(R.id.recyclergridview);
         gridRecyclerView.setHasFixedSize(true);
         GridLayoutManager manager = new GridLayoutManager(this, getResources().getInteger(R.integer.grid_span_count), VERTICAL, false);
@@ -110,7 +114,23 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         return true;
     }
 
+    /**
+     * Take care of popping the fragment back stack or finishing the activity
+     * as appropriate.
+     */
+    @Override
+    public void onBackPressed() {
+        if (popupWindow != null) {
+            if (popupWindow.isShowing()) {
+                popupWindow.dismiss();
+            } else {
+                super.onBackPressed();
+            }
+        } else {
+            super.onBackPressed();
+        }
 
+    }
 
     /**
      * This hook is called whenever an item in your options menu is selected.
@@ -132,9 +152,17 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     public boolean onOptionsItemSelected(MenuItem item) {
         int menuID = item.getItemId();
         switch (menuID) {
-            case R.id.menu_sort_option: {
-                final View menuItemView = findViewById(R.id.menu_sort_option);
-                onListPopUp(menuItemView);
+            case R.id.overflow_menu: {
+                View menuItemView = findViewById(R.id.overflow_menu);
+
+                if (popupWindow == null) {
+                    onOverFlowMenuClick(menuItemView);
+                } else if (popupWindow.isShowing()) {
+                    popupWindow.dismiss();
+                } else {
+                    onOverFlowMenuClick(menuItemView);
+                }
+
                 break;
             }
             case R.id.menu_refresh: {
@@ -152,6 +180,36 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void onOverFlowMenuClick(View menuItemView) {
+
+        LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final View popupLayout = layoutInflater.inflate(R.layout.custom_menu_item_layout, null);
+
+        popupWindow = new PopupWindow(
+                popupLayout,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+
+            }
+        });
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            popupWindow.setElevation(8);
+        }
+        popupWindow.setAnimationStyle(2);
+        popupWindow.showAsDropDown(menuItemView, -getPxFromDp(64), 0);
+
+    }
+
+    private final int getPxFromDp(int pixels) {
+        DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
+        return (int) (pixels * (metrics.densityDpi / 160f));
     }
 
     private void loadMostPopular() {
@@ -219,15 +277,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         movieAdapter.swapMovieData(null);
     }
 
-
     private void showDataView() {
         gridRecyclerView.setVisibility(View.VISIBLE);
         loading_indicator.setVisibility(View.GONE);
-    }
-
-    private void showLoadingView() {
-        gridRecyclerView.setVisibility(View.GONE);
-        loading_indicator.setVisibility(View.VISIBLE);
     }
 
 
@@ -235,36 +287,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     // https://medium.com/@abhi007tyagi/storing-api-keys-using-android-ndk-6abb0adcadad
     // getNativeAPIKeyV3()
 
-
-
-    public class MenuOptions {
-        private Boolean hasIndicator;
-        private int menuIcon;
-        private String menuText;
-
-        public MenuOptions(Boolean hasIndicator, int menuIcon, String menuText) {
-            this.hasIndicator = hasIndicator;
-            this.menuIcon = menuIcon;
-            this.menuText = menuText;
-        }
-
-        public Boolean getHasIndicator() {
-            return hasIndicator;
-        }
-
-        public int getMenuIcon() {
-            return menuIcon;
-        }
-
-        public String getMenuText() {
-            return menuText;
-        }
-
+    private void showLoadingView() {
+        gridRecyclerView.setVisibility(View.GONE);
+        loading_indicator.setVisibility(View.VISIBLE);
     }
 
     // R.drawable.menu_indicator
     // https://stackoverflow.com/questions/26775840/custom-actionbar-overflow-menu
-    public void onListPopUp(View anchor) {
+    public void onOverFlowMenuClickListPopupWindow(View anchor) {
         // This a sample data to fill our ListView
         ArrayList<MenuOptions> menuOptions = new ArrayList<>(3);
         menuOptions.add(new MenuOptions(true, R.drawable.menu_indicator, getString(R.string.action_most_popular)));
@@ -282,16 +312,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         // Setting this enables window to be dismissed by click outside ListPopupWindow
         listPopupWindow.setModal(true);
         // Sets the width of the ListPopupWindow
-        DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
-        int px = (int) (300 * (metrics.densityDpi / 160f));
-
-        listPopupWindow.setContentWidth(px);
+        listPopupWindow.setContentWidth(getPxFromDp(300));
 
         // Sets the Height of the ListPopupWindow
         listPopupWindow.setHeight(ListPopupWindow.WRAP_CONTENT);
 
         listPopupWindow.setVerticalOffset(0);
-        listPopupWindow.setHorizontalOffset(50);
+        listPopupWindow.setHorizontalOffset(getPxFromDp(50));
 
         // Set up a click listener for the ListView items
         listPopupWindow.setOnItemClickListener((adapterView, view, position, l) -> {
@@ -303,13 +330,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         listPopupWindow.show();
     }
 
-    private int thisWindow() {
+    private Point getWindowSizeXY() {
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
         int width = size.x;
         int height = size.y;
-        return width;
+        return size;
     }
 
     private static class MovieLoader extends AsyncTaskLoader<ArrayList<MovieObject>> {
@@ -407,6 +434,31 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
             movieObjectArrayList = data;
             super.deliverResult(data);
         }
+    }
+
+    public class MenuOptions {
+        private Boolean hasIndicator;
+        private int menuIcon;
+        private String menuText;
+
+        public MenuOptions(Boolean hasIndicator, int menuIcon, String menuText) {
+            this.hasIndicator = hasIndicator;
+            this.menuIcon = menuIcon;
+            this.menuText = menuText;
+        }
+
+        public Boolean getHasIndicator() {
+            return hasIndicator;
+        }
+
+        public int getMenuIcon() {
+            return menuIcon;
+        }
+
+        public String getMenuText() {
+            return menuText;
+        }
+
     }
 
 

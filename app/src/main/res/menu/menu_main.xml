@@ -12,9 +12,9 @@
 
     <item
         android:title="Sort Options"
-        android:id="@+id/menu_sort_option"
+        android:id="@+id/overflow_menu"
         android:orderInCategory="2"
-        android:icon="@drawable/ic_tool"
+        android:icon="@drawable/ic_three_dots"
         app:showAsAction="always"/>
 
 
