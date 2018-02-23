@@ -14,22 +14,23 @@
         android:layout_height="wrap_content"
         android:layout_gravity="right"
         android:orientation="horizontal"
-        android:padding="8dp"
-        android:paddingBottom="4dp"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
-        android:paddingTop="4dp">
+        android:paddingBottom="8dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="12dp"
+        android:paddingTop="8dp">
 
         <RadioGroup
-            android:id="@+id/radioGroup2"
+            android:id="@+id/radioGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:checkedButton="@id/radio_popular"
             android:orientation="vertical">
 
             <RadioButton
                 android:id="@+id/radio_popular"
                 android:layout_width="32dp"
-                android:layout_height="32dp"/>
+                android:layout_height="32dp"
+                android:checked="true"/>
 
             <RadioButton
                 android:id="@+id/radio_top_rated"
@@ -41,7 +42,6 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"/>
 
-
         </RadioGroup>
 
         <LinearLayout
@@ -51,32 +51,34 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/menu_textView_0"
+                android:id="@+id/menu_textView_popular"
                 android:layout_width="wrap_content"
                 android:layout_height="32dp"
                 android:drawableLeft="@drawable/ic_popular"
+                android:drawablePadding="4dp"
                 android:gravity="center_vertical"
-
                 android:text="@string/action_most_popular"
                 android:textColor="@android:color/white"
                 android:textSize="16sp"/>
 
 
             <TextView
-                android:id="@+id/menu_textView_1"
+                android:id="@+id/menu_textView_top_rated"
                 android:layout_width="match_parent"
                 android:layout_height="32dp"
                 android:drawableLeft="@drawable/ic_top_rated"
+                android:drawablePadding="4dp"
                 android:gravity="center_vertical"
                 android:text="@string/action_highest_rated"
                 android:textColor="@android:color/white"
                 android:textSize="16sp"/>
 
             <TextView
-                android:id="@+id/menu_textView_2"
+                android:id="@+id/menu_textView_favourite"
                 android:layout_width="wrap_content"
                 android:layout_height="32dp"
                 android:drawableLeft="@drawable/ic_favourite2"
+                android:drawablePadding="4dp"
                 android:gravity="center_vertical"
                 android:text="@string/action_saved_movies"
                 android:textColor="@android:color/white"

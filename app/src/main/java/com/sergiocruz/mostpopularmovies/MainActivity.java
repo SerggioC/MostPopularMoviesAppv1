@@ -28,6 +28,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -52,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     private MovieAdapter movieAdapter;
     private ProgressBar loading_indicator;
     private RecyclerView gridRecyclerView;
+    public int selectedRadioId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,10 +78,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         // To make the App open in the last selected section
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         movieSection = sharedPrefs.getString(getString(R.string.movie_section_key), themoviedb_POPULAR_MOVIES_PATH);
+        selectedRadioId = sharedPrefs.getInt(getString(R.string.radio_selected_key), R.id.radio_popular);
 
         Bundle bundle = new Bundle(1);
         bundle.putString(LOADER_BUNDLE, movieSection);
-        bundle.putString("buldle2", "");
+        bundle.putString("buldle2", "nadanaçafoga ehehehe");
         getSupportLoaderManager().initLoader(LOADER_ID, bundle, this).startLoading();
 
     }
@@ -183,7 +187,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     }
 
     private void onOverFlowMenuClick(View menuItemView) {
-
         LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View popupLayout = layoutInflater.inflate(R.layout.custom_menu_item_layout, null);
 
@@ -202,9 +205,48 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             popupWindow.setElevation(8);
         }
+
         popupWindow.setAnimationStyle(2);
         popupWindow.showAsDropDown(menuItemView, -getPxFromDp(64), 0);
 
+        RadioGroup radioGroup = popupLayout.findViewById(R.id.radioGroup);
+        setRadioSelection(radioGroup, selectedRadioId, false);
+
+        RadioButton radioPopular = popupLayout.findViewById(R.id.radio_popular);
+        View.OnClickListener radioPopularListener = v -> {
+            loadMostPopular();
+            setRadioSelection(radioGroup, R.id.radio_popular, true);
+        };
+        radioPopular.setOnClickListener(radioPopularListener);
+        popupLayout.findViewById(R.id.menu_textView_popular).setOnClickListener(radioPopularListener);
+
+        RadioButton radioButtonTopRated = popupLayout.findViewById(R.id.radio_top_rated);
+        View.OnClickListener radio_top_rated = v -> {
+            loadHighestRated();
+            setRadioSelection(radioGroup, R.id.radio_top_rated, true);
+        };
+        radioButtonTopRated.setOnClickListener(radio_top_rated);
+        popupLayout.findViewById(R.id.menu_textView_top_rated).setOnClickListener(radio_top_rated);
+
+        RadioButton radioButtonFavourite = popupLayout.findViewById(R.id.radio_favourite);
+        View.OnClickListener radio_favourite = v -> {
+            loadFavouriteMovies();
+            setRadioSelection(radioGroup, R.id.radio_favourite, true);
+        };
+        radioButtonFavourite.setOnClickListener(radio_favourite);
+        popupLayout.findViewById(R.id.menu_textView_favourite).setOnClickListener(radio_favourite);
+
+    }
+
+    private void setRadioSelection(RadioGroup radioGroup, int radioId, boolean dismiss) {
+        radioGroup.clearCheck();
+        radioGroup.check(radioId);
+        selectedRadioId = radioId;
+        if (dismiss) popupWindow.dismiss();
+    }
+
+    private void loadFavouriteMovies() {
+        selectedRadioId = R.id.radio_favourite;
     }
 
     private final int getPxFromDp(int pixels) {
@@ -214,18 +256,20 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
 
     private void loadMostPopular() {
         restartLoader(themoviedb_POPULAR_MOVIES_PATH);
-        saveMovieSectionPreference(themoviedb_POPULAR_MOVIES_PATH);
+        saveMovieSectionPreference(themoviedb_POPULAR_MOVIES_PATH, R.id.radio_popular);
     }
 
     private void loadHighestRated() {
         restartLoader(themoviedb_TOP_RATED_MOVIES_PATH);
-        saveMovieSectionPreference(themoviedb_TOP_RATED_MOVIES_PATH);
+        saveMovieSectionPreference(themoviedb_TOP_RATED_MOVIES_PATH, R.id.radio_top_rated);
     }
 
-    private void saveMovieSectionPreference(String section) {
+    private void saveMovieSectionPreference(String section, int radioId) {
+        selectedRadioId = radioId;
         movieSection = section;
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPrefs.edit().putString(this.getString(R.string.movie_section_key), section).apply();
+        sharedPrefs.edit().putInt(this.getString(R.string.radio_selected_key), radioId).apply();
     }
 
     private void restartLoader(String section) {

@@ -41,7 +41,7 @@ public class ListPopupWindowAdapter extends BaseAdapter {
         RadioButton menu_icon = convertView.findViewById(R.id.radio_popular);
         menu_icon.setChecked(true);
 
-        TextView menuTextView = convertView.findViewById(R.id.menu_textView_0);
+        TextView menuTextView = convertView.findViewById(R.id.menu_textView_top_rated);
         menuTextView.setText(menuOptions.get(position).getMenuText());
 
         return convertView;
