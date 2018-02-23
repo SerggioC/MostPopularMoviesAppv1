@@ -50,11 +50,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     public static String themoviedb_POPULAR_MOVIES_PATH;
     public static String themoviedb_TOP_RATED_MOVIES_PATH;
     public static String movieSection;
+    public int selectedRadioId;
     PopupWindow popupWindow;
     private MovieAdapter movieAdapter;
     private ProgressBar loading_indicator;
     private RecyclerView gridRecyclerView;
-    public int selectedRadioId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +62,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         setContentView(R.layout.activity_main);
         gridRecyclerView = findViewById(R.id.recyclergridview);
         gridRecyclerView.setHasFixedSize(true);
-        GridLayoutManager manager = new GridLayoutManager(this, getResources().getInteger(R.integer.grid_span_count), VERTICAL, false);
+        int spanCount = Math.round(getWindowSizeXY().x / getResources().getDimension(R.dimen.grid_image_width));
+        GridLayoutManager manager = new GridLayoutManager(this, spanCount, VERTICAL, false);
         gridRecyclerView.setLayoutManager(manager);
         movieAdapter = new MovieAdapter(this, this);
         gridRecyclerView.setAdapter(movieAdapter);
@@ -378,8 +379,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
-        int width = size.x;
-        int height = size.y;
+//        int width = size.x;
+//        int height = size.y;
         return size;
     }
 

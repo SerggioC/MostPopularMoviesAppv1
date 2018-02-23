@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="com.sergiocruz.mostpopularmovies.READ_ME"/>
+    <uses-permission android:name="com.sergiocruz.mostpopularmovies.WRITE_ME"/>
 
     <application
         android:allowBackup="true"
@@ -23,6 +25,14 @@
             android:parentActivityName=".MainActivity">
 
         </activity>
+
+        <provider
+            android:name="com.sergiocruz.mostpopularmovies.MovieDataBase.MovieProvider"
+            android:authorities="com.sergiocruz.mostpopularmovies"
+            android:exported="true"
+            android:readPermission="com.sergiocruz.mostpopularmovies.READ_ME"
+            android:writePermission="com.sergiocruz.mostpopularmovies.WRITE_ME"/>
+
     </application>
 
 </manifest>
