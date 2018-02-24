@@ -30,7 +30,6 @@
             android:name="com.sergiocruz.mostpopularmovies.MovieDataBase.MovieProvider"
             android:authorities="com.sergiocruz.mostpopularmovies"
             android:exported="true"
-            android:enabled="true"
             android:readPermission="com.sergiocruz.mostpopularmovies.READ_ME"
             android:writePermission="com.sergiocruz.mostpopularmovies.WRITE_ME"/>
 
