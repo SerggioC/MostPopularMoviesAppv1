@@ -21,17 +21,13 @@ public class MovieDBHelper extends SQLiteOpenHelper {
      * {@link #getReadableDatabase} is called.
      *
      * @param context to use to open or create the database
-     * @param name    of the database file, or null for an in-memory database
-     * @param factory to use for creating cursor objects, or null for the default
-     * @param version number of the database (starting at 1); if the database is older,
-     *                {@link #onUpgrade} will be used to upgrade the database; if the database is
-     *                newer, {@link #onDowngrade} will be used to downgrade the database
      */
     public MovieDBHelper(Context context) {
         super(context, DATABASE_NAME, null, VERSION);
     }
 
     /**
+     * Create movies table
      * Called when the database is created for the first time. This is where the
      * creation of tables and the initial population of the tables should happen.
      *
@@ -39,7 +35,6 @@ public class MovieDBHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // Create tasks table (careful to follow SQL formatting rules)
         final String CREATE_TABLE = "CREATE TABLE "  + MovieTable.TABLE_NAME + " (" +
                 MovieTable._ID  + " INTEGER PRIMARY KEY, " +
                 MovieTable.VOTE_COUNT  + " INTEGER, " +

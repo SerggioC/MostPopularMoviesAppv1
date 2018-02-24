@@ -2,10 +2,13 @@ package com.sergiocruz.mostpopularmovies.MovieDataBase;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.UriMatcher;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.os.Build;
@@ -13,12 +16,42 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.os.CancellationSignal;
+import android.util.Log;
+
+import static com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract.MovieTable.TABLE_NAME;
 
 /**
  * Created by Sergio on 23/02/2018.
  */
 
 public class MovieProvider extends ContentProvider {
+    // Define final integer constants for the directory of movies and a single item.
+    // It's convention to use 100, 200, 300, etc for directories,
+    // and related ints (101, 102, 103, ...) for items in that directory.
+    public static final int MOVIES = 100;
+    public static final int MOVIES_WITH_ID = 101;
+    private static final UriMatcher sUriMatcher = buildUriMatcher();
+    private MovieDBHelper movieDbHelper;
+
+    // Define a static buildUriMatcher method that associates URI's with their int match
+
+    /**
+     * Initialize a new matcher object without any matches,
+     * then use .addURI(String authority, String path, int match) to add matches
+     */
+    public static UriMatcher buildUriMatcher() {
+        // Initialize a UriMatcher with no matches by passing in NO_MATCH to the constructor
+        UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+
+        /* All paths added to the UriMatcher have a corresponding int.
+          For each kind of uri you may want to access, add the corresponding match with addURI.
+          The two calls below add matches for the movies directory and a single item by ID. */
+        uriMatcher.addURI(MovieContract.AUTHORITY, MovieContract.PATH_MOVIES, MOVIES);
+        uriMatcher.addURI(MovieContract.AUTHORITY, MovieContract.PATH_MOVIES + "/#", MOVIES_WITH_ID);
+
+        return uriMatcher;
+    }
+
     /**
      * Implement this to initialize your content provider on startup.
      * This method is called for all registered content providers on the
@@ -46,7 +79,8 @@ public class MovieProvider extends ContentProvider {
      */
     @Override
     public boolean onCreate() {
-        return false;
+        movieDbHelper = new MovieDBHelper(getContext());
+        return true;
     }
 
     /**
@@ -112,7 +146,33 @@ public class MovieProvider extends ContentProvider {
     @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        return null;
+        // Get access to underlying database (read-only for query)
+        final SQLiteDatabase db = movieDbHelper.getReadableDatabase();
+
+        Cursor resultCursor;
+
+        // Write URI match code and set a variable to return a Cursor
+        int match = sUriMatcher.match(uri);
+        switch (match) {
+            case MOVIES:
+                resultCursor = db.query(TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+
+                Log.i("Sergio>", this + " query");
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        // Set a notification URI on the Cursor and return that Cursor
+        resultCursor.setNotificationUri(getContext().getContentResolver(), uri);
+
+        return resultCursor;
     }
 
     /**
@@ -136,7 +196,15 @@ public class MovieProvider extends ContentProvider {
     @Nullable
     @Override
     public String getType(@NonNull Uri uri) {
-        return null;
+
+        switch (sUriMatcher.match(uri)) {
+            case MOVIES_WITH_ID:
+                return ContentResolver.CURSOR_ITEM_BASE_TYPE;
+            case MOVIES:
+                return ContentResolver.CURSOR_DIR_BASE_TYPE;
+            default:
+                return null;
+        }
     }
 
     /**
@@ -155,7 +223,35 @@ public class MovieProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        return null;
+        final SQLiteDatabase db = movieDbHelper.getWritableDatabase();
+        Uri returnUri; // URI to be returned
+
+        // Write URI matching code to identify the match for the tasks directory
+        int match = sUriMatcher.match(uri);
+        switch (match) {
+            case MOVIES:
+                // Insert new values into the database
+                // Inserting values into tasks table
+                long id = db.insert(TABLE_NAME, null, values);
+                if (id > 0) {
+                    returnUri = ContentUris.withAppendedId(MovieContract.MovieTable.MOVIES_CONTENT_URI, id);
+
+                    Log.i("Sergio>", this + " insert");
+                } else {
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                }
+                break;
+            // Set the value for the returnedUri and write the default case for unknown URI's
+            // Default case throws an UnsupportedOperationException
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        // Notify the resolver if the uri has been changed, and return the newly inserted URI
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        // Return constructed uri (this points to the newly inserted row of data)
+        return returnUri;
     }
 
     /**
@@ -181,7 +277,36 @@ public class MovieProvider extends ContentProvider {
      */
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+        // Get access to the database and write URI matching code to recognize a single item
+        final SQLiteDatabase db = movieDbHelper.getWritableDatabase();
+
+        int match = sUriMatcher.match(uri);
+        // Keep track of the number of deleted movies
+        int moviesDeleted; // starts as 0
+        String id = uri.getPathSegments().get(1);
+
+        // Write the code to delete a single row of data
+        // [Hint] Use selections to delete an item by its row ID
+        switch (match) {
+            // Handle the single item case, recognized by the ID included in the URI path
+            case MOVIES_WITH_ID:
+                // Get the movie ID from the URI path
+                // Use selections/selectionArgs to filter for this ID
+                moviesDeleted = db.delete(TABLE_NAME, "_id=?", new String[]{id});
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        // Notify the resolver of a change and return the number of items deleted
+        if (moviesDeleted != 0) {
+            // A movie was deleted, set notification
+            getContext().getContentResolver().notifyChange(uri, null);
+            Log.d("Sergio>", this + " deleted item with id=" + id + "\n" +
+                    "uri= " + uri);
+        }
+
+        return moviesDeleted;
     }
 
     /**
@@ -204,6 +329,35 @@ public class MovieProvider extends ContentProvider {
      */
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+        // Get access to the database and write URI matching code to recognize a single item
+        final SQLiteDatabase db = movieDbHelper.getWritableDatabase();
+
+        int match = sUriMatcher.match(uri);
+        // Keep track of the number of updated movies
+        int moviesUpdated; // starts as 0
+        String id = uri.getPathSegments().get(1);
+
+        // Write the code to update a single row of data
+        // [Hint] Use selections to update an item by its row ID
+        switch (match) {
+            // Handle the single item case, recognized by the ID included in the URI path
+            case MOVIES_WITH_ID:
+                // Get the movies ID from the URI path
+                // Use selections/selectionArgs to filter for this ID
+                moviesUpdated = db.update(TABLE_NAME, values, "_id=?", new String[]{id});
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        // Notify the resolver of a change and return the number of items deleted
+        if (moviesUpdated > 0) {
+            // A task was updated, set notification
+            getContext().getContentResolver().notifyChange(uri, null);
+            Log.d("Sergio>", this + " deleted item with id=" + id + "\n" +
+                    "uri= " + uri);
+        }
+
+        return moviesUpdated;
     }
 }
