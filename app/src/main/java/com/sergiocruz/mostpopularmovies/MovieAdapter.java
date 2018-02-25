@@ -121,7 +121,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         void onPosterClicked(MovieObject movie);
     }
 
-    class MovieViewHolder extends RecyclerView.ViewHolder {
+    public class MovieViewHolder extends RecyclerView.ViewHolder {
         ImageView posterImageView;
 
         public MovieViewHolder(View itemView) {

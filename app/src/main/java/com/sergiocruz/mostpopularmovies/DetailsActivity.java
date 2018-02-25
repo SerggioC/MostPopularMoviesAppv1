@@ -22,7 +22,8 @@ public class DetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_details);
+        //setContentView(R.layout.activity_details);
+        setContentView(R.layout.activity_details_coordinator);
         ActionBar actionBar = getActionBar();
 
         if (actionBar != null) {
@@ -30,7 +31,12 @@ public class DetailsActivity extends AppCompatActivity {
 //            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 //                actionBar.setElevation(4);
 //            }
+            //actionBar.hide();
         }
+
+        //getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+        //getActionBar().hide();
+
         context = getApplicationContext();
 
 
@@ -54,7 +60,7 @@ public class DetailsActivity extends AppCompatActivity {
 
         Log.i("Sergio>", this + " onCreate\nmoviedata= " + data);
 
-        populateUI(data);
+        //populateUI(data);
 
     }
 

@@ -14,23 +14,26 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".DetailsActivity"
-            android:parentActivityName=".MainActivity">
+
+        <activity
+            android:name=".DetailsActivity"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/CoordinatorTheme">
 
         </activity>
 
         <provider
             android:name="com.sergiocruz.mostpopularmovies.MovieDataBase.MovieProvider"
             android:authorities="com.sergiocruz.mostpopularmovies"
-            android:exported="true"
             android:enabled="true"
+            android:exported="true"
             android:readPermission="com.sergiocruz.mostpopularmovies.READ_ME"
             android:writePermission="com.sergiocruz.mostpopularmovies.WRITE_ME"/>
 

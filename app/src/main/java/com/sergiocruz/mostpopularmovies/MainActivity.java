@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.graphics.Point;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,7 +19,6 @@ import android.support.v7.widget.ListPopupWindow;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,6 +29,8 @@ import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
+
+import com.sergiocruz.mostpopularmovies.Utils.AndroidUtils;
 
 import java.util.ArrayList;
 
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         setContentView(R.layout.activity_main);
         gridRecyclerView = findViewById(R.id.recyclergridview);
         gridRecyclerView.setHasFixedSize(true);
-        int spanCount = Math.round(getWindowSizeXY().x / getResources().getDimension(R.dimen.grid_image_width));
+        int spanCount = Math.round(AndroidUtils.getWindowSizeXY(this).x / getResources().getDimension(R.dimen.grid_image_width));
         GridLayoutManager manager = new GridLayoutManager(this, spanCount, VERTICAL, false);
         gridRecyclerView.setLayoutManager(manager);
         movieAdapter = new MovieAdapter(this, this);
@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
 
         Bundle bundle = new Bundle(1);
         bundle.putString(LOADER_BUNDLE, movieSection);
-        bundle.putString("buldle2", "nadanaçafoga ehehehe");
+        bundle.putString("buldle2", "nada");
         getSupportLoaderManager().initLoader(LOADER_ID, bundle, this).startLoading();
 
     }
@@ -375,14 +375,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         listPopupWindow.show();
     }
 
-    private Point getWindowSizeXY() {
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-//        int width = size.x;
-//        int height = size.y;
-        return size;
-    }
 
     private static class MovieLoader extends AsyncTaskLoader<ArrayList<MovieObject>> {
         String movieSectionPath; // requested movie section, popular or top rated

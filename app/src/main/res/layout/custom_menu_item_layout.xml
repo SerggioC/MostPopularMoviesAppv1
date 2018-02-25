@@ -5,6 +5,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
+    android:background="@drawable/shadow"
     app:cardBackgroundColor="@color/colorMenu"
     app:cardCornerRadius="4dp"
     app:cardElevation="8dp">
@@ -59,7 +60,7 @@
                 android:gravity="center_vertical"
                 android:text="@string/action_most_popular"
                 android:textColor="@android:color/white"
-                android:textSize="16sp"/>
+                android:textSize="16dp"/>
 
 
             <TextView
