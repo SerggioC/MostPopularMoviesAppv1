@@ -1,7 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#000000</color>
-    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorPrimaryDark">#212121</color>
     <color name="colorAccent">#009688</color>
     <color name="colorMenu">#005c66</color>
+    <color name="upColor1">#444552</color>
+    <color name="upColor2">#1e1f2b</color>
+    <color name="upColor3">#52535e</color>
+    <color name="upColor4">#494a54</color>
+    <color name="transparent">#00000000</color>
+    <color name="color_50">#e7e7e7</color>
+    <color name="color_100">#c4c2c2</color>
+    <color name="color_200">#9d9a9a</color>
+    <color name="color_300">#757271</color>
+    <color name="color_400">#585352</color>
+    <color name="color_500">#3a3534</color>
+    <color name="color_600">#34302f</color>
+    <color name="color_700">#2c2827</color>
+    <color name="color_800">#252221</color>
+    <color name="color_900">#212121</color>
+    <color name="color_A100">#f79668</color>
+    <color name="color_A200">#f47438</color>
+    <color name="color_A400">#f95300</color>
+    <color name="color_A700">#e04b00</color>
+
 </resources>

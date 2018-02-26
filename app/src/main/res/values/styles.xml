@@ -3,14 +3,19 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/color_900</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="CoordinatorTheme" parent="AppTheme">
+    <style name="coordinatorTheme" parent="AppTheme">
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:textColor">@android:color/primary_text_dark</item>
+    </style>
+
+    <style name="expandedTitleStyle" parent="AppTheme">
+        <item name="android:textColor">@color/color_50</item>
+        <item name="android:autoSizeTextType">uniform</item>
     </style>
 
 

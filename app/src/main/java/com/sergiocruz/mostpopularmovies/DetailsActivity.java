@@ -1,18 +1,21 @@
 package com.sergiocruz.mostpopularmovies;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.sergiocruz.mostpopularmovies.Utils.CoordinatorBehaviors;
 
 import static com.sergiocruz.mostpopularmovies.MainActivity.INTENT_MOVIE_EXTRA;
 
@@ -22,23 +25,19 @@ public class DetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_details);
-        setContentView(R.layout.activity_details_coordinator);
-        ActionBar actionBar = getActionBar();
-
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//                actionBar.setElevation(4);
-//            }
-            //actionBar.hide();
-        }
-
-        //getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-        //getActionBar().hide();
-
         context = getApplicationContext();
 
+        //setContentView(R.layout.activity_details);
+        setContentView(R.layout.activity_details_coordinator);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        CollapsingToolbarLayout collapsingToolbar = findViewById(R.id.collapsing_toolbar);
+        collapsingToolbar.setTitle("Very long title is very very long like in the things that go from here to the moon");
+        collapsingToolbar.setCollapsedTitleGravity(Gravity.LEFT);
+        collapsingToolbar.setExpandedTitleGravity(Gravity.LEFT);
 
         // Intent that started this activity
         Intent intent = getIntent();
@@ -59,6 +58,11 @@ public class DetailsActivity extends AppCompatActivity {
         }
 
         Log.i("Sergio>", this + " onCreate\nmoviedata= " + data);
+
+
+        CoordinatorBehaviors behavior = new CoordinatorBehaviors();
+        behavior.layoutDependsOn(findViewById(R.id.coordinator), findViewById(R.id.cardviewtest), toolbar);
+
 
         //populateUI(data);
 
