@@ -3,7 +3,6 @@ package com.sergiocruz.mostpopularmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,7 +16,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.ListPopupWindow;
 import android.support.v7.widget.RecyclerView;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -30,11 +28,11 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-import com.sergiocruz.mostpopularmovies.Utils.AndroidUtils;
-
 import java.util.ArrayList;
 
 import static android.widget.GridLayout.VERTICAL;
+import static com.sergiocruz.mostpopularmovies.Utils.AndroidUtils.getPxFromDp;
+import static com.sergiocruz.mostpopularmovies.Utils.AndroidUtils.getWindowSizeXY;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.PosterClickListener,
         android.support.v4.app.LoaderManager.LoaderCallbacks<ArrayList<MovieObject>> {
@@ -62,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         setContentView(R.layout.activity_main);
         gridRecyclerView = findViewById(R.id.recyclergridview);
         gridRecyclerView.setHasFixedSize(true);
-        int spanCount = Math.round(AndroidUtils.getWindowSizeXY(this).x / getResources().getDimension(R.dimen.grid_image_width));
+        int spanCount = Math.round(getWindowSizeXY(this).x / getResources().getDimension(R.dimen.grid_image_width));
         GridLayoutManager manager = new GridLayoutManager(this, spanCount, VERTICAL, false);
         gridRecyclerView.setLayoutManager(manager);
         movieAdapter = new MovieAdapter(this, this);
@@ -250,10 +248,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         selectedRadioId = R.id.radio_favourite;
     }
 
-    private final int getPxFromDp(int pixels) {
-        DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
-        return (int) (pixels * (metrics.densityDpi / 160f));
-    }
 
     private void loadMostPopular() {
         restartLoader(themoviedb_POPULAR_MOVIES_PATH);

@@ -1,7 +1,9 @@
 package com.sergiocruz.mostpopularmovies.Utils;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Point;
+import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
 
@@ -21,4 +23,16 @@ public class AndroidUtils {
         return size;
     }
 
+    public static int getStatusBarHeight(Context context) {
+        int height = 0;
+        int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0)
+            height = context.getResources().getDimensionPixelSize(resourceId);
+        return height;
+    }
+
+    public static final int getPxFromDp(int pixels) {
+        DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
+        return (int) (pixels * (metrics.densityDpi / 160f));
+    }
 }
