@@ -15,7 +15,8 @@ Used tech
 - SQLite
 - CardView
 - Glide
-
+- JSON + parsing
+- Internet Connectivity HttpURLConnection + ByteArrayOutputStream
 
 ![Screenshot](https://github.com/SerggioC/MostPopularMoviesAppv1/blob/master/Screenshot_20180228-170051.png?raw=true "Screenshot")
 
