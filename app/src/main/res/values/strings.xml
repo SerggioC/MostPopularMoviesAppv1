@@ -19,6 +19,7 @@
     <string name="menu_icon">Menu icon</string>
     <string name="radio_selected_key">pref_radio_selected_key</string>
     <string name="lorem">O Lorem Ipsum é um texto modelo da indústria tipográfica e de impressão. O Lorem Ipsum tem vindo a ser o texto padrão usado por estas indústrias desde o ano de 1500, quando uma misturou os caracteres de um texto para criar um espécime de livro. Este texto não só sobreviveu 5 séculos, mas também o salto para a tipografia electrónica, mantendo-se essencialmente inalterada. Foi popularizada nos anos 60 com a disponibilização das folhas de Letraset, que continham passagens com Lorem Ipsum, e mais recentemente com os programas de publicação como o Aldus PageMaker que incluem versões do Lorem Ipsum." </string>
+    <string name="action_share">Share Movie</string>
 
     // themoviedb image sizes "w92", "w154", "w185", "w342", "w500", "w780", or "original".
     <string-array name="image_sizes">
