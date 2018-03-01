@@ -17,6 +17,7 @@ Used tech
 - Glide
 - JSON + parsing
 - Internet Connectivity HttpURLConnection + ByteArrayOutputStream
+[![Watch sample app behavior](https://raw.github.com/GabLeRoux/WebMole/master/ressources/WebMole_Youtube_Video.png)](https://github.com/SerggioC/MostPopularMoviesAppv1/blob/master/most%20popular%20movies.mp4)
 
 ![Screenshot](https://github.com/SerggioC/MostPopularMoviesAppv1/blob/master/Screenshot_20180228-170051.png?raw=true "Screenshot")
 
