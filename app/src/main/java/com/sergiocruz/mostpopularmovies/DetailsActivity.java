@@ -3,7 +3,6 @@ package com.sergiocruz.mostpopularmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
@@ -61,17 +60,26 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = getApplicationContext();
-
         //setContentView(R.layout.activity_details);
         setContentView(R.layout.activity_details_coordinator);
 
         bindViews();
 
         ActionBar supportActionBar = getSupportActionBar();
-        if (supportActionBar != null)
+        if (supportActionBar != null) {
             supportActionBar.setDisplayHomeAsUpEnabled(true);
-        setSupportActionBar(toolbar);
+            supportActionBar.setDisplayShowHomeEnabled(true);
+        }
         toolbar.inflateMenu(R.menu.menu_main);
+        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_material);
+        toolbar.setTitle(null);
+        setSupportActionBar(toolbar);
+
+
+
+
+
+
 
         appBarLayout.addOnOffsetChangedListener(this);
         initializeImageProperties();
@@ -100,6 +108,12 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
 
         //populateUI(data);
 
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     private void initializeImageProperties() {
@@ -142,28 +156,28 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
 
     @Override
     public void onOffsetChanged(AppBarLayout appBarLayout, int offset) {
-        int maxScroll = appBarLayout.getTotalScrollRange();
-        float percentage = Math.abs(offset) / maxScroll;
-        Log.i("Sergio>", this + " onOffsetChanged\npercentage= " + percentage + "\n" +
-                "offset= " + offset + "\n" +
-                "maxScroll= " + maxScroll);
-
-        posterImageView.setTranslationX(FINAL_IMAGE_POSITION_X * percentage);
-        posterImageView.setTranslationY(FINAL_IMAGE_POSITION_Y * percentage);
-
-        int imageWidth = posterImageView.getMeasuredWidth();
-        int imageHeight = posterImageView.getMeasuredHeight();
-
-
-        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) posterImageView.getLayoutParams();
-        if (imageWidth <= INITIAL_IMAGE_WIDTH * FINAL_IMAGE_WIDTH_PERCENTAGE) {
-            params.width = (int) (INITIAL_IMAGE_WIDTH / percentage);
-            params.height = (int) (INITIAL_IMAGE_HEIGHT / percentage);
-        } else {
-            params.width = (int) (INITIAL_IMAGE_WIDTH * percentage);
-            params.height = (int) (INITIAL_IMAGE_HEIGHT * percentage);
-        }
-        posterImageView.setLayoutParams(params);
+//        int maxScroll = appBarLayout.getTotalScrollRange();
+//        float percentage = Math.abs(offset) / maxScroll;
+//        Log.i("Sergio>", this + " onOffsetChanged\npercentage= " + percentage + "\n" +
+//                "offset= " + offset + "\n" +
+//                "maxScroll= " + maxScroll);
+//
+//        posterImageView.setTranslationX(FINAL_IMAGE_POSITION_X * percentage);
+//        posterImageView.setTranslationY(FINAL_IMAGE_POSITION_Y * percentage);
+//
+//        int imageWidth = posterImageView.getMeasuredWidth();
+//        int imageHeight = posterImageView.getMeasuredHeight();
+//
+//
+//        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) posterImageView.getLayoutParams();
+//        if (imageWidth <= INITIAL_IMAGE_WIDTH * FINAL_IMAGE_WIDTH_PERCENTAGE) {
+//            params.width = (int) (INITIAL_IMAGE_WIDTH / percentage);
+//            params.height = (int) (INITIAL_IMAGE_HEIGHT / percentage);
+//        } else {
+//            params.width = (int) (INITIAL_IMAGE_WIDTH * percentage);
+//            params.height = (int) (INITIAL_IMAGE_HEIGHT * percentage);
+//        }
+//        posterImageView.setLayoutParams(params);
 
 //        handleToolbarTitleVisibility(percentage);
 //        handleAlphaOnTitle(percentage);

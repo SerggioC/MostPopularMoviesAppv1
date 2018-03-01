@@ -195,12 +195,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
                 ViewGroup.LayoutParams.WRAP_CONTENT);
 
         popupWindow.setOutsideTouchable(true);
-        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
 
-            }
-        });
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             popupWindow.setElevation(8);
         }
