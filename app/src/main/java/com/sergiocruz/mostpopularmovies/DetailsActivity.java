@@ -55,6 +55,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         alphaAnimation.setDuration(duration);
         alphaAnimation.setFillAfter(true);
         view.startAnimation(alphaAnimation);
+
     }
 
     @Override
