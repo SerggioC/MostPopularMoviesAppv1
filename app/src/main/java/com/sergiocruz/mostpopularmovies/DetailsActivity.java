@@ -11,9 +11,11 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v4.os.OperationCanceledException;
 import android.support.v7.app.ActionBar;
@@ -34,15 +36,22 @@ import com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract;
 import com.sergiocruz.mostpopularmovies.Utils.AndroidUtils;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 import static com.sergiocruz.mostpopularmovies.MainActivity.INTENT_EXTRA_IS_FAVORITE;
 import static com.sergiocruz.mostpopularmovies.MainActivity.INTENT_MOVIE_EXTRA;
+import static com.sergiocruz.mostpopularmovies.MainActivity.LOADER_ID_DATABASE;
+import static com.sergiocruz.mostpopularmovies.MainActivity.LOADER_ID_INTERNET;
 
-public class DetailsActivity extends AppCompatActivity implements android.support.v4.app.LoaderManager.LoaderCallbacks<Cursor>,
+public class DetailsActivity extends AppCompatActivity implements android.support.v4.app.LoaderManager.LoaderCallbacks,
         AppBarLayout.OnOffsetChangedListener {
+
     private static final int FAVORITES_LOADER_ID = 2;
     private static final String LOADER_BUNDLE_MOVIE_ID = "movie_id_bundle";
     private static final String LOADER_BUNDLE_GOT_FAVORITE = "got_favorite_bundle";
+    private static final float PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR = 0.9f;
+    private static final float PERCENTAGE_TO_HIDE_TITLE_DETAILS = 0.3f;
+    private static final int ALPHA_ANIMATIONS_DURATION = 200;
     private float INITIAL_IMAGE_POSITION_X;
     private float INITIAL_IMAGE_POSITION_Y;
     private float INITIAL_IMAGE_WIDTH;
@@ -50,10 +59,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     private float FINAL_IMAGE_POSITION_X;
     private float FINAL_IMAGE_POSITION_Y;
     private float FINAL_IMAGE_WIDTH_PERCENTAGE = 0.5f;
-    private float FINAL_IMAGE_HEIGHT_PERCENTAGE= 0.5F;
-    private static final float PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR = 0.9f;
-    private static final float PERCENTAGE_TO_HIDE_TITLE_DETAILS = 0.3f;
-    private static final int ALPHA_ANIMATIONS_DURATION = 200;
+    private float FINAL_IMAGE_HEIGHT_PERCENTAGE = 0.5F;
     private Context mContext;
     private boolean mIsTheTitleVisible = false;
     private boolean mIsTheTitleContainerVisible = true;
@@ -66,6 +72,8 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     private CollapsingToolbarLayout collapsingToolbar;
     private AppBarLayout appBarLayout;
     private CoordinatorLayout coordinatorLayout;
+    private FloatingActionButton favorite_star;
+    private ImageView backdropImageView;
 
     public static void startAlphaAnimation(View view, long duration, int visibility) {
         AlphaAnimation alphaAnimation =
@@ -86,15 +94,15 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         dateTV = findViewById(R.id.date_textView);
         ratingTV = findViewById(R.id.rating_textView);
         synopsisTV = findViewById(R.id.synopsis_textView);
+        favorite_star = findViewById(R.id.fab_star);
+        backdropImageView = findViewById(R.id.backdrop_imageview);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = getApplicationContext();
-        //setContentView(R.layout.activity_details);
         setContentView(R.layout.activity_details_coordinator);
-
         bindViews();
 
         ActionBar supportActionBar = getSupportActionBar();
@@ -117,29 +125,26 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
             return;
         }
 
-        MovieObject data = intent.getParcelableExtra(INTENT_MOVIE_EXTRA);
-        if (data == null) {
+        MovieObject mMovieDataFromIntent = intent.getParcelableExtra(INTENT_MOVIE_EXTRA);
+        Boolean gotFavorite = intent.getBooleanExtra(INTENT_EXTRA_IS_FAVORITE, false);
+        if (mMovieDataFromIntent == null && !gotFavorite) {
             closeNoData();
             return;
         }
 
-        Boolean gotFavorite = intent.getBooleanExtra(INTENT_EXTRA_IS_FAVORITE, false);
-
-        String receivedMovieId = data.getId().toString();
         Boolean hasInternet = NetworkUtils.hasActiveNetworkConnection(mContext);
-
         if (!hasInternet) {
             Toast.makeText(mContext, R.string.no_internet, Toast.LENGTH_SHORT).show();
         }
 
-        if (hasInternet && !gotFavorite) {
-            populateUIWithInternet(data);
+        if (hasInternet) {
+            populateUIWithInternet(mMovieDataFromIntent, gotFavorite);
         }
 
+        String receivedMovieId = mMovieDataFromIntent.getId().toString();
         startLoader(receivedMovieId, gotFavorite);
 
-        Log.i("Sergio>", this + " onCreate\nmoviedata= " + data);
-
+        Log.i("Sergio>", this + " onCreate\nmoviedata= " + mMovieDataFromIntent);
     }
 
     private void startLoader(String movieId, Boolean gotFavorite) {
@@ -162,17 +167,26 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         return true;
     }
 
-    private void populateUIWithInternet(MovieObject movieData) {
-        String baseImageUrl = mContext.getString(R.string.base_image_url);
-        String[] imageSizes = mContext.getResources().getStringArray(R.array.image_sizes);
-        String imageSize = imageSizes[0]; // "w92" thumbnail
-        String imgURL = new StringBuilder(baseImageUrl).append(imageSize).append(movieData.getPoster_path()).toString();
+    private void populateUIWithInternet(MovieObject movieData, Boolean gotFavorite) {
+
+        if (gotFavorite) {
+            favorite_star.setImageDrawable(ContextCompat.getDrawable(mContext, android.R.drawable.btn_star_big_on));
+        } else {
+            String baseImageUrl = mContext.getString(R.string.base_image_url);
+            String[] imageSizes = mContext.getResources().getStringArray(R.array.image_sizes);
+            String imageSize = imageSizes[0]; // "w92" thumbnail
+            String posterImageURI = new StringBuilder(baseImageUrl).append(imageSize).append(movieData.getPoster_path()).toString();
+            String backDropImageURI = new StringBuilder(baseImageUrl).append(imageSize).append(movieData.getBackdrop_path()).toString();
+            Glide.with(mContext).load(posterImageURI).into(posterImageView);
+            Glide.with(mContext).load(backDropImageURI).into(backdropImageView);
+            favorite_star.setImageDrawable(ContextCompat.getDrawable(mContext, android.R.drawable.btn_star_big_off));
+        }
 
         titleTV.setText(movieData.getTitle());
-        Glide.with(mContext).load(imgURL).into(posterImageView);
         dateTV.setText(movieData.getRelease_date().split("-")[0]);
         ratingTV.setText(movieData.getVote_average() + "/10");
         synopsisTV.setText(movieData.getOverview());
+
     }
 
     /**
@@ -183,11 +197,9 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
      * @return Return a new Loader instance that is ready to start loading.
      */
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String movieId = args.getString(LOADER_BUNDLE_MOVIE_ID);
-        //Uri builtUri = MovieContract.MovieTable.MOVIES_CONTENT_URI.buildUpon().appendPath(movieId).build();
-
+    public Loader onCreateLoader(int id, Bundle args) {
         Uri builtUri = MovieContract.MovieTable.MOVIES_CONTENT_URI;
+        String movieId = args.getString(LOADER_BUNDLE_MOVIE_ID);
         Boolean gotFavorite = args.getBoolean(LOADER_BUNDLE_GOT_FAVORITE);
         return new FavoritesMovieLoader(mContext, builtUri, movieId, gotFavorite);
     }
@@ -231,7 +243,25 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
      * @param data   The data generated by the Loader.
      */
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    public void onLoadFinished(Loader loader, Object data) {
+        switch (loader.getId()) {
+            case LOADER_ID_DATABASE:
+                populateUIFromDataBase((Cursor) data);
+                break;
+            case LOADER_ID_INTERNET:
+                populateVideosAndReviews((List<MovieObject>) data);
+                break;
+            default:
+                populateVideosAndReviews((List<MovieObject>) data);
+                break;
+        }
+    }
+
+    private void populateUIFromDataBase(Cursor data) {
+
+    }
+
+    private void populateVideosAndReviews(List<MovieObject> data) {
 
     }
 
@@ -243,7 +273,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
      * @param loader The Loader that is being reset.
      */
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
+    public void onLoaderReset(Loader loader) {
 
     }
 
@@ -252,8 +282,90 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         Toast.makeText(this, R.string.no_movie_data, Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
-    public static class FavoritesMovieLoader extends AsyncTaskLoader<Cursor>{
+    private void initializeImageProperties() {
+        INITIAL_IMAGE_POSITION_X = posterImageView.getX();
+        INITIAL_IMAGE_POSITION_Y = posterImageView.getY();
+        INITIAL_IMAGE_WIDTH = posterImageView.getMeasuredWidth();
+        INITIAL_IMAGE_HEIGHT = posterImageView.getMeasuredHeight();
+        FINAL_IMAGE_POSITION_X = AndroidUtils.getPxFromDp(200);
+        FINAL_IMAGE_POSITION_Y = AndroidUtils.getStatusBarHeight(mContext) + FINAL_IMAGE_POSITION_X;
+    }
+
+    @Override
+    public void onOffsetChanged(AppBarLayout appBarLayout, int offset) {
+//        int maxScroll = appBarLayout.getTotalScrollRange();
+//        float percentage = Math.abs(offset) / maxScroll;
+//        Log.i("Sergio>", this + " onOffsetChanged\npercentage= " + percentage + "\n" +
+//                "offset= " + offset + "\n" +
+//                "maxScroll= " + maxScroll);
+//
+//        posterImageView.setTranslationX(FINAL_IMAGE_POSITION_X * percentage);
+//        posterImageView.setTranslationY(FINAL_IMAGE_POSITION_Y * percentage);
+//
+//        int imageWidth = posterImageView.getMeasuredWidth();
+//        int imageHeight = posterImageView.getMeasuredHeight();
+//
+//
+//        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) posterImageView.getLayoutParams();
+//        if (imageWidth <= INITIAL_IMAGE_WIDTH * FINAL_IMAGE_WIDTH_PERCENTAGE) {
+//            params.width = (int) (INITIAL_IMAGE_WIDTH / percentage);
+//            params.height = (int) (INITIAL_IMAGE_HEIGHT / percentage);
+//        } else {
+//            params.width = (int) (INITIAL_IMAGE_WIDTH * percentage);
+//            params.height = (int) (INITIAL_IMAGE_HEIGHT * percentage);
+//        }
+//        posterImageView.setLayoutParams(params);
+
+//        handleToolbarTitleVisibility(percentage);
+//        handleAlphaOnTitle(percentage);
+    }
+
+    private void handleToolbarTitleVisibility(float percentage) {
+        if (percentage >= PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR) {
+
+            if (!mIsTheTitleVisible) {
+                startAlphaAnimation(titleTV, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
+                mIsTheTitleVisible = true;
+            }
+
+        } else {
+
+            if (mIsTheTitleVisible) {
+                startAlphaAnimation(titleTV, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
+                mIsTheTitleVisible = false;
+            }
+        }
+    }
+
+    private void handleAlphaOnTitle(float percentage) {
+        if (percentage >= PERCENTAGE_TO_HIDE_TITLE_DETAILS) {
+            if (mIsTheTitleContainerVisible) {
+                startAlphaAnimation(titleTV, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
+                mIsTheTitleContainerVisible = false;
+            }
+
+        } else {
+
+            if (!mIsTheTitleContainerVisible) {
+                startAlphaAnimation(titleTV, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
+                mIsTheTitleContainerVisible = true;
+            }
+        }
+    }
+
+    // Load data from Database and get a Cursor
+    public static class FavoritesMovieLoader extends AsyncTaskLoader<Cursor> {
         WeakReference weakContext;
         Uri queryUri;
         String movieId;
@@ -364,92 +476,8 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
 
         }
 
+
     }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button
-            case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void initializeImageProperties() {
-        INITIAL_IMAGE_POSITION_X = posterImageView.getX();
-        INITIAL_IMAGE_POSITION_Y = posterImageView.getY();
-        INITIAL_IMAGE_WIDTH = posterImageView.getMeasuredWidth();
-        INITIAL_IMAGE_HEIGHT = posterImageView.getMeasuredHeight();
-        FINAL_IMAGE_POSITION_X = AndroidUtils.getPxFromDp(200);
-        FINAL_IMAGE_POSITION_Y = AndroidUtils.getStatusBarHeight(mContext) + FINAL_IMAGE_POSITION_X;
-    }
-
-    @Override
-    public void onOffsetChanged(AppBarLayout appBarLayout, int offset) {
-//        int maxScroll = appBarLayout.getTotalScrollRange();
-//        float percentage = Math.abs(offset) / maxScroll;
-//        Log.i("Sergio>", this + " onOffsetChanged\npercentage= " + percentage + "\n" +
-//                "offset= " + offset + "\n" +
-//                "maxScroll= " + maxScroll);
-//
-//        posterImageView.setTranslationX(FINAL_IMAGE_POSITION_X * percentage);
-//        posterImageView.setTranslationY(FINAL_IMAGE_POSITION_Y * percentage);
-//
-//        int imageWidth = posterImageView.getMeasuredWidth();
-//        int imageHeight = posterImageView.getMeasuredHeight();
-//
-//
-//        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) posterImageView.getLayoutParams();
-//        if (imageWidth <= INITIAL_IMAGE_WIDTH * FINAL_IMAGE_WIDTH_PERCENTAGE) {
-//            params.width = (int) (INITIAL_IMAGE_WIDTH / percentage);
-//            params.height = (int) (INITIAL_IMAGE_HEIGHT / percentage);
-//        } else {
-//            params.width = (int) (INITIAL_IMAGE_WIDTH * percentage);
-//            params.height = (int) (INITIAL_IMAGE_HEIGHT * percentage);
-//        }
-//        posterImageView.setLayoutParams(params);
-
-//        handleToolbarTitleVisibility(percentage);
-//        handleAlphaOnTitle(percentage);
-    }
-
-    private void handleToolbarTitleVisibility(float percentage) {
-        if (percentage >= PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR) {
-
-            if (!mIsTheTitleVisible) {
-                startAlphaAnimation(titleTV, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
-                mIsTheTitleVisible = true;
-            }
-
-        } else {
-
-            if (mIsTheTitleVisible) {
-                startAlphaAnimation(titleTV, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
-                mIsTheTitleVisible = false;
-            }
-        }
-    }
-
-    private void handleAlphaOnTitle(float percentage) {
-        if (percentage >= PERCENTAGE_TO_HIDE_TITLE_DETAILS) {
-            if (mIsTheTitleContainerVisible) {
-                startAlphaAnimation(titleTV, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
-                mIsTheTitleContainerVisible = false;
-            }
-
-        } else {
-
-            if (!mIsTheTitleContainerVisible) {
-                startAlphaAnimation(titleTV, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
-                mIsTheTitleContainerVisible = true;
-            }
-        }
-    }
-
-
 
 
 }
