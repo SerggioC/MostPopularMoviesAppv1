@@ -155,7 +155,7 @@ public class MovieProvider extends ContentProvider {
         int match = sUriMatcher.match(uri);
         switch (match) {
             case MOVIES:
-                resultCursor = db.query(TABLE_NAME,
+                resultCursor = db.query(MovieContract.MovieTable.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -164,6 +164,19 @@ public class MovieProvider extends ContentProvider {
                         sortOrder);
 
                 Log.i("Sergio>", this + " query");
+                break;
+
+            case MOVIES_WITH_ID:
+                // Get the movie ID from the URI path
+                // Use selections/selectionArgs to filter for this ID
+                String id = uri.getPathSegments().get(1);
+                resultCursor = db.query(TABLE_NAME,
+                        new String[]{MovieContract.MovieTable.IS_FAVORITE, MovieContract.MovieTable.BACKDROP_FILE_PATH, MovieContract.MovieTable.POSTER_FILE_PATH},
+                        "_id=?",
+                        new String[]{id},
+                        null,
+                        null,
+                        sortOrder);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);

@@ -41,8 +41,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     public static final String LANGUAGE_PARAM = "language";
     public static final String PAGE_PARAM = "page";
     public static final String LOADER_BUNDLE = "movie_loader_bundle";
-    public static final int LOADER_ID = 1;
+    public static final int LOADER_ID_INTERNET = 1;
+    public static final int LOADER_ID_DATABASE = 2;
     public static final String INTENT_MOVIE_EXTRA = "intent_movie_extra";
+    public static final String INTENT_EXTRA_IS_FAVORITE = "intent_extra_is_favorite";
     public static String themoviedb_BASE_API_URL_V3;
     public static String themoviedb_MOVIES_PATH;
     public static String themoviedb_POPULAR_MOVIES_PATH;
@@ -81,8 +83,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
 
         Bundle bundle = new Bundle(1);
         bundle.putString(LOADER_BUNDLE, movieSection);
-        bundle.putString("buldle2", "nada");
-        getSupportLoaderManager().initLoader(LOADER_ID, bundle, this).startLoading();
+        getSupportLoaderManager().initLoader(LOADER_ID_INTERNET, bundle, this).startLoading();
 
     }
 
@@ -266,14 +267,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         showLoadingView();
         Bundle bundle = new Bundle(1);
         bundle.putString(LOADER_BUNDLE, section);
-        getSupportLoaderManager().restartLoader(LOADER_ID, bundle, this);
+        getSupportLoaderManager().restartLoader(LOADER_ID_INTERNET, bundle, this);
         gridRecyclerView.smoothScrollToPosition(0);
     }
 
     @Override
-    public void onPosterClicked(MovieObject movie) {
+    public void onPosterClicked(MovieObject movie, Boolean isFavorite) {
         Intent detailsIntent = new Intent(MainActivity.this, DetailsActivity.class);
         detailsIntent.putExtra(INTENT_MOVIE_EXTRA, movie);
+        detailsIntent.putExtra(INTENT_EXTRA_IS_FAVORITE, isFavorite);
         startActivity(detailsIntent);
     }
 
@@ -295,7 +297,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
 
     @Override
     public void onLoadFinished(Loader<ArrayList<MovieObject>> loader, ArrayList<MovieObject> data) {
-        movieAdapter.swapMovieData(data);
+        Boolean isFavorite = loader.getId() == LOADER_ID_DATABASE ? true : false;
+        movieAdapter.swapMovieData(data, isFavorite);
         showDataView();
     }
 
@@ -308,7 +311,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
      */
     @Override
     public void onLoaderReset(Loader<ArrayList<MovieObject>> loader) {
-        movieAdapter.swapMovieData(null);
+        Boolean isFavorite = loader.getId() == LOADER_ID_DATABASE ? true : false;
+        movieAdapter.swapMovieData(null, isFavorite);
     }
 
     private void showDataView() {
