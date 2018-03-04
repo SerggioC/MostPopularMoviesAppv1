@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     public static final String INTENT_MOVIE_EXTRA = "intent_movie_extra";
     public static final String INTENT_EXTRA_IS_FAVORITE = "intent_extra_is_favorite";
     public static String themoviedb_BASE_API_URL_V3;
-    public static String themoviedb_MOVIES_PATH;
+    public static String themoviedb_MOVIES_PATH = "movie";
     public static String themoviedb_POPULAR_MOVIES_PATH;
     public static String themoviedb_TOP_RATED_MOVIES_PATH;
     public static String movieSection;
@@ -72,7 +72,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         showLoadingView();
 
         themoviedb_BASE_API_URL_V3 = getString(R.string.base_api_url_v3); // API V3
-        themoviedb_MOVIES_PATH = getString(R.string.movie_apth);
         themoviedb_POPULAR_MOVIES_PATH = getString(R.string.popular_path);
         themoviedb_TOP_RATED_MOVIES_PATH = getString(R.string.top_rated_path);
 
@@ -425,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
             String jsonDataFromAPI = NetworkUtils.getJSONDataFromAPI(uri);
             if (jsonDataFromAPI == null) return null;
 
-            movieObjects = JSONParser.parseDataFromJSON(jsonDataFromAPI);
+            movieObjects = JSONParser.parseMovieDataFromJSON(jsonDataFromAPI);
 
             Log.i("Sergio>", this + " loadInBackground\nmovieObjects= " + movieObjects);
 

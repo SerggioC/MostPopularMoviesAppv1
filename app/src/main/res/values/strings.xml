@@ -5,7 +5,6 @@
     <string name="action_most_popular">Sort by most popular</string>
     <string name="action_highest_rated">Sort by highest rated</string>
 
-    <string name="movie_apth">movie</string>
     <string name="popular_path">popular</string>
     <string name="top_rated_path">top_rated</string>
     <string name="movie_section_key">pref_section_key</string>

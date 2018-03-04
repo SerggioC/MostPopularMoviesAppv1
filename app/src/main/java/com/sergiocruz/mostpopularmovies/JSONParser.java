@@ -32,7 +32,7 @@ class JSONParser {
     private static final String NOT_AVAILABLE_FALLBACK = "(N/A)";
     private static final String NO_LANGUAGE_FALLBACK = "en-US";
 
-    static ArrayList<MovieObject> parseDataFromJSON(String jsonDataFromAPI) {
+    static ArrayList<MovieObject> parseMovieDataFromJSON(String jsonDataFromAPI) {
         ArrayList<MovieObject> movieObjects = new ArrayList<>();
         try {
             JSONObject jsonData = new JSONObject(jsonDataFromAPI);
@@ -79,6 +79,14 @@ class JSONParser {
 
         return movieObjects;
     }
+
+    static ArrayList<VideosObject> parseVideosDataFromJSON(String jsonDataFromAPI) {
+        ArrayList<VideosObject> videosObjects = new ArrayList<>();
+
+
+        return videosObjects;
+    }
+
 
 }
 
