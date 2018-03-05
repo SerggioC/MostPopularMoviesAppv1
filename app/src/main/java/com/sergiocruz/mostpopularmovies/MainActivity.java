@@ -31,6 +31,10 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import static android.widget.GridLayout.VERTICAL;
+import static com.sergiocruz.mostpopularmovies.TheMovieDB.BASE_API_URL_V3;
+import static com.sergiocruz.mostpopularmovies.TheMovieDB.MOVIES_PATH;
+import static com.sergiocruz.mostpopularmovies.TheMovieDB.POPULAR_MOVIES_PATH;
+import static com.sergiocruz.mostpopularmovies.TheMovieDB.TOP_RATED_MOVIES_PATH;
 import static com.sergiocruz.mostpopularmovies.Utils.AndroidUtils.getPxFromDp;
 import static com.sergiocruz.mostpopularmovies.Utils.AndroidUtils.getWindowSizeXY;
 
@@ -45,10 +49,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     public static final int LOADER_ID_DATABASE = 2;
     public static final String INTENT_MOVIE_EXTRA = "intent_movie_extra";
     public static final String INTENT_EXTRA_IS_FAVORITE = "intent_extra_is_favorite";
-    public static String themoviedb_BASE_API_URL_V3;
-    public static String themoviedb_MOVIES_PATH = "movie";
-    public static String themoviedb_POPULAR_MOVIES_PATH;
-    public static String themoviedb_TOP_RATED_MOVIES_PATH;
+
     public static String movieSection;
     public int selectedRadioId;
     PopupWindow popupWindow;
@@ -71,13 +72,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         loading_indicator = findViewById(R.id.loading_indicator);
         showLoadingView();
 
-        themoviedb_BASE_API_URL_V3 = getString(R.string.base_api_url_v3); // API V3
-        themoviedb_POPULAR_MOVIES_PATH = getString(R.string.popular_path);
-        themoviedb_TOP_RATED_MOVIES_PATH = getString(R.string.top_rated_path);
-
         // To make the App open in the last selected section
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        movieSection = sharedPrefs.getString(getString(R.string.movie_section_key), themoviedb_POPULAR_MOVIES_PATH);
+        movieSection = sharedPrefs.getString(getString(R.string.movie_section_key), POPULAR_MOVIES_PATH);
         selectedRadioId = sharedPrefs.getInt(getString(R.string.radio_selected_key), R.id.radio_popular);
 
         Bundle bundle = new Bundle(1);
@@ -245,13 +242,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
 
 
     private void loadMostPopular() {
-        restartLoader(themoviedb_POPULAR_MOVIES_PATH);
-        saveMovieSectionPreference(themoviedb_POPULAR_MOVIES_PATH, R.id.radio_popular);
+        restartLoader(POPULAR_MOVIES_PATH);
+        saveMovieSectionPreference(POPULAR_MOVIES_PATH, R.id.radio_popular);
     }
 
     private void loadHighestRated() {
-        restartLoader(themoviedb_TOP_RATED_MOVIES_PATH);
-        saveMovieSectionPreference(themoviedb_TOP_RATED_MOVIES_PATH, R.id.radio_top_rated);
+        restartLoader(TOP_RATED_MOVIES_PATH);
+        saveMovieSectionPreference(TOP_RATED_MOVIES_PATH, R.id.radio_top_rated);
     }
 
     private void saveMovieSectionPreference(String section, int radioId) {
@@ -411,8 +408,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         public ArrayList<MovieObject> loadInBackground() {
             ArrayList<MovieObject> movieObjects;
 
-            Uri uri = Uri.parse(themoviedb_BASE_API_URL_V3).buildUpon()
-                    .appendPath(themoviedb_MOVIES_PATH)
+            Uri uri = Uri.parse(BASE_API_URL_V3).buildUpon()
+                    .appendPath(MOVIES_PATH)
                     .appendPath(movieSectionPath)
                     .appendQueryParameter(API_KEY_PARAM, BuildConfig.THEMOVIEDB_API_KEY_V3)
                     .appendQueryParameter(LANGUAGE_PARAM, "en-US")

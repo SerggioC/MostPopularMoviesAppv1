@@ -9,8 +9,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
@@ -44,8 +42,10 @@ import static com.sergiocruz.mostpopularmovies.MainActivity.INTENT_EXTRA_IS_FAVO
 import static com.sergiocruz.mostpopularmovies.MainActivity.INTENT_MOVIE_EXTRA;
 import static com.sergiocruz.mostpopularmovies.MainActivity.LANGUAGE_PARAM;
 import static com.sergiocruz.mostpopularmovies.MainActivity.PAGE_PARAM;
-import static com.sergiocruz.mostpopularmovies.MainActivity.themoviedb_BASE_API_URL_V3;
-import static com.sergiocruz.mostpopularmovies.MainActivity.themoviedb_MOVIES_PATH;
+import static com.sergiocruz.mostpopularmovies.TheMovieDB.BASE_API_URL_V3;
+import static com.sergiocruz.mostpopularmovies.TheMovieDB.MOVIES_PATH;
+import static com.sergiocruz.mostpopularmovies.TheMovieDB.BASE_IMAGE_URL;
+import static com.sergiocruz.mostpopularmovies.TheMovieDB.VIDEOS_PATH;
 
 public class DetailsActivity extends AppCompatActivity implements android.support.v4.app.LoaderManager.LoaderCallbacks,
         AppBarLayout.OnOffsetChangedListener {
@@ -75,9 +75,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     private TextView ratingTV;
     private TextView synopsisTV;
     private Toolbar toolbar;
-    private CollapsingToolbarLayout collapsingToolbar;
     private AppBarLayout appBarLayout;
-    private CoordinatorLayout coordinatorLayout;
     private FloatingActionButton favorite_star;
     private ImageView backdropImageView;
 
@@ -91,9 +89,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     }
 
     private void bindViews() {
-        coordinatorLayout = findViewById(R.id.main_coordinator);
         toolbar = findViewById(R.id.toolbar);
-        collapsingToolbar = findViewById(R.id.collapsing_toolbar);
         appBarLayout = findViewById(R.id.main_appbar);
         titleTV = findViewById(R.id.title_textView);
         posterImageView = findViewById(R.id.poster_imageView);
@@ -143,21 +139,21 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
             Toast.makeText(mContext, R.string.no_internet, Toast.LENGTH_SHORT).show();
         }
 
-        if (hasInternet) {
-            populateUIWithInternet(mMovieDataFromIntent, gotFavorite);
-        }
+        initializeUIPopulate(mMovieDataFromIntent, gotFavorite, hasInternet);
 
         String receivedMovieId = mMovieDataFromIntent.getId().toString();
-        startLoaders(receivedMovieId, gotFavorite);
+        startLoaders(receivedMovieId, gotFavorite, hasInternet);
 
         Log.i("Sergio>", this + " onCreate\nmoviedata= " + mMovieDataFromIntent);
     }
 
-    private void startLoaders(String movieId, Boolean gotFavorite) {
+    private void startLoaders(String movieId, Boolean gotFavorite, Boolean hasInternet) {
         Bundle bundle = new Bundle(2);
         bundle.putString(LOADER_BUNDLE_MOVIE_ID, movieId);
         bundle.putBoolean(LOADER_BUNDLE_GOT_FAVORITE, gotFavorite);
         getSupportLoaderManager().initLoader(FAVORITES_LOADER_ID, bundle, this);
+        if (!hasInternet) return;
+
         getSupportLoaderManager().initLoader(VIDEOS_LOADER_ID, bundle, this);
         getSupportLoaderManager().initLoader(REVIEWS_LOADER_ID, bundle, this);
     }
@@ -175,19 +171,20 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         return true;
     }
 
-    private void populateUIWithInternet(MovieObject movieData, Boolean gotFavorite) {
+    private void initializeUIPopulate(MovieObject movieData, Boolean gotFavorite, Boolean hasInternet) {
 
         if (gotFavorite) {
             favorite_star.setImageDrawable(ContextCompat.getDrawable(mContext, android.R.drawable.btn_star_big_on));
         } else {
-            String baseImageUrl = mContext.getString(R.string.base_image_url);
-            String[] imageSizes = mContext.getResources().getStringArray(R.array.image_sizes);
-            String imageSize = imageSizes[0]; // "w92" thumbnail
-            String posterImageURI = new StringBuilder(baseImageUrl).append(imageSize).append(movieData.getPoster_path()).toString();
-            String backDropImageURI = new StringBuilder(baseImageUrl).append(imageSize).append(movieData.getBackdrop_path()).toString();
-            Glide.with(mContext).load(posterImageURI).into(posterImageView);
-            Glide.with(mContext).load(backDropImageURI).into(backdropImageView);
             favorite_star.setImageDrawable(ContextCompat.getDrawable(mContext, android.R.drawable.btn_star_big_off));
+            if (hasInternet) {
+                String[] imageSizes = mContext.getResources().getStringArray(R.array.image_sizes);
+                String imageSize = imageSizes[0]; // "w92" thumbnail
+                String posterImageURI = new StringBuilder(BASE_IMAGE_URL).append(imageSize).append(movieData.getPoster_path()).toString();
+                String backDropImageURI = new StringBuilder(BASE_IMAGE_URL).append(imageSize).append(movieData.getBackdrop_path()).toString();
+                Glide.with(mContext).load(posterImageURI).into(posterImageView);
+                Glide.with(mContext).load(backDropImageURI).into(backdropImageView);
+            }
         }
 
         titleTV.setText(movieData.getTitle());
@@ -257,7 +254,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
                 populateUIFromDataBase((Cursor) data);
                 break;
             case VIDEOS_LOADER_ID:
-                populateVideos((List<VideosObject>) data);
+                populateVideos((List<VideoObject>) data);
                 break;
             case REVIEWS_LOADER_ID:
                 populateReviews((List<ReviewsObject>) data);
@@ -270,7 +267,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
 
     }
 
-    private void populateVideos(List<VideosObject> VideosObjects) {
+    private void populateVideos(List<VideoObject> videoObjects) {
 
     }
 
@@ -493,13 +490,13 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
 
     }
 
-    public static class VideosLoader extends AsyncTaskLoader<ArrayList<VideosObject>> {
+    public static class VideosLoader extends AsyncTaskLoader<ArrayList<VideoObject>> {
         WeakReference weakContext;
         Uri queryUri;
         String movieId;
 
-        // Initialize a VideosObject, this will hold all the videos data
-        ArrayList<VideosObject> mVideoData = null;
+        // Initialize a VideoObject, this will hold all the videos data
+        ArrayList<VideoObject> mVideoData = null;
 
         public VideosLoader(@NonNull Context context, String movieId) {
             super(context);
@@ -553,19 +550,19 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
          */
         @Nullable
         @Override
-        public ArrayList<VideosObject> loadInBackground() {
+        public ArrayList<VideoObject> loadInBackground() {
 
             // Query and load all task data in the background; sort by priority
             // [Hint] use a try/catch block to catch any errors in loading data
             // * https://api.themoviedb.org/3/movie/{movie_id}/videos?api_key=<<api_key>>&language=en-US
 
-            ArrayList<VideosObject> videosData;
+            ArrayList<VideoObject> videosData;
             try {
 
-                Uri uri = Uri.parse(themoviedb_BASE_API_URL_V3).buildUpon()
-                        .appendPath(themoviedb_MOVIES_PATH)
+                Uri uri = Uri.parse(BASE_API_URL_V3).buildUpon()
+                        .appendPath(MOVIES_PATH)
                         .appendPath(movieId)
-                        .appendPath("videos")
+                        .appendPath(VIDEOS_PATH)
                         .appendQueryParameter(API_KEY_PARAM, BuildConfig.THEMOVIEDB_API_KEY_V3)
                         .appendQueryParameter(LANGUAGE_PARAM, "en-US")
                         .appendQueryParameter(PAGE_PARAM, "1")
@@ -589,7 +586,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         }
 
         // deliverResult sends the result of the load, a Cursor, to the registered listener
-        public void deliverResult(ArrayList<VideosObject> data) {
+        public void deliverResult(ArrayList<VideoObject> data) {
             mVideoData = data;
             super.deliverResult(data);
 

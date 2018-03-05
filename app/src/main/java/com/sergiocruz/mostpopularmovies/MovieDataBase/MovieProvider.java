@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,7 +19,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.os.CancellationSignal;
 import android.util.Log;
 
-import static com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract.MovieTable.TABLE_NAME;
+import static com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract.MovieTable.MOVIES_TABLE_NAME;
+import static com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract.ReviewsTable.REVIEWS_TABLE_NAME;
+import static com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract.VideosTable.VIDEOS_TABLE_NAME;
 
 /**
  * Created by Sergio on 23/02/2018.
@@ -155,7 +158,7 @@ public class MovieProvider extends ContentProvider {
         int match = sUriMatcher.match(uri);
         switch (match) {
             case MOVIES:
-                resultCursor = db.query(MovieContract.MovieTable.TABLE_NAME,
+                resultCursor = db.query(MovieContract.MovieTable.MOVIES_TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -170,13 +173,17 @@ public class MovieProvider extends ContentProvider {
                 // Get the movie ID from the URI path
                 // Use selections/selectionArgs to filter for this ID
                 String id = uri.getPathSegments().get(1);
-                resultCursor = db.query(TABLE_NAME,
+                resultCursor = db.query(MOVIES_TABLE_NAME,
                         new String[]{MovieContract.MovieTable.IS_FAVORITE, MovieContract.MovieTable.BACKDROP_FILE_PATH, MovieContract.MovieTable.POSTER_FILE_PATH},
                         "_id=?",
                         new String[]{id},
                         null,
                         null,
                         sortOrder);
+
+
+                String sqlQuery = "SELECT * " + MOVIES_TABLE_NAME + " , " + VIDEOS_TABLE_NAME + " , " + REVIEWS_TABLE_NAME;
+                resultCursor = db.rawQuery(sqlQuery, selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -245,7 +252,7 @@ public class MovieProvider extends ContentProvider {
             case MOVIES:
                 // Insert new values into the database
                 // Inserting values into tasks table
-                long id = db.insert(TABLE_NAME, null, values);
+                long id = db.insert(MOVIES_TABLE_NAME, null, values);
                 if (id > 0) {
                     returnUri = ContentUris.withAppendedId(MovieContract.MovieTable.MOVIES_CONTENT_URI, id);
 
@@ -305,7 +312,7 @@ public class MovieProvider extends ContentProvider {
             case MOVIES_WITH_ID:
                 // Get the movie ID from the URI path
                 // Use selections/selectionArgs to filter for this ID
-                moviesDeleted = db.delete(TABLE_NAME, "_id=?", new String[]{id});
+                moviesDeleted = db.delete(MOVIES_TABLE_NAME, "_id=?", new String[]{id});
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -357,7 +364,7 @@ public class MovieProvider extends ContentProvider {
             case MOVIES_WITH_ID:
                 // Get the movies ID from the URI path
                 // Use selections/selectionArgs to filter for this ID
-                moviesUpdated = db.update(TABLE_NAME, values, "_id=?", new String[]{id});
+                moviesUpdated = db.update(MOVIES_TABLE_NAME, values, "_id=?", new String[]{id});
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);

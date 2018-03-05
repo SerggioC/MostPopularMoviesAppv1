@@ -39,7 +39,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onCreate(SQLiteDatabase db) {
-        final String CREATE_MOVIES_TABLE = "CREATE TABLE " + MovieTable.TABLE_NAME + " (" +
+        final String CREATE_MOVIES_TABLE = "CREATE TABLE " + MovieTable.MOVIES_TABLE_NAME + " (" +
                 MovieTable._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 MovieTable.VOTE_COUNT + " INTEGER, " +
                 MovieTable.MOVIE_ID + " INTEGER PRIMARY KEY, " +
@@ -61,21 +61,21 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 " UNIQUE (" + MovieTable._ID + " , " + MovieTable.MOVIE_ID + ")" +
                 ");";
 
-        final String CREATE_VIDEOS_TABLE = "CREATE TABLE " + VideosTable.TABLE_NAME + " (" +
+        final String CREATE_VIDEOS_TABLE = "CREATE TABLE " + VideosTable.VIDEOS_TABLE_NAME + " (" +
                 VideosTable._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 VideosTable.MOVIE_ID + " INTEGER, " +
                 VideosTable.VIDEO_URL + " TEXT, " +
                 " FOREIGN KEY (" + VideosTable.MOVIE_ID + ") REFERENCES " +
-                MovieTable.TABLE_NAME + " (" + MovieTable.MOVIE_ID + ")" +
+                MovieTable.MOVIES_TABLE_NAME + " (" + MovieTable.MOVIE_ID + ")" +
                 " ON DELETE CASCADE);" +
                 ");";
 
-        final String CREATE_REVIEWS_TABLE = "CREATE TABLE " + ReviewsTable.TABLE_NAME + " (" +
+        final String CREATE_REVIEWS_TABLE = "CREATE TABLE " + ReviewsTable.REVIEWS_TABLE_NAME + " (" +
                 ReviewsTable._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 ReviewsTable.MOVIE_ID + " INTEGER, " +
                 ReviewsTable.MOVIE_REVIEW + " TEXT, " +
                 " FOREIGN KEY (" + ReviewsTable.MOVIE_ID + ") REFERENCES " +
-                MovieTable.TABLE_NAME + " (" + MovieTable.MOVIE_ID + ")" +
+                MovieTable.MOVIES_TABLE_NAME + " (" + MovieTable.MOVIE_ID + ")" +
                 " ON DELETE CASCADE);" +
                 ");";
 
@@ -106,7 +106,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + MovieTable.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + MovieTable.MOVIES_TABLE_NAME);
         onCreate(db);
     }
 

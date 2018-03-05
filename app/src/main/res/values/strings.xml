@@ -5,11 +5,6 @@
     <string name="action_most_popular">Sort by most popular</string>
     <string name="action_highest_rated">Sort by highest rated</string>
 
-    <string name="popular_path">popular</string>
-    <string name="top_rated_path">top_rated</string>
-    <string name="movie_section_key">pref_section_key</string>
-    <string name="base_image_url">http://image.tmdb.org/t/p/</string>
-    <string name="base_api_url_v3">https://api.themoviedb.org/3/</string>
     <string name="tools_movie_title">Very Cool And Very Long Movie Title 2018</string>
     <string name="no_movie_data">Error, no movie info.</string>
     <string name="indicating">Indicating</string>

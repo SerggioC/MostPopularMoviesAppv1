@@ -24,7 +24,7 @@ public class MovieContract {
     // Define the possible paths for accessing data in this contract
     public static final String PATH_MOVIES = "movies";
     public final static class MovieTable implements BaseColumns {
-        public static final String TABLE_NAME = "movies_table";
+        public static final String MOVIES_TABLE_NAME = "movies_table";
         
         // Movies content URI = base content URI + path
         // "content://com.sergiocruz.mostpopularmovies/movies"
@@ -59,7 +59,7 @@ public class MovieContract {
     // Define the possible paths for accessing data in this contract
     public static final String PATH_VIDEOS = "videos";
     public final static class VideosTable implements BaseColumns {
-        public static final String TABLE_NAME = "videos_table";
+        public static final String VIDEOS_TABLE_NAME = "videos_table";
 
         // Movies content URI = base content URI + path
         // "content://com.sergiocruz.mostpopularmovies/videos"
@@ -80,7 +80,7 @@ public class MovieContract {
     // Define the possible paths for accessing data in this contract
     public static final String PATH_REVIEWS = "reviews";
     public final static class ReviewsTable implements BaseColumns {
-        public static final String TABLE_NAME = "reviews_table";
+        public static final String REVIEWS_TABLE_NAME = "reviews_table";
 
         // Movies content URI = base content URI + path
         // "content://com.sergiocruz.mostpopularmovies/reviews"

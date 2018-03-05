@@ -14,22 +14,23 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.sergiocruz.mostpopularmovies.TheMovieDB.BASE_IMAGE_URL;
+
 /**
  * Created by Sergio on 17/02/2018.
+ * Adapter for the gridlayout in the main activity
  */
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
     final private PosterClickListener mPosterClickListener;
     Context mContext;
     private ArrayList<MovieObject> mMovieData;
-    String BASE_IMAGE_URL;
     String imageSize;
     Boolean isFavorite;
 
     public MovieAdapter(Context context, PosterClickListener mPosterClickListener) {
         this.mContext = context;
         this.mPosterClickListener = mPosterClickListener;
-        this.BASE_IMAGE_URL = context.getString(R.string.base_image_url);
         String[] imageSizes = context.getResources().getStringArray(R.array.image_sizes);
         this.imageSize = imageSizes[2];
     }
