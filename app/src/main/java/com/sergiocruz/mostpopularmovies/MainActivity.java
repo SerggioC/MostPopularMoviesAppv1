@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
 
         // To make the App open in the last selected section
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        movieSection = sharedPrefs.getString(getString(R.string.movie_section_key), POPULAR_MOVIES_PATH);
+        movieSection = sharedPrefs.getString(getString(R.string.movie_section_pref_key), POPULAR_MOVIES_PATH);
         selectedRadioId = sharedPrefs.getInt(getString(R.string.radio_selected_key), R.id.radio_popular);
 
         Bundle bundle = new Bundle(1);
@@ -240,7 +240,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         selectedRadioId = R.id.radio_favourite;
     }
 
-
     private void loadMostPopular() {
         restartLoader(POPULAR_MOVIES_PATH);
         saveMovieSectionPreference(POPULAR_MOVIES_PATH, R.id.radio_popular);
@@ -255,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         selectedRadioId = radioId;
         movieSection = section;
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        sharedPrefs.edit().putString(this.getString(R.string.movie_section_key), section).apply();
+        sharedPrefs.edit().putString(this.getString(R.string.movie_section_pref_key), section).apply();
         sharedPrefs.edit().putInt(this.getString(R.string.radio_selected_key), radioId).apply();
     }
 
@@ -285,7 +284,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     @Override
     public Loader<ArrayList<MovieObject>> onCreateLoader(int id, Bundle args) {
         String section = args.getString(LOADER_BUNDLE);
-        MovieLoader movieloader = new MovieLoader(getApplicationContext(), section);
+        // TODO replace section with uri/url
+        MovieLoader movieloader = new MovieLoader(getApplicationContext(), section, id == LOADER_ID_DATABASE ? true : false);
         // forceLoad overridden in onStartLoading
         //movieloader.forceLoad();
         return movieloader;
@@ -368,10 +368,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     private static class MovieLoader extends AsyncTaskLoader<ArrayList<MovieObject>> {
         String movieSectionPath; // requested movie section, popular or top rated
         private ArrayList<MovieObject> movieObjectArrayList = null;
+        Boolean gotFavorite;
 
-        MovieLoader(@NonNull Context context, String movieSectionPath) {
+        MovieLoader(@NonNull Context context, String movieSectionPath, Boolean gotFavorite) {
             super(context);
             this.movieSectionPath = movieSectionPath;
+            this.gotFavorite = gotFavorite;
         }
 
         /**
@@ -408,22 +410,26 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         public ArrayList<MovieObject> loadInBackground() {
             ArrayList<MovieObject> movieObjects;
 
-            Uri uri = Uri.parse(BASE_API_URL_V3).buildUpon()
-                    .appendPath(MOVIES_PATH)
-                    .appendPath(movieSectionPath)
-                    .appendQueryParameter(API_KEY_PARAM, BuildConfig.THEMOVIEDB_API_KEY_V3)
-                    .appendQueryParameter(LANGUAGE_PARAM, "en-US")
-                    .appendQueryParameter(PAGE_PARAM, "1")
-                    .build();
+            if (!gotFavorite) {
+                Uri uri = Uri.parse(BASE_API_URL_V3).buildUpon()
+                        .appendPath(MOVIES_PATH)
+                        .appendPath(movieSectionPath)
+                        .appendQueryParameter(API_KEY_PARAM, BuildConfig.THEMOVIEDB_API_KEY_V3)
+                        .appendQueryParameter(LANGUAGE_PARAM, "en-US")
+                        .appendQueryParameter(PAGE_PARAM, "1")
+                        .build();
 
-            Log.i("Sergio>", this + " loadInBackground\nmovie query uri= " + uri);
+                Log.i("Sergio>", this + " loadInBackground\nmovie query uri= " + uri);
 
-            String jsonDataFromAPI = NetworkUtils.getJSONDataFromAPI(uri);
-            if (jsonDataFromAPI == null) return null;
+                String jsonDataFromAPI = NetworkUtils.getJSONDataFromAPI(uri);
+                if (jsonDataFromAPI == null) return null;
 
-            movieObjects = JSONParser.parseMovieDataFromJSON(jsonDataFromAPI);
+                movieObjects = JSONParser.parseMovieDataFromJSON(jsonDataFromAPI);
 
-            Log.i("Sergio>", this + " loadInBackground\nmovieObjects= " + movieObjects);
+                Log.i("Sergio>", this + " loadInBackground\nmovieObjects= " + movieObjects);
+            } else {
+                movieObjects = null;
+            }
 
             return movieObjects;
         }

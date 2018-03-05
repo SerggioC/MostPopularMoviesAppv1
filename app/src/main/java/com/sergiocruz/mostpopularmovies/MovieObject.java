@@ -28,8 +28,11 @@ class MovieObject implements Parcelable {
     private Boolean adult;
     private String overview;
     private String release_date;
+    private Boolean isFavorite;
+    private String posterFilePath;
+    private String backdropFilePath;
 
-    MovieObject(Integer vote_count, Integer id, Boolean video, Float vote_average, String title, Float popularity, String poster_path, String original_language, String original_title, List<Integer> genre_ids, String backdrop_path, Boolean adult, String overview, String release_date) {
+    MovieObject(Integer vote_count, Integer id, Boolean video, Float vote_average, String title, Float popularity, String poster_path, String original_language, String original_title, List<Integer> genre_ids, String backdrop_path, Boolean adult, String overview, String release_date, Boolean isFavorite, String posterFilePath, String backdropFilePath) {
         this.vote_count = vote_count;
         this.id = id;
         this.video = video;
@@ -44,6 +47,9 @@ class MovieObject implements Parcelable {
         this.adult = adult;
         this.overview = overview;
         this.release_date = release_date;
+        this.isFavorite = isFavorite;
+        this.posterFilePath = posterFilePath;
+        this.backdropFilePath = backdropFilePath;
     }
 
     MovieObject(Parcel in) {
@@ -68,6 +74,10 @@ class MovieObject implements Parcelable {
         adult = adultVal == 0x02 ? null : adultVal != 0x00;
         overview = in.readString();
         release_date = in.readString();
+        byte isFavVal = in.readByte();
+        isFavorite = isFavVal == 0x02 ? null : isFavVal != 0x00;
+        posterFilePath = in.readString();
+        backdropFilePath = in.readString();
     }
 
     @Override
@@ -124,6 +134,15 @@ class MovieObject implements Parcelable {
         }
         dest.writeString(overview);
         dest.writeString(release_date);
+
+        if (isFavorite == null) {
+            dest.writeByte((byte) (0x02));
+        } else {
+            dest.writeByte((byte) (isFavorite ? 0x01 : 0x00));
+        }
+        dest.writeString(posterFilePath);
+        dest.writeString(backdropFilePath);
+
     }
 
     Integer getVote_count() {
@@ -180,6 +199,30 @@ class MovieObject implements Parcelable {
 
     String getPoster_path() {
         return poster_path;
+    }
+
+    public Boolean getFavorite() {
+        return isFavorite;
+    }
+
+    public String getPosterFilePath() {
+        return posterFilePath;
+    }
+
+    public String getBackdropFilePath() {
+        return backdropFilePath;
+    }
+
+    public void setFavorite(Boolean favorite) {
+        isFavorite = favorite;
+    }
+
+    public void setPosterFilePath(String posterFilePath) {
+        this.posterFilePath = posterFilePath;
+    }
+
+    public void setBackdropFilePath(String backdropFilePath) {
+        this.backdropFilePath = backdropFilePath;
     }
 
     @SuppressWarnings("unused")

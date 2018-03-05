@@ -35,7 +35,6 @@ import com.sergiocruz.mostpopularmovies.Utils.AndroidUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.List;
 
 import static com.sergiocruz.mostpopularmovies.MainActivity.API_KEY_PARAM;
 import static com.sergiocruz.mostpopularmovies.MainActivity.INTENT_EXTRA_IS_FAVORITE;
@@ -43,8 +42,8 @@ import static com.sergiocruz.mostpopularmovies.MainActivity.INTENT_MOVIE_EXTRA;
 import static com.sergiocruz.mostpopularmovies.MainActivity.LANGUAGE_PARAM;
 import static com.sergiocruz.mostpopularmovies.MainActivity.PAGE_PARAM;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.BASE_API_URL_V3;
-import static com.sergiocruz.mostpopularmovies.TheMovieDB.MOVIES_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.BASE_IMAGE_URL;
+import static com.sergiocruz.mostpopularmovies.TheMovieDB.MOVIES_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.VIDEOS_PATH;
 
 public class DetailsActivity extends AppCompatActivity implements android.support.v4.app.LoaderManager.LoaderCallbacks,
@@ -55,6 +54,8 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     private static final int REVIEWS_LOADER_ID = 303;
     private static final String LOADER_BUNDLE_MOVIE_ID = "movie_id_bundle";
     private static final String LOADER_BUNDLE_GOT_FAVORITE = "got_favorite_bundle";
+    private static final String LOADER_BUNDLE_HAS_INTERNET = "has_internet_bundle";
+
     private static final float PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR = 0.9f;
     private static final float PERCENTAGE_TO_HIDE_TITLE_DETAILS = 0.3f;
     private static final int ALPHA_ANIMATIONS_DURATION = 200;
@@ -66,6 +67,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     private float FINAL_IMAGE_POSITION_Y;
     private float FINAL_IMAGE_WIDTH_PERCENTAGE = 0.5f;
     private float FINAL_IMAGE_HEIGHT_PERCENTAGE = 0.5F;
+
     private Context mContext;
     private boolean mIsTheTitleVisible = false;
     private boolean mIsTheTitleContainerVisible = true;
@@ -78,6 +80,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     private AppBarLayout appBarLayout;
     private FloatingActionButton favorite_star;
     private ImageView backdropImageView;
+    static MovieObject mMovieDataFromIntent;
 
     public static void startAlphaAnimation(View view, long duration, int visibility) {
         AlphaAnimation alphaAnimation =
@@ -127,7 +130,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
             return;
         }
 
-        MovieObject mMovieDataFromIntent = intent.getParcelableExtra(INTENT_MOVIE_EXTRA);
+        mMovieDataFromIntent = intent.getParcelableExtra(INTENT_MOVIE_EXTRA);
         Boolean gotFavorite = intent.getBooleanExtra(INTENT_EXTRA_IS_FAVORITE, false);
         if (mMovieDataFromIntent == null && !gotFavorite) {
             closeNoData();
@@ -139,24 +142,25 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
             Toast.makeText(mContext, R.string.no_internet, Toast.LENGTH_SHORT).show();
         }
 
-        initializeUIPopulate(mMovieDataFromIntent, gotFavorite, hasInternet);
+        initializeUIPopulating(mMovieDataFromIntent, gotFavorite, hasInternet);
 
         String receivedMovieId = mMovieDataFromIntent.getId().toString();
-        startLoaders(receivedMovieId, gotFavorite, hasInternet);
+
+        Bundle bundle = new Bundle(2);
+        bundle.putString(LOADER_BUNDLE_MOVIE_ID, receivedMovieId);
+        bundle.putBoolean(LOADER_BUNDLE_GOT_FAVORITE, gotFavorite);
+        bundle.putBoolean(LOADER_BUNDLE_HAS_INTERNET, hasInternet);
+
+        if (gotFavorite)
+            getSupportLoaderManager().initLoader(FAVORITES_LOADER_ID, bundle, this);
+
+        getSupportLoaderManager().initLoader(VIDEOS_LOADER_ID, bundle, this);
+        getSupportLoaderManager().initLoader(REVIEWS_LOADER_ID, bundle, this);
 
         Log.i("Sergio>", this + " onCreate\nmoviedata= " + mMovieDataFromIntent);
     }
 
-    private void startLoaders(String movieId, Boolean gotFavorite, Boolean hasInternet) {
-        Bundle bundle = new Bundle(2);
-        bundle.putString(LOADER_BUNDLE_MOVIE_ID, movieId);
-        bundle.putBoolean(LOADER_BUNDLE_GOT_FAVORITE, gotFavorite);
-        getSupportLoaderManager().initLoader(FAVORITES_LOADER_ID, bundle, this);
-        if (!hasInternet) return;
 
-        getSupportLoaderManager().initLoader(VIDEOS_LOADER_ID, bundle, this);
-        getSupportLoaderManager().initLoader(REVIEWS_LOADER_ID, bundle, this);
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -171,7 +175,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         return true;
     }
 
-    private void initializeUIPopulate(MovieObject movieData, Boolean gotFavorite, Boolean hasInternet) {
+    private void initializeUIPopulating(MovieObject movieData, Boolean gotFavorite, Boolean hasInternet) {
 
         if (gotFavorite) {
             favorite_star.setImageDrawable(ContextCompat.getDrawable(mContext, android.R.drawable.btn_star_big_on));
@@ -203,10 +207,20 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
      */
     @Override
     public Loader onCreateLoader(int id, Bundle args) {
-        Uri builtUri = MovieContract.MovieTable.MOVIES_CONTENT_URI;
+        Uri queryURI = MovieContract.MovieTable.MOVIES_CONTENT_URI;
         String movieId = args.getString(LOADER_BUNDLE_MOVIE_ID);
         Boolean gotFavorite = args.getBoolean(LOADER_BUNDLE_GOT_FAVORITE);
-        return new FavoritesMovieLoader(mContext, builtUri, movieId, gotFavorite);
+
+        switch (id) {
+            case FAVORITES_LOADER_ID:
+                return new FavoritesMovieLoader(mContext, queryURI, movieId, gotFavorite);
+            case VIDEOS_LOADER_ID:
+                return new VideosLoader(mContext, queryURI, movieId, gotFavorite);
+            case REVIEWS_LOADER_ID:
+                return new ReviewsLoader(mContext, queryURI, movieId, gotFavorite);
+            default:
+                return null;
+        }
     }
 
     /**
@@ -251,27 +265,26 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     public void onLoadFinished(Loader loader, Object data) {
         switch (loader.getId()) {
             case FAVORITES_LOADER_ID:
-                populateUIFromDataBase((Cursor) data);
+                populateUIFromDataBase((ArrayList<MovieObject>) data);
                 break;
             case VIDEOS_LOADER_ID:
-                populateVideos((List<VideoObject>) data);
+                populateVideos((ArrayList<VideoObject>) data);
                 break;
             case REVIEWS_LOADER_ID:
-                populateReviews((List<ReviewsObject>) data);
+                populateReviews((ArrayList<ReviewsObject>) data);
                 break;
-
         }
     }
 
-    private void populateReviews(List<ReviewsObject> reviewsObjects) {
+    private void populateReviews(ArrayList<ReviewsObject> reviewsObjects) {
 
     }
 
-    private void populateVideos(List<VideoObject> videoObjects) {
+    private void populateVideos(ArrayList<VideoObject> videoObjects) {
 
     }
 
-    private void populateUIFromDataBase(Cursor data) {
+    private void populateUIFromDataBase(ArrayList<MovieObject> data) {
 
     }
 
@@ -294,97 +307,12 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         Toast.makeText(this, R.string.no_movie_data, Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button
-            case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void initializeImageProperties() {
-        INITIAL_IMAGE_POSITION_X = posterImageView.getX();
-        INITIAL_IMAGE_POSITION_Y = posterImageView.getY();
-        INITIAL_IMAGE_WIDTH = posterImageView.getMeasuredWidth();
-        INITIAL_IMAGE_HEIGHT = posterImageView.getMeasuredHeight();
-        FINAL_IMAGE_POSITION_X = AndroidUtils.getPxFromDp(200);
-        FINAL_IMAGE_POSITION_Y = AndroidUtils.getStatusBarHeight(mContext) + FINAL_IMAGE_POSITION_X;
-    }
-
-    @Override
-    public void onOffsetChanged(AppBarLayout appBarLayout, int offset) {
-//        int maxScroll = appBarLayout.getTotalScrollRange();
-//        float percentage = Math.abs(offset) / maxScroll;
-//        Log.i("Sergio>", this + " onOffsetChanged\npercentage= " + percentage + "\n" +
-//                "offset= " + offset + "\n" +
-//                "maxScroll= " + maxScroll);
-//
-//        posterImageView.setTranslationX(FINAL_IMAGE_POSITION_X * percentage);
-//        posterImageView.setTranslationY(FINAL_IMAGE_POSITION_Y * percentage);
-//
-//        int imageWidth = posterImageView.getMeasuredWidth();
-//        int imageHeight = posterImageView.getMeasuredHeight();
-//
-//
-//        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) posterImageView.getLayoutParams();
-//        if (imageWidth <= INITIAL_IMAGE_WIDTH * FINAL_IMAGE_WIDTH_PERCENTAGE) {
-//            params.width = (int) (INITIAL_IMAGE_WIDTH / percentage);
-//            params.height = (int) (INITIAL_IMAGE_HEIGHT / percentage);
-//        } else {
-//            params.width = (int) (INITIAL_IMAGE_WIDTH * percentage);
-//            params.height = (int) (INITIAL_IMAGE_HEIGHT * percentage);
-//        }
-//        posterImageView.setLayoutParams(params);
-
-//        handleToolbarTitleVisibility(percentage);
-//        handleAlphaOnTitle(percentage);
-    }
-
-    private void handleToolbarTitleVisibility(float percentage) {
-        if (percentage >= PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR) {
-
-            if (!mIsTheTitleVisible) {
-                startAlphaAnimation(titleTV, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
-                mIsTheTitleVisible = true;
-            }
-
-        } else {
-
-            if (mIsTheTitleVisible) {
-                startAlphaAnimation(titleTV, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
-                mIsTheTitleVisible = false;
-            }
-        }
-    }
-
-    private void handleAlphaOnTitle(float percentage) {
-        if (percentage >= PERCENTAGE_TO_HIDE_TITLE_DETAILS) {
-            if (mIsTheTitleContainerVisible) {
-                startAlphaAnimation(titleTV, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
-                mIsTheTitleContainerVisible = false;
-            }
-
-        } else {
-
-            if (!mIsTheTitleContainerVisible) {
-                startAlphaAnimation(titleTV, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
-                mIsTheTitleContainerVisible = true;
-            }
-        }
-    }
-
     // Load data from Database and get a Cursor
-    public static class FavoritesMovieLoader extends AsyncTaskLoader<Cursor> {
+    public static class FavoritesMovieLoader extends AsyncTaskLoader<ArrayList<MovieObject>> {
         WeakReference weakContext;
         Uri queryUri;
         String movieId;
         Boolean gotFavorite;
-
-        // Initialize a Cursor, this will hold all the data
-        Cursor mMovieData = null;
 
         public FavoritesMovieLoader(@NonNull Context context, Uri uri, String movieId, Boolean gotFavorite) {
             super(context);
@@ -394,6 +322,8 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
             this.gotFavorite = gotFavorite;
         }
 
+        // Initialize a Cursor, this will hold all the data
+        ArrayList<MovieObject> mMovieData = new ArrayList<>();
         /**
          * Subclasses must implement this to take care of loading their data,
          * as per {@link #startLoading()}.  This is not called by clients directly,
@@ -440,48 +370,65 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
          */
         @Nullable
         @Override
-        public Cursor loadInBackground() {
+        public ArrayList<MovieObject> loadInBackground() {
 
             // Query and load all task data in the background; sort by priority
             // [Hint] use a try/catch block to catch any errors in loading data
+            mMovieData.add(mMovieDataFromIntent);
 
-            Cursor cursor;
+            ArrayList<MovieObject> movies = null;
+
             try {
                 if (gotFavorite) {
-                    // if got favorite just get the remainder data from DB
-                    cursor = ((Context) weakContext.get()).getContentResolver().query(
-                            queryUri,
-                            new String[]{
-                                    MovieContract.MovieTable.IS_FAVORITE,
-                                    MovieContract.MovieTable.POSTER_FILE_PATH,
-                                    MovieContract.MovieTable.BACKDROP_FILE_PATH,
-                                    MovieContract.VideosTable.VIDEO_URL,
-                                    MovieContract.ReviewsTable.MOVIE_REVIEW},
-                            "_id=?",
-                            new String[]{movieId},
-                            null);
+
                 } else {
-                    cursor = ((Context) weakContext.get()).getContentResolver().query(
+                    Cursor cursor = ((Context) weakContext.get()).getContentResolver().query(
                             queryUri,
                             null,
                             "_id=?",
                             new String[]{movieId},
                             null);
+                    movies = getArrayListFromCursor(cursor);
                 }
 
 
             } catch (Exception e) {
                 Log.e("Sergio>", "Failed to asynchronously load data.");
                 e.printStackTrace();
-                return null;
+                return movies;
             }
 
-            super.deliverResult(cursor);
-            return cursor;
+            super.deliverResult(movies);
+            return movies;
+        }
+
+        private ArrayList<MovieObject> getArrayListFromCursor(Cursor cursor) {
+            int cursorCount = cursor.getCount();
+            ArrayList<MovieObject> arrayList = new ArrayList<>(cursorCount);
+
+//            MovieContract.MovieTable.ALL_MOVIES_COLUMNS;
+
+
+            for (int i = 0; i < cursorCount; i++) {
+                while (cursor.moveToNext()) {
+                    arrayList.add(
+                            new MovieObject(
+                                    cursor.getInt(MovieContract.MovieTable._ID_INDEX), cursor.getInt(1), cursor.getInt(2) == 0 ? true : false,
+                                    cursor.getFloat(3), cursor.getString(4), cursor.getFloat(5),
+                                    cursor.getString(6), cursor.getString(7), cursor.getString(8),
+                                    cursor.getString(9), cursor.getString(10), cursor.getString(11),
+                                    cursor.getString(12), cursor.getString(13), cursor.getString(14),
+                                    cursor.getString(15), cursor.getString(16)
+                            )); //add the movie
+                }
+            }
+
+
+            return arrayList;
         }
 
         // deliverResult sends the result of the load, a Cursor, to the registered listener
-        public void deliverResult(Cursor data) {
+        public void deliverResult(ArrayList<MovieObject> data) {
             mMovieData = data;
             super.deliverResult(data);
 
@@ -494,15 +441,18 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         WeakReference weakContext;
         Uri queryUri;
         String movieId;
+        Boolean gotFavorite;
+
+        public VideosLoader(@NonNull Context context, Uri queryURI, String movieId, Boolean gotFavorite) {
+            super(context);
+            this.weakContext = new WeakReference(context);
+            this.queryUri = queryURI;
+            this.movieId = movieId;
+            this.gotFavorite = gotFavorite;
+        }
 
         // Initialize a VideoObject, this will hold all the videos data
         ArrayList<VideoObject> mVideoData = null;
-
-        public VideosLoader(@NonNull Context context, String movieId) {
-            super(context);
-            this.weakContext = new WeakReference(context);
-            this.movieId = movieId;
-        }
 
         /**
          * Subclasses must implement this to take care of loading their data,
@@ -595,6 +545,195 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     }
 
 
+    private class ReviewsLoader extends AsyncTaskLoader<ArrayList<ReviewsObject>>  {
+        WeakReference weakContext;
+        Uri queryUri;
+        String movieId;
+        Boolean gotFavorite;
 
+        public ReviewsLoader(Context context, Uri queryURI, String movieId, Boolean gotFavorite) {
+            super(context);
+            this.weakContext = new WeakReference(context);
+            this.queryUri = queryURI;
+            this.movieId = movieId;
+            this.gotFavorite = gotFavorite;
+        }
+
+        // Initialize a VideoObject, this will hold all the videos data
+        ArrayList<ReviewsObject> mReviewsObjects = null;
+
+        /**
+         * Subclasses must implement this to take care of loading their data,
+         * as per {@link #startLoading()}.  This is not called by clients directly,
+         * but as a result of a call to {@link #startLoading()}.
+         * This will always be called from the process's main thread.
+         * onStartLoading() is called when a loader first starts loading data
+         */
+        @Override
+        protected void onStartLoading() {
+            if (mReviewsObjects != null) {
+                // Delivers any previously loaded data immediately
+                deliverResult(mReviewsObjects);
+
+            } else {
+                // Force a new load
+                forceLoad();
+            }
+        }
+
+        /**
+         * Called on a worker thread to perform the actual load and to return
+         * the result of the load operation.
+         * <p>
+         * Implementations should not deliver the result directly, but should return them
+         * from this method, which will eventually end up calling {@link #deliverResult} on
+         * the UI thread.  If implementations need to process the results on the UI thread
+         * they may override {@link #deliverResult} and do so there.
+         * <p>
+         * To support cancellation, this method should periodically check the value of
+         * {@link #isLoadInBackgroundCanceled} and terminate when it returns true.
+         * Subclasses may also override {@link #cancelLoadInBackground} to interrupt the load
+         * directly instead of polling {@link #isLoadInBackgroundCanceled}.
+         * <p>
+         * When the load is canceled, this method may either return normally or throw
+         * {@link OperationCanceledException}.  In either case, the {@link Loader} will
+         * call {@link #onCanceled} to perform post-cancellation cleanup and to dispose of the
+         * result object, if any.
+         *
+         * @return The result of the load operation.
+         * @throws OperationCanceledException if the load is canceled during execution.
+         * @see #isLoadInBackgroundCanceled
+         * @see #cancelLoadInBackground
+         * @see #onCanceled
+         */
+        @Nullable
+        @Override
+        public ArrayList<ReviewsObject> loadInBackground() {
+
+            // Query and load all task data in the background; sort by priority
+            // [Hint] use a try/catch block to catch any errors in loading data
+            // * https://api.themoviedb.org/3/movie/{movie_id}/videos?api_key=<<api_key>>&language=en-US
+
+            ArrayList<ReviewsObject> reviewsData;
+            try {
+
+                Uri uri = Uri.parse(BASE_API_URL_V3).buildUpon()
+                        .appendPath(MOVIES_PATH)
+                        .appendPath(movieId)
+                        .appendPath(VIDEOS_PATH)
+                        .appendQueryParameter(API_KEY_PARAM, BuildConfig.THEMOVIEDB_API_KEY_V3)
+                        .appendQueryParameter(LANGUAGE_PARAM, "en-US")
+                        .appendQueryParameter(PAGE_PARAM, "1")
+                        .build();
+
+                Log.i("Sergio>", this + " loadInBackground\nvideos query uri= " + uri);
+
+                String jsonDataFromAPI = NetworkUtils.getJSONDataFromAPI(uri);
+                if (jsonDataFromAPI == null) return null;
+
+                reviewsData = JSONParser.parseReviewsDataFromJSON(jsonDataFromAPI);
+
+            } catch (Exception e) {
+                Log.e("Sergio>", "Failed to asynchronously load data.");
+                e.printStackTrace();
+                return null;
+            }
+
+            super.deliverResult(reviewsData);
+            return reviewsData;
+        }
+
+        // deliverResult sends the result of the load, a Cursor, to the registered listener
+        public void deliverResult(ArrayList<ReviewsObject> data) {
+            mReviewsObjects = data;
+            super.deliverResult(data);
+
+        }
+
+    }
+
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void initializeImageProperties() {
+        INITIAL_IMAGE_POSITION_X = posterImageView.getX();
+        INITIAL_IMAGE_POSITION_Y = posterImageView.getY();
+        INITIAL_IMAGE_WIDTH = posterImageView.getMeasuredWidth();
+        INITIAL_IMAGE_HEIGHT = posterImageView.getMeasuredHeight();
+        FINAL_IMAGE_POSITION_X = AndroidUtils.getPxFromDp(200);
+        FINAL_IMAGE_POSITION_Y = AndroidUtils.getStatusBarHeight(mContext) + FINAL_IMAGE_POSITION_X;
+    }
+
+    @Override
+    public void onOffsetChanged(AppBarLayout appBarLayout, int offset) {
+//        int maxScroll = appBarLayout.getTotalScrollRange();
+//        float percentage = Math.abs(offset) / maxScroll;
+//        Log.i("Sergio>", this + " onOffsetChanged\npercentage= " + percentage + "\n" +
+//                "offset= " + offset + "\n" +
+//                "maxScroll= " + maxScroll);
+//
+//        posterImageView.setTranslationX(FINAL_IMAGE_POSITION_X * percentage);
+//        posterImageView.setTranslationY(FINAL_IMAGE_POSITION_Y * percentage);
+//
+//        int imageWidth = posterImageView.getMeasuredWidth();
+//        int imageHeight = posterImageView.getMeasuredHeight();
+//
+//
+//        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) posterImageView.getLayoutParams();
+//        if (imageWidth <= INITIAL_IMAGE_WIDTH * FINAL_IMAGE_WIDTH_PERCENTAGE) {
+//            params.width = (int) (INITIAL_IMAGE_WIDTH / percentage);
+//            params.height = (int) (INITIAL_IMAGE_HEIGHT / percentage);
+//        } else {
+//            params.width = (int) (INITIAL_IMAGE_WIDTH * percentage);
+//            params.height = (int) (INITIAL_IMAGE_HEIGHT * percentage);
+//        }
+//        posterImageView.setLayoutParams(params);
+
+//        handleToolbarTitleVisibility(percentage);
+//        handleAlphaOnTitle(percentage);
+    }
+
+    private void handleToolbarTitleVisibility(float percentage) {
+        if (percentage >= PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR) {
+
+            if (!mIsTheTitleVisible) {
+                startAlphaAnimation(titleTV, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
+                mIsTheTitleVisible = true;
+            }
+
+        } else {
+
+            if (mIsTheTitleVisible) {
+                startAlphaAnimation(titleTV, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
+                mIsTheTitleVisible = false;
+            }
+        }
+    }
+
+    private void handleAlphaOnTitle(float percentage) {
+        if (percentage >= PERCENTAGE_TO_HIDE_TITLE_DETAILS) {
+            if (mIsTheTitleContainerVisible) {
+                startAlphaAnimation(titleTV, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
+                mIsTheTitleContainerVisible = false;
+            }
+
+        } else {
+
+            if (!mIsTheTitleContainerVisible) {
+                startAlphaAnimation(titleTV, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
+                mIsTheTitleContainerVisible = true;
+            }
+        }
+    }
 
 }
