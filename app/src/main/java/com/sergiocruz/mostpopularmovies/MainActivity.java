@@ -7,16 +7,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.os.OperationCanceledException;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.ListPopupWindow;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,11 +23,13 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.sergiocruz.mostpopularmovies.Adapters.MovieAdapter;
+import com.sergiocruz.mostpopularmovies.Loaders.MoviesLoader;
+import com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract;
+
 import java.util.ArrayList;
 
 import static android.widget.GridLayout.VERTICAL;
-import static com.sergiocruz.mostpopularmovies.TheMovieDB.BASE_API_URL_V3;
-import static com.sergiocruz.mostpopularmovies.TheMovieDB.MOVIES_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.POPULAR_MOVIES_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.TOP_RATED_MOVIES_PATH;
 import static com.sergiocruz.mostpopularmovies.Utils.AndroidUtils.getPxFromDp;
@@ -41,14 +38,12 @@ import static com.sergiocruz.mostpopularmovies.Utils.AndroidUtils.getWindowSizeX
 public class MainActivity extends AppCompatActivity implements MovieAdapter.PosterClickListener,
         android.support.v4.app.LoaderManager.LoaderCallbacks<ArrayList<MovieObject>> {
 
-    public static final String API_KEY_PARAM = "api_key";
-    public static final String LANGUAGE_PARAM = "language";
-    public static final String PAGE_PARAM = "page";
     public static final String LOADER_BUNDLE = "movie_loader_bundle";
-    public static final int LOADER_ID_INTERNET = 1;
-    public static final int LOADER_ID_DATABASE = 2;
+    public static final int LOADER_ID_INTERNET = 11;
+    public static final int LOADER_ID_DATABASE = 22;
     public static final String INTENT_MOVIE_EXTRA = "intent_movie_extra";
     public static final String INTENT_EXTRA_IS_FAVORITE = "intent_extra_is_favorite";
+    public static final String FAVORITE_MOVIES = "favorite";
 
     public static String movieSection;
     public int selectedRadioId;
@@ -64,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         gridRecyclerView = findViewById(R.id.recyclergridview);
         gridRecyclerView.setHasFixedSize(true);
         int spanCount = Math.round(getWindowSizeXY(this).x / getResources().getDimension(R.dimen.grid_image_width));
+
         GridLayoutManager manager = new GridLayoutManager(this, spanCount, VERTICAL, false);
         gridRecyclerView.setLayoutManager(manager);
         movieAdapter = new MovieAdapter(this, this);
@@ -79,7 +75,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
 
         Bundle bundle = new Bundle(1);
         bundle.putString(LOADER_BUNDLE, movieSection);
-        getSupportLoaderManager().initLoader(LOADER_ID_INTERNET, bundle, this).startLoading();
+        if (movieSection == FAVORITE_MOVIES) {
+            getSupportLoaderManager().initLoader(LOADER_ID_DATABASE, bundle, this).startLoading();
+        } else {
+            getSupportLoaderManager().initLoader(LOADER_ID_INTERNET, bundle, this).startLoading();
+        }
 
     }
 
@@ -238,6 +238,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
 
     private void loadFavouriteMovies() {
         selectedRadioId = R.id.radio_favourite;
+        restartLoader(FAVORITE_MOVIES);
+        saveMovieSectionPreference(FAVORITE_MOVIES, R.id.radio_favourite);
     }
 
     private void loadMostPopular() {
@@ -260,9 +262,21 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
 
     private void restartLoader(String section) {
         showLoadingView();
-        Bundle bundle = new Bundle(1);
-        bundle.putString(LOADER_BUNDLE, section);
-        getSupportLoaderManager().restartLoader(LOADER_ID_INTERNET, bundle, this);
+
+        String stringURI;
+        int loaderID;
+        if (section == FAVORITE_MOVIES) {
+            stringURI = MovieContract.MovieTable.MOVIES_CONTENT_URI.toString();
+            loaderID = LOADER_ID_DATABASE;
+        } else {
+            stringURI = TheMovieDB.prepareAPIStringURI(section, null);
+            loaderID = LOADER_ID_INTERNET;
+        }
+
+        Bundle bundleURI = new Bundle(1);
+        bundleURI.putString(LOADER_BUNDLE, stringURI);
+        getSupportLoaderManager().restartLoader(loaderID, bundleURI, this);
+
         gridRecyclerView.smoothScrollToPosition(0);
     }
 
@@ -283,9 +297,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
      */
     @Override
     public Loader<ArrayList<MovieObject>> onCreateLoader(int id, Bundle args) {
-        String section = args.getString(LOADER_BUNDLE);
-        // TODO replace section with uri/url
-        MovieLoader movieloader = new MovieLoader(getApplicationContext(), section, id == LOADER_ID_DATABASE ? true : false);
+        Uri queryUri = Uri.parse(args.getString(LOADER_BUNDLE));
+
+        MoviesLoader movieloader = new MoviesLoader(getApplicationContext(), queryUri, id == LOADER_ID_DATABASE ? true : false);
+
         // forceLoad overridden in onStartLoading
         //movieloader.forceLoad();
         return movieloader;
@@ -315,7 +330,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         gridRecyclerView.setVisibility(View.VISIBLE);
         loading_indicator.setVisibility(View.GONE);
     }
-
 
     // Source for saving API KEY in Native code
     // https://medium.com/@abhi007tyagi/storing-api-keys-using-android-ndk-6abb0adcadad
@@ -362,110 +376,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
                     ((MenuOptions) adapterView.getItemAtPosition(position)).getMenuText(), Toast.LENGTH_LONG).show();
         });
         listPopupWindow.show();
-    }
-
-
-    private static class MovieLoader extends AsyncTaskLoader<ArrayList<MovieObject>> {
-        String movieSectionPath; // requested movie section, popular or top rated
-        private ArrayList<MovieObject> movieObjectArrayList = null;
-        Boolean gotFavorite;
-
-        MovieLoader(@NonNull Context context, String movieSectionPath, Boolean gotFavorite) {
-            super(context);
-            this.movieSectionPath = movieSectionPath;
-            this.gotFavorite = gotFavorite;
-        }
-
-        /**
-         * Called on a worker thread to perform the actual load and to return
-         * the result of the load operation.
-         * <p>
-         * Implementations should not deliver the result directly, but should return them
-         * from this method, which will eventually end up calling {@link #deliverResult} on
-         * the UI thread.  If implementations need to process the results on the UI thread
-         * they may override {@link #deliverResult} and do so there.
-         * <p>
-         * To support cancellation, this method should periodically check the value of
-         * {@link #isLoadInBackgroundCanceled} and terminate when it returns true.
-         * Subclasses may also override {@link #cancelLoadInBackground} to interrupt the load
-         * directly instead of polling {@link #isLoadInBackgroundCanceled}.
-         * <p>
-         * When the load is canceled, this method may either return normally or throw
-         * {@link OperationCanceledException}.  In either case, the {@link Loader} will
-         * call {@link #onCanceled} to perform post-cancellation cleanup and to dispose of the
-         * result object, if any.
-         *
-         * @return The result of the load operation.
-         * @throws OperationCanceledException if the load is canceled during execution.
-         * @see #isLoadInBackgroundCanceled
-         * @see #cancelLoadInBackground
-         * @see #onCanceled
-         * <p>
-         * <Sample urls>
-         * https://api.themoviedb.org/3/movie/popular?api_key=<<api_key>>&language=en-US&page=1
-         * https://api.themoviedb.org/3/movie/top_rated?api_key=<<api_key>>&language=en-US&page=1
-         */
-        @Nullable
-        @Override
-        public ArrayList<MovieObject> loadInBackground() {
-            ArrayList<MovieObject> movieObjects;
-
-            if (!gotFavorite) {
-                Uri uri = Uri.parse(BASE_API_URL_V3).buildUpon()
-                        .appendPath(MOVIES_PATH)
-                        .appendPath(movieSectionPath)
-                        .appendQueryParameter(API_KEY_PARAM, BuildConfig.THEMOVIEDB_API_KEY_V3)
-                        .appendQueryParameter(LANGUAGE_PARAM, "en-US")
-                        .appendQueryParameter(PAGE_PARAM, "1")
-                        .build();
-
-                Log.i("Sergio>", this + " loadInBackground\nmovie query uri= " + uri);
-
-                String jsonDataFromAPI = NetworkUtils.getJSONDataFromAPI(uri);
-                if (jsonDataFromAPI == null) return null;
-
-                movieObjects = JSONParser.parseMovieDataFromJSON(jsonDataFromAPI);
-
-                Log.i("Sergio>", this + " loadInBackground\nmovieObjects= " + movieObjects);
-            } else {
-                movieObjects = null;
-            }
-
-            return movieObjects;
-        }
-
-        /**
-         * Subclasses must implement this to take care of loading their data,
-         * as per {@link #startLoading()}.  This is not called by clients directly,
-         * but as a result of a call to {@link #startLoading()}.
-         */
-        @Override
-        protected void onStartLoading() {
-            if (!NetworkUtils.hasActiveNetworkConnection(this.getContext())) {
-                Toast.makeText(getContext(), R.string.no_internet, Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (movieObjectArrayList != null) {
-                // Delivers any previously loaded data immediately
-                deliverResult(movieObjectArrayList);
-            } else {
-                // Force a new load
-                forceLoad();
-            }
-        }
-
-        /**
-         * Sends the result of the load to the registered listener. Should only be called by subclasses.
-         * <p>
-         * Must be called from the process's main thread.
-         *
-         * @param data the result of the load
-         */
-        @Override
-        public void deliverResult(@Nullable ArrayList<MovieObject> data) {
-            movieObjectArrayList = data;
-            super.deliverResult(data);
-        }
     }
 
     public class MenuOptions {

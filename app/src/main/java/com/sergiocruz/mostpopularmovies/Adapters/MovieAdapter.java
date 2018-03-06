@@ -1,4 +1,4 @@
-package com.sergiocruz.mostpopularmovies;
+package com.sergiocruz.mostpopularmovies.Adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -10,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.bumptech.glide.Glide;
+import com.sergiocruz.mostpopularmovies.MovieObject;
+import com.sergiocruz.mostpopularmovies.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,10 +25,10 @@ import static com.sergiocruz.mostpopularmovies.TheMovieDB.BASE_IMAGE_URL;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
     final private PosterClickListener mPosterClickListener;
-    Context mContext;
+    private Context mContext;
     private ArrayList<MovieObject> mMovieData;
-    String imageSize;
-    Boolean isFavorite;
+    private String imageSize;
+    private Boolean isFavorite;
 
     public MovieAdapter(Context context, PosterClickListener mPosterClickListener) {
         this.mContext = context;
@@ -86,7 +88,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
         String posterPath = new StringBuilder(BASE_IMAGE_URL)
                 .append(imageSize)
-                .append(mMovieData.get(position).getPoster_path())
+                .append(mMovieData.get(position).getPosterPath())
                 .toString();
 
         Glide.with(mContext)
@@ -120,7 +122,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         return mMovieData == null ? 0 : mMovieData.size();
     }
 
-    interface PosterClickListener {
+    public interface PosterClickListener {
         void onPosterClicked(MovieObject movie, Boolean isFavorite);
     }
 

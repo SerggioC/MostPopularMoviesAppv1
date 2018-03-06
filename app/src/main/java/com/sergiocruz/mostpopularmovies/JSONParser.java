@@ -1,5 +1,7 @@
 package com.sergiocruz.mostpopularmovies;
 
+import android.text.TextUtils;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,7 +14,7 @@ import java.util.List;
  * Created by Sergio on 18/02/2018.
  */
 
-class JSONParser {
+public class JSONParser {
 
     // JSON key names Movies
     static final class MoviesKeys {
@@ -35,7 +37,7 @@ class JSONParser {
         static final String NO_LANGUAGE_FALLBACK = "en-US";
     }
     
-    static ArrayList<MovieObject> parseMovieDataFromJSON(String jsonDataFromAPI) {
+    public static ArrayList<MovieObject> parseMovieDataFromJSON(String jsonDataFromAPI) {
         ArrayList<MovieObject> movieObjects;
         try {
             JSONObject jsonData = new JSONObject(jsonDataFromAPI);
@@ -64,7 +66,7 @@ class JSONParser {
                     int genreSize = jsonGenreIds.length();
                     genreIds = new ArrayList<>(genreSize);
                     for (int j = 0; j < genreSize; j++) {
-                        genreIds.add((Integer) jsonGenreIds.get(j));
+                        genreIds.add(jsonGenreIds.optInt(j));
                     }
                 }
 
@@ -98,7 +100,7 @@ class JSONParser {
         static final String TYPE = "type";
     }
 
-    static ArrayList<VideoObject> parseVideosDataFromJSON(String jsonDataFromAPI) {
+    public static ArrayList<VideoObject> parseVideosDataFromJSON(String jsonDataFromAPI) {
         ArrayList<VideoObject> videoObjects;
         try {
             JSONObject jsonData = new JSONObject(jsonDataFromAPI);
@@ -139,7 +141,7 @@ class JSONParser {
         static final String URL = "url";
     }
 
-    static ArrayList<ReviewsObject> parseReviewsDataFromJSON(String JSONDataFromAPI) {
+    public static ArrayList<ReviewsObject> parseReviewsDataFromJSON(String JSONDataFromAPI) {
         ArrayList<ReviewsObject> reviewsObjects;
 
         try {
@@ -167,6 +169,29 @@ class JSONParser {
         }
 
         return reviewsObjects;
+    }
+
+    public static List<Integer> getIntArrayFromJSON(String stringJSONData) {
+        List<Integer> genreIDs = null;
+        if (TextUtils.isEmpty(stringJSONData)) {
+            return genreIDs;
+        } else {
+            try {
+                JSONObject jsonData = new JSONObject(stringJSONData);
+                JSONArray jsonArray = jsonData.optJSONArray("genres");
+                int arSize = jsonArray.length();
+                genreIDs = new ArrayList<>(arSize);
+                for (int i = 0; i < arSize; i++) {
+                    genreIDs.add(jsonArray.optInt(i));
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return genreIDs;
+            }
+
+        }
+        return genreIDs;
     }
 
 }

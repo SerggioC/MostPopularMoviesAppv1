@@ -83,8 +83,6 @@ public class MovieContract {
         public static final int POSTER_FILE_PATH_INDEX = 16;
         public static final int BACKDROP_FILE_PATH_INDEX = 17;
 
-        
-        
     }
 
     // Define the possible paths for accessing data in this contract
@@ -113,6 +111,17 @@ public class MovieContract {
         public static final String SIZE = "size";
         public static final String TYPE = "type";
 
+        public static final int _ID_INDEX = 0;
+        public static final int MOVIE_ID_INDEX = 1;
+        public static final int VIDEO_ID_INDEX = 2;
+        public static final int ISO_639_1_INDEX = 3;
+        public static final int ISO_3166_1_INDEX = 4;
+        public static final int KEY_INDEX = 5;
+        public static final int NAME_INDEX = 6;
+        public static final int SITE_INDEX = 7;
+        public static final int SIZE_INDEX = 8;
+        public static final int TYPE_INDEX = 9;
+
     }
 
     // Define the possible paths for accessing data in this contract
@@ -137,8 +146,14 @@ public class MovieContract {
         public static final String CONTENT = "content";
         public static final String URL = "url";
 
+        public static final int _ID_INDEX = 0;
+        public static final int MOVIE_ID_INDEX = 1;
+        public static final int REVIEW_ID_INDEX = 2;
+        public static final int AUTHOR_INDEX = 3;
+        public static final int CONTENT_INDEX = 4;
+        public static final int URL_INDEX = 5;
+
+
     }
-
-
 
 }

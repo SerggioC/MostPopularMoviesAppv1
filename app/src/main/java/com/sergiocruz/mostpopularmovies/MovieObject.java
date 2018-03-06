@@ -12,73 +12,74 @@ import java.util.List;
  * http://www.parcelabler.com/
  */
 
-class MovieObject implements Parcelable {
-
-    private Integer vote_count;
+public class MovieObject implements Parcelable {
+    private Integer voteCount;
     private Integer id;
     private Boolean video;
-    private Float vote_average;
+    private Float voteAverage;
     private String title;
     private Float popularity;
-    private String poster_path;
-    private String original_language;
-    private String original_title;
-    private List<Integer> genre_ids;
-    private String backdrop_path;
+    private String posterPath;
+    private String originalLanguage;
+    private String originalTitle;
+    private List<Integer> genreIDs;
+    private String backdropPath;
     private Boolean adult;
     private String overview;
-    private String release_date;
+    private String releaseDate;
     private Boolean isFavorite;
     private String posterFilePath;
     private String backdropFilePath;
 
-    MovieObject(Integer vote_count, Integer id, Boolean video, Float vote_average, String title, Float popularity, String poster_path, String original_language, String original_title, List<Integer> genre_ids, String backdrop_path, Boolean adult, String overview, String release_date, Boolean isFavorite, String posterFilePath, String backdropFilePath) {
-        this.vote_count = vote_count;
+    public MovieObject(Integer voteCount, Integer id, Boolean video, Float voteAverage, String title, Float popularity, String posterPath, String originalLanguage, String originalTitle, List<Integer> genreIDs, String backdropPath, Boolean adult, String overview, String releaseDate, Boolean isFavorite, String posterFilePath, String backdropFilePath) {
+        this.voteCount = voteCount;
         this.id = id;
         this.video = video;
-        this.vote_average = vote_average;
+        this.voteAverage = voteAverage;
         this.title = title;
         this.popularity = popularity;
-        this.poster_path = poster_path;
-        this.original_language = original_language;
-        this.original_title = original_title;
-        this.genre_ids = genre_ids;
-        this.backdrop_path = backdrop_path;
+        this.posterPath = posterPath;
+        this.originalLanguage = originalLanguage;
+        this.originalTitle = originalTitle;
+        this.genreIDs = genreIDs;
+        this.backdropPath = backdropPath;
         this.adult = adult;
         this.overview = overview;
-        this.release_date = release_date;
+        this.releaseDate = releaseDate;
         this.isFavorite = isFavorite;
         this.posterFilePath = posterFilePath;
         this.backdropFilePath = backdropFilePath;
     }
 
-    MovieObject(Parcel in) {
-        vote_count = in.readByte() == 0x00 ? null : in.readInt();
+    public MovieObject(Parcel in) {
+        voteCount = in.readByte() == 0x00 ? null : in.readInt();
         id = in.readByte() == 0x00 ? null : in.readInt();
         byte videoVal = in.readByte();
         video = videoVal == 0x02 ? null : videoVal != 0x00;
-        vote_average = in.readByte() == 0x00 ? null : in.readFloat();
+        voteAverage = in.readByte() == 0x00 ? null : in.readFloat();
         title = in.readString();
         popularity = in.readByte() == 0x00 ? null : in.readFloat();
-        poster_path = in.readString();
-        original_language = in.readString();
-        original_title = in.readString();
+        posterPath = in.readString();
+        originalLanguage = in.readString();
+        originalTitle = in.readString();
         if (in.readByte() == 0x01) {
-            genre_ids = new ArrayList<>();
-            in.readList(genre_ids, Integer.class.getClassLoader());
+            genreIDs = new ArrayList<>();
+            in.readList(genreIDs, Integer.class.getClassLoader());
         } else {
-            genre_ids = null;
+            genreIDs = null;
         }
-        backdrop_path = in.readString();
+        backdropPath = in.readString();
         byte adultVal = in.readByte();
         adult = adultVal == 0x02 ? null : adultVal != 0x00;
         overview = in.readString();
-        release_date = in.readString();
+        releaseDate = in.readString();
         byte isFavVal = in.readByte();
         isFavorite = isFavVal == 0x02 ? null : isFavVal != 0x00;
         posterFilePath = in.readString();
         backdropFilePath = in.readString();
     }
+
+
 
     @Override
     public int describeContents() {
@@ -87,11 +88,11 @@ class MovieObject implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        if (vote_count == null) {
+        if (voteCount == null) {
             dest.writeByte((byte) (0x00));
         } else {
             dest.writeByte((byte) (0x01));
-            dest.writeInt(vote_count);
+            dest.writeInt(voteCount);
         }
         if (id == null) {
             dest.writeByte((byte) (0x00));
@@ -104,11 +105,11 @@ class MovieObject implements Parcelable {
         } else {
             dest.writeByte((byte) (video ? 0x01 : 0x00));
         }
-        if (vote_average == null) {
+        if (voteAverage == null) {
             dest.writeByte((byte) (0x00));
         } else {
             dest.writeByte((byte) (0x01));
-            dest.writeFloat(vote_average);
+            dest.writeFloat(voteAverage);
         }
         dest.writeString(title);
         if (popularity == null) {
@@ -117,23 +118,23 @@ class MovieObject implements Parcelable {
             dest.writeByte((byte) (0x01));
             dest.writeFloat(popularity);
         }
-        dest.writeString(poster_path);
-        dest.writeString(original_language);
-        dest.writeString(original_title);
-        if (genre_ids == null) {
+        dest.writeString(posterPath);
+        dest.writeString(originalLanguage);
+        dest.writeString(originalTitle);
+        if (genreIDs == null) {
             dest.writeByte((byte) (0x00));
         } else {
             dest.writeByte((byte) (0x01));
-            dest.writeList(genre_ids);
+            dest.writeList(genreIDs);
         }
-        dest.writeString(backdrop_path);
+        dest.writeString(backdropPath);
         if (adult == null) {
             dest.writeByte((byte) (0x02));
         } else {
             dest.writeByte((byte) (adult ? 0x01 : 0x00));
         }
         dest.writeString(overview);
-        dest.writeString(release_date);
+        dest.writeString(releaseDate);
 
         if (isFavorite == null) {
             dest.writeByte((byte) (0x02));
@@ -145,60 +146,60 @@ class MovieObject implements Parcelable {
 
     }
 
-    Integer getVote_count() {
-        return vote_count;
+    public Integer getVoteCount() {
+        return voteCount;
     }
 
-    Integer getId() {
+    public Integer getId() {
         return id;
     }
 
-    Boolean getVideo() {
+    public Boolean getVideo() {
         return video;
     }
 
-    Float getVote_average() {
-        return vote_average;
+    public Float getVoteAverage() {
+        return voteAverage;
     }
 
-    String getTitle() {
+    public String getTitle() {
         return title;
     }
 
-    Float getPopularity() {
+    public Float getPopularity() {
         return popularity;
     }
 
-    String getOriginal_language() {
-        return original_language;
+    public String getOriginalLanguage() {
+        return originalLanguage;
     }
 
-    String getOriginal_title() {
-        return original_title;
+    public String getOriginalTitle() {
+        return originalTitle;
     }
 
-    List<Integer> getGenre_ids() {
-        return genre_ids;
+    public List<Integer> getGenreIDs() {
+        return genreIDs;
     }
 
-    String getBackdrop_path() {
-        return backdrop_path;
+    public String getBackdropPath() {
+        return backdropPath;
     }
 
-    Boolean getAdult() {
+    public Boolean getAdult() {
         return adult;
     }
 
-    String getOverview() {
+    public String getOverview() {
         return overview;
     }
 
-    String getRelease_date() {
-        return release_date;
+    public String getReleaseDate() {
+        return releaseDate;
     }
 
-    String getPoster_path() {
-        return poster_path;
+    public String getPosterPath() {
+        return posterPath;
     }
 
     public Boolean getFavorite() {

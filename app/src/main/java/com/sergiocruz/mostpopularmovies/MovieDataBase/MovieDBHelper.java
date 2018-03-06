@@ -52,7 +52,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 MovieTable.ORIGINAL_TITLE + " TEXT, " +
                 MovieTable.GENRE_ID + " TEXT, " + // save int array as JSON
                 MovieTable.BACKDROP_PATH + " TEXT, " +
-                MovieTable.IS_ADULT + " REAL, " +
+                MovieTable.IS_ADULT + " INTEGER, " + //  0 - false, 1 - true
                 MovieTable.OVERVIEW + " TEXT, " +
                 MovieTable.RELEASE_DATE + " TEXT" +
                 MovieTable.IS_FAVORITE + " INTEGER, " + //  0 - false, 1 - true
