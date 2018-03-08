@@ -10,7 +10,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.ListPopupWindow;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -21,7 +20,6 @@ import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
 import com.sergiocruz.mostpopularmovies.Adapters.MovieAdapter;
 import com.sergiocruz.mostpopularmovies.Loaders.MoviesLoader;
@@ -30,8 +28,10 @@ import com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract;
 import java.util.ArrayList;
 
 import static android.widget.GridLayout.VERTICAL;
+import static com.sergiocruz.mostpopularmovies.TheMovieDB.NOW_PLAYING_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.POPULAR_MOVIES_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.TOP_RATED_MOVIES_PATH;
+import static com.sergiocruz.mostpopularmovies.TheMovieDB.UPCOMING_MOVIES_PATH;
 import static com.sergiocruz.mostpopularmovies.Utils.AndroidUtils.getPxFromDp;
 import static com.sergiocruz.mostpopularmovies.Utils.AndroidUtils.getWindowSizeXY;
 
@@ -168,19 +168,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
                 } else {
                     onOverFlowMenuClick(menuItemView);
                 }
-
                 break;
             }
             case R.id.menu_refresh: {
                 restartLoader(movieSection);
-                break;
-            }
-            case R.id.menu_most_popular: {
-                loadMostPopular();
-                break;
-            }
-            case R.id.menu_highest_rated: {
-                loadHighestRated();
                 break;
             }
         }
@@ -211,24 +202,35 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
 
         RadioButton radioPopular = popupLayout.findViewById(R.id.radio_popular);
         View.OnClickListener radioPopularListener = v -> {
-            loadMostPopular();
-            setRadioSelection(radioGroup, R.id.radio_popular, true);
+            reLoadMovies(POPULAR_MOVIES_PATH, radioGroup, R.id.radio_popular, true);
         };
         radioPopular.setOnClickListener(radioPopularListener);
         popupLayout.findViewById(R.id.menu_textView_popular).setOnClickListener(radioPopularListener);
 
         RadioButton radioButtonTopRated = popupLayout.findViewById(R.id.radio_top_rated);
         View.OnClickListener radio_top_rated = v -> {
-            loadHighestRated();
-            setRadioSelection(radioGroup, R.id.radio_top_rated, true);
+            reLoadMovies(TOP_RATED_MOVIES_PATH, radioGroup, R.id.radio_top_rated, true);
         };
         radioButtonTopRated.setOnClickListener(radio_top_rated);
         popupLayout.findViewById(R.id.menu_textView_top_rated).setOnClickListener(radio_top_rated);
 
+        RadioButton radioButtonUpcoming = popupLayout.findViewById(R.id.radio_upcuming);
+        View.OnClickListener upcomingClickListener = v -> {
+            reLoadMovies(UPCOMING_MOVIES_PATH, radioGroup, R.id.radio_upcuming, true);
+        };
+        radioButtonUpcoming.setOnClickListener(upcomingClickListener);
+        popupLayout.findViewById(R.id.menu_textView_upcoming).setOnClickListener(upcomingClickListener);
+
+        RadioButton radioButtonNowPlaying = popupLayout.findViewById(R.id.radio_now_playing);
+        View.OnClickListener nowPlayingClickListener = v -> {
+            reLoadMovies(NOW_PLAYING_PATH, radioGroup, R.id.radio_now_playing, true);
+        };
+        radioButtonNowPlaying.setOnClickListener(nowPlayingClickListener);
+        popupLayout.findViewById(R.id.menu_textView_now_playing).setOnClickListener(nowPlayingClickListener);
+
         RadioButton radioButtonFavourite = popupLayout.findViewById(R.id.radio_favourite);
         View.OnClickListener radio_favourite = v -> {
-            loadFavouriteMovies();
-            setRadioSelection(radioGroup, R.id.radio_favourite, true);
+            reLoadMovies(FAVORITE_MOVIES, radioGroup, R.id.radio_favourite, true);
         };
         radioButtonFavourite.setOnClickListener(radio_favourite);
         popupLayout.findViewById(R.id.menu_textView_favourite).setOnClickListener(radio_favourite);
@@ -242,19 +244,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         if (dismiss) popupWindow.dismiss();
     }
 
-    private void loadFavouriteMovies() {
-        restartLoader(FAVORITE_MOVIES);
-        saveMovieSectionPreference(FAVORITE_MOVIES, R.id.radio_favourite);
-    }
-
-    private void loadMostPopular() {
-        restartLoader(POPULAR_MOVIES_PATH);
-        saveMovieSectionPreference(POPULAR_MOVIES_PATH, R.id.radio_popular);
-    }
-
-    private void loadHighestRated() {
-        restartLoader(TOP_RATED_MOVIES_PATH);
-        saveMovieSectionPreference(TOP_RATED_MOVIES_PATH, R.id.radio_top_rated);
+    private void reLoadMovies(String MovieSection, RadioGroup radioGroup, int radioID, boolean dismiss) {
+        restartLoader(MovieSection);
+        saveMovieSectionPreference(MovieSection, radioID);
+        setRadioSelection(radioGroup, radioID, dismiss);
     }
 
     private void saveMovieSectionPreference(String section, int radioId) {
@@ -344,69 +337,5 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         gridRecyclerView.setVisibility(View.GONE);
         loading_indicator.setVisibility(View.VISIBLE);
     }
-
-    // R.drawable.menu_indicator
-    // https://stackoverflow.com/questions/26775840/custom-actionbar-overflow-menu
-    public void onOverFlowMenuClickListPopupWindow(View anchor) {
-        // This a sample data to fill our ListView
-        ArrayList<MenuOptions> menuOptions = new ArrayList<>(3);
-        menuOptions.add(new MenuOptions(true, R.drawable.menu_indicator, getString(R.string.action_most_popular)));
-        menuOptions.add(new MenuOptions(false, R.drawable.menu_indicator, getString(R.string.action_highest_rated)));
-        menuOptions.add(new MenuOptions(false, R.drawable.ic_favourite, getString(R.string.action_saved_movies)));
-
-        ListPopupWindowAdapter mListPopUpAdapter = new ListPopupWindowAdapter(this, menuOptions);
-
-        //Initialise our ListPopupWindow instance
-        ListPopupWindow listPopupWindow = new ListPopupWindow(this);
-        // Configure ListPopupWindow properties
-        listPopupWindow.setAdapter(mListPopUpAdapter);
-        // Set the view below/above which ListPopupWindow dropdowns
-        listPopupWindow.setAnchorView(anchor);
-        // Setting this enables window to be dismissed by click outside ListPopupWindow
-        listPopupWindow.setModal(true);
-        // Sets the width of the ListPopupWindow
-        listPopupWindow.setContentWidth(getPxFromDp(300));
-
-        // Sets the Height of the ListPopupWindow
-        listPopupWindow.setHeight(ListPopupWindow.WRAP_CONTENT);
-
-        listPopupWindow.setVerticalOffset(0);
-        listPopupWindow.setHorizontalOffset(getPxFromDp(50));
-
-        // Set up a click listener for the ListView items
-        listPopupWindow.setOnItemClickListener((adapterView, view, position, l) -> {
-            // Dismiss the LisPopupWindow when a list item is clicked
-            listPopupWindow.dismiss();
-            Toast.makeText(MainActivity.this, "Clicked ListPopUp item " +
-                    ((MenuOptions) adapterView.getItemAtPosition(position)).getMenuText(), Toast.LENGTH_LONG).show();
-        });
-        listPopupWindow.show();
-    }
-
-    public class MenuOptions {
-        private Boolean hasIndicator;
-        private int menuIcon;
-        private String menuText;
-
-        public MenuOptions(Boolean hasIndicator, int menuIcon, String menuText) {
-            this.hasIndicator = hasIndicator;
-            this.menuIcon = menuIcon;
-            this.menuText = menuText;
-        }
-
-        public Boolean getHasIndicator() {
-            return hasIndicator;
-        }
-
-        public int getMenuIcon() {
-            return menuIcon;
-        }
-
-        public String getMenuText() {
-            return menuText;
-        }
-
-    }
-
 
 }

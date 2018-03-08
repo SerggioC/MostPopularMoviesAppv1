@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.sergiocruz.mostpopularmovies.MovieObject;
 import com.sergiocruz.mostpopularmovies.R;
 import com.sergiocruz.mostpopularmovies.Utils.AndroidUtils;
@@ -16,6 +17,7 @@ import com.sergiocruz.mostpopularmovies.Utils.AndroidUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.BASE_IMAGE_URL;
 
 /**
@@ -92,6 +94,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
         Glide.with(mContext)
                 .load(posterPath)
+                .transition(withCrossFade())
+                .apply(new RequestOptions().error(R.drawable.noimage))
                 .into(holder.posterImageView);
     }
 

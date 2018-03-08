@@ -51,19 +51,19 @@ public class AndroidUtils {
         return (int) (metrics.densityDpi / 160f);
     }
 
-    public static String getOptimalImageWidth(Context context, int optimalSize) {
-        String width = "";
+    public static String getOptimalImageWidth(Context context, int imageWidth) {
+        String width = "original";
         String[] imageSizes = context.getResources().getStringArray(R.array.image_sizes);
         int[] imageWidthsPx = context.getResources().getIntArray(R.array.image_width_px);
 
-//        int optimalSize = getPxFromDp(imageWidthDp);
+//        int imageWidth = getPxFromDp(imageWidthDp);
 
         int arrLenght_1 = imageWidthsPx.length - 1;
         for (int i = 0; i < arrLenght_1; i++) {
-            if (optimalSize >= imageWidthsPx[i] && optimalSize < imageWidthsPx[i + 1])
+            if (imageWidth >= imageWidthsPx[i] && imageWidth < imageWidthsPx[i + 1])
                 width = imageSizes[i];
         }
-        if (optimalSize >= imageWidthsPx[arrLenght_1])
+        if (imageWidth >= imageWidthsPx[arrLenght_1])
             width = imageSizes[arrLenght_1];
 
         return width;

@@ -14,13 +14,13 @@ public final class TheMovieDB {
     public static final String LANGUAGE_PARAM = "language";
     public static final String PAGE_PARAM = "page";
     public static final String MOVIE_PATH = "movie";
-    public static final String POPULAR_MOVIES_PATH = "popular";
-    public static final String TOP_RATED_MOVIES_PATH = "top_rated";
     public static final String VIDEOS_PATH = "videos";
     public static final String REVIEWS_PATH = "reviews";
+    public static final String POPULAR_MOVIES_PATH = "popular";
+    public static final String TOP_RATED_MOVIES_PATH = "top_rated";
+    public static final String UPCOMING_MOVIES_PATH = "upcoming";
+    public static final String LATEST_MOVIES_PATH = "latest";
     public static final String NOW_PLAYING_PATH = "now_playing";
-    public static final String UPCOMING_PATH = "upcoming";
-    public static final String LATEST_PATH = "latest";
 
     // https://api.themoviedb.org/3/movie/{movie_id}/reviews?api_key=<<api_key>>&language=en-US&page=1
     // https://api.themoviedb.org/3/movie/{movie_id}/videos?api_key=<<api_key>>&language=en-US

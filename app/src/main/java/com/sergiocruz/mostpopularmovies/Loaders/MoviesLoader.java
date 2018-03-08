@@ -109,8 +109,6 @@ public class MoviesLoader extends AsyncTaskLoader<ArrayList<MovieObject>> {
                 if (jsonDataFromAPI == null) return null;
 
                 data = JSONParser.parseMovieDataFromJSON(jsonDataFromAPI);
-
-                Log.i("Sergio>", this + " loadInBackground\nmovieObjects= " + data);
             }
 
         } catch (Exception e) {
