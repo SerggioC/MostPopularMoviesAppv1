@@ -13,7 +13,7 @@ import android.util.Log;
 import com.sergiocruz.mostpopularmovies.JSONParser;
 import com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract;
 import com.sergiocruz.mostpopularmovies.MovieObject;
-import com.sergiocruz.mostpopularmovies.NetworkUtils;
+import com.sergiocruz.mostpopularmovies.Utils.NetworkUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ public class MoviesLoader extends AsyncTaskLoader<ArrayList<MovieObject>> {
     private Boolean getFavorites;
 
     // Initialize a ArrayList, this will hold all the data
-    private ArrayList<MovieObject> mMovieData = new ArrayList<>();
+    private ArrayList<MovieObject> mMovieData;
 
     public MoviesLoader(@NonNull Context context, Uri uri, Boolean getFavorites) {
         super(context);

@@ -12,12 +12,11 @@ import android.util.Log;
 
 import com.sergiocruz.mostpopularmovies.JSONParser;
 import com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract;
-import com.sergiocruz.mostpopularmovies.NetworkUtils;
+import com.sergiocruz.mostpopularmovies.Utils.NetworkUtils;
 import com.sergiocruz.mostpopularmovies.VideoObject;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-
 
 /**
  * Created by Sergio on 06/03/2018.
@@ -36,7 +35,7 @@ public class VideosLoader extends AsyncTaskLoader<ArrayList<VideoObject>> {
     }
 
     // Initialize a VideoObject, this will hold all the videos data
-    private ArrayList<VideoObject> mVideoData = null;
+    private ArrayList<VideoObject> mVideoData;
 
     /**
      * Subclasses must implement this to take care of loading their data,
@@ -86,7 +85,7 @@ public class VideosLoader extends AsyncTaskLoader<ArrayList<VideoObject>> {
     @Override
     public ArrayList<VideoObject> loadInBackground() {
 
-        // Query and load all task data in the background; sort by priority
+        // Query and load all data in the background;
         // Use a try/catch block to catch any errors in loading data
 
         ArrayList<VideoObject> videosData;
@@ -106,10 +105,7 @@ public class VideosLoader extends AsyncTaskLoader<ArrayList<VideoObject>> {
 
                 String jsonDataFromAPI = NetworkUtils.getJSONDataFromAPI(queryUri);
                 if (jsonDataFromAPI == null) return null;
-
                 videosData = JSONParser.parseVideosDataFromJSON(jsonDataFromAPI);
-
-                Log.i("Sergio>", this + " loadInBackground\nvideosData= " + videosData);
             }
 
         } catch (Exception e) {
@@ -118,19 +114,16 @@ public class VideosLoader extends AsyncTaskLoader<ArrayList<VideoObject>> {
             return null;
         }
 
-
         super.deliverResult(videosData);
         return videosData;
     }
 
-    // deliverResult sends the result of the load, a Cursor, to the registered listener
+    // deliverResult sends the result of the load to the registered listener
     public void deliverResult(ArrayList<VideoObject> data) {
         mVideoData = data;
         super.deliverResult(data);
 
     }
-
-
 
     private ArrayList<VideoObject> getArrayListFromCursor(Cursor cursor) {
         int cursorCount = cursor.getCount();

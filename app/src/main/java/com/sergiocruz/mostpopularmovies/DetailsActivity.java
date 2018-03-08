@@ -14,6 +14,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -23,24 +24,31 @@ import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
+import com.bumptech.glide.request.RequestOptions;
+import com.sergiocruz.mostpopularmovies.Adapters.ReviewsAdapter;
 import com.sergiocruz.mostpopularmovies.Adapters.VideosAdapter;
 import com.sergiocruz.mostpopularmovies.Loaders.ReviewsLoader;
 import com.sergiocruz.mostpopularmovies.Loaders.VideosLoader;
 import com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract;
 import com.sergiocruz.mostpopularmovies.Utils.AndroidUtils;
+import com.sergiocruz.mostpopularmovies.Utils.NetworkUtils;
 
 import java.util.ArrayList;
 
 import static com.sergiocruz.mostpopularmovies.MainActivity.INTENT_EXTRA_IS_FAVORITE;
 import static com.sergiocruz.mostpopularmovies.MainActivity.INTENT_MOVIE_EXTRA;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.BASE_IMAGE_URL;
+import static com.sergiocruz.mostpopularmovies.TheMovieDB.REVIEWS_PATH;
+import static com.sergiocruz.mostpopularmovies.TheMovieDB.VIDEOS_PATH;
 
 public class DetailsActivity extends AppCompatActivity implements android.support.v4.app.LoaderManager.LoaderCallbacks,
-        AppBarLayout.OnOffsetChangedListener, VideosAdapter.VideoClickListener {
+        AppBarLayout.OnOffsetChangedListener, VideosAdapter.VideoClickListener, ReviewsAdapter.ReviewClickListener {
 
     private static final int VIDEOS_LOADER_ID = 101;
     private static final int REVIEWS_LOADER_ID = 202;
@@ -75,6 +83,10 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     static MovieObject mMovieDataFromIntent;
     private RecyclerView videosRecyclerView;
     private RecyclerView reviewsRecyclerView;
+    private VideosAdapter videosAdapter;
+    private ReviewsAdapter reviewsAdapter;
+    private ProgressBar videos_loading_indicator;
+    private ProgressBar reviews_loading_indicator;
 
     public static void startAlphaAnimation(View view, long duration, int visibility) {
         AlphaAnimation alphaAnimation =
@@ -97,6 +109,12 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         backdropImageView = findViewById(R.id.backdrop_imageview);
         videosRecyclerView = findViewById(R.id.videosRecyclerView);
         reviewsRecyclerView = findViewById(R.id.reviewsRecyclerView);
+        videos_loading_indicator = findViewById(R.id.videos_loading_indicator);
+        reviews_loading_indicator = findViewById(R.id.reviews_loading_indicator);
+
+        favorite_star.setOnClickListener(v -> {
+            Toast.makeText(mContext, "Favorite / Unfavorite", Toast.LENGTH_SHORT).show();
+        });
     }
 
     @Override
@@ -106,8 +124,15 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         setContentView(R.layout.activity_details_coordinator);
         bindViews();
 
-        videosRecyclerView.setAdapter(new VideosAdapter(mContext, this));
+        LinearLayoutManager videosLinearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
+        videosAdapter = new VideosAdapter(mContext, this);
+        videosRecyclerView.setAdapter(videosAdapter);
+        videosRecyclerView.setLayoutManager(videosLinearLayoutManager);
 
+        LinearLayoutManager reviewsLinearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
+        reviewsAdapter = new ReviewsAdapter(this, this);
+        reviewsRecyclerView.setAdapter(reviewsAdapter);
+        reviewsRecyclerView.setLayoutManager(reviewsLinearLayoutManager);
 
         ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null) {
@@ -145,7 +170,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
 
         String receivedMovieId = mMovieDataFromIntent.getId().toString();
 
-        Bundle bundle = new Bundle(2);
+        Bundle bundle = new Bundle(3);
         bundle.putString(LOADER_BUNDLE_MOVIE_ID, receivedMovieId);
         bundle.putBoolean(LOADER_BUNDLE_GOT_FAVORITE, gotFavorite);
         bundle.putBoolean(LOADER_BUNDLE_HAS_INTERNET, hasInternet);
@@ -155,8 +180,6 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
 
         Log.i("Sergio>", this + " onCreate\nmoviedata= " + mMovieDataFromIntent);
     }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -173,22 +196,39 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
 
     private void initializeUIPopulating(MovieObject movieData, Boolean gotFavorite, Boolean hasInternet) {
 
+        RequestOptions glideOptions = new RequestOptions()
+                .centerCrop()
+                .placeholder(R.drawable.noimage)
+                .error(R.drawable.noimage)
+                .priority(Priority.HIGH);
+
+//        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(100, 100);
+//        iv.setLayoutParams(layoutParams);
+
+// http://image.tmdb.org/t/p/w92/cGOPbv9wA5gEejkUN892JrveARt.jpg 92/138
+// http://image.tmdb.org/t/p/w342/vsjBeMPZtyB7yNsYY56XYxifaQZ.jpg 342/192
+
         if (gotFavorite) {
             favorite_star.setImageDrawable(ContextCompat.getDrawable(mContext, android.R.drawable.btn_star_big_on));
             String posterImageURI = movieData.getPosterFilePath();
             String backDropImageURI = movieData.getBackdropFilePath();
-            Glide.with(mContext).load(posterImageURI).into(posterImageView);
-            Glide.with(mContext).load(backDropImageURI).into(backdropImageView);
+            Glide.with(mContext).load(posterImageURI).apply(glideOptions).into(posterImageView);
+            Glide.with(mContext).load(backDropImageURI).apply(glideOptions).into(backdropImageView);
 
         } else {
             favorite_star.setImageDrawable(ContextCompat.getDrawable(mContext, android.R.drawable.btn_star_big_off));
             if (hasInternet) {
-                String[] imageSizes = mContext.getResources().getStringArray(R.array.image_sizes);
-                String imageSize = imageSizes[0]; // "w92" thumbnail
-                String posterImageURI = new StringBuilder(BASE_IMAGE_URL).append(imageSize).append(movieData.getPosterPath()).toString();
-                String backDropImageURI = new StringBuilder(BASE_IMAGE_URL).append(imageSize).append(movieData.getBackdropPath()).toString();
-                Glide.with(mContext).load(posterImageURI).into(posterImageView);
-                Glide.with(mContext).load(backDropImageURI).into(backdropImageView);
+
+                int posterWidthDp = (int) mContext.getResources().getDimension(R.dimen.details_image_width);
+                String posterWidth = AndroidUtils.getOptimalImageWidth(mContext, posterWidthDp);
+
+                int backDropWidthDp = AndroidUtils.getWindowSizeXY(mContext).x; // match window width
+                String backDropWidth = AndroidUtils.getOptimalImageWidth(mContext, backDropWidthDp);
+
+                String posterImageURI = new StringBuilder(BASE_IMAGE_URL).append(posterWidth).append(movieData.getPosterPath()).toString();
+                String backDropImageURI = new StringBuilder(BASE_IMAGE_URL).append(backDropWidth).append(movieData.getBackdropPath()).toString();
+                Glide.with(mContext).load(posterImageURI).apply(glideOptions).into(posterImageView);
+                Glide.with(mContext).load(backDropImageURI).apply(glideOptions).into(backdropImageView);
             } else {
                 Glide.with(mContext).load(R.drawable.noimage).into(posterImageView);
                 Glide.with(mContext).load(R.drawable.noimage).into(backdropImageView);
@@ -205,20 +245,32 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     /**
      * Instantiate and return a new Loader for the given ID.
      *
-     * @param id   The ID whose loader is to be created.
+     * @param loaderID   The ID whose loader is to be created.
      * @param args Any arguments supplied by the caller.
      * @return Return a new Loader instance that is ready to start loading.
      */
     @Override
-    public Loader onCreateLoader(int id, Bundle args) {
+    public Loader onCreateLoader(int loaderID, Bundle args) {
         String movieId = args.getString(LOADER_BUNDLE_MOVIE_ID);
-        Uri queryURI = MovieContract.MovieTable.MOVIES_CONTENT_URI.buildUpon().appendPath(movieId).build();
         Boolean gotFavorite = args.getBoolean(LOADER_BUNDLE_GOT_FAVORITE);
 
-        switch (id) {
+        Uri queryURI;
+        switch (loaderID) {
             case VIDEOS_LOADER_ID:
+                videos_loading_indicator.setVisibility(View.VISIBLE);
+                if (gotFavorite) {
+                    queryURI = MovieContract.VideosTable.VIDEOS_CONTENT_URI.buildUpon().appendPath(movieId).build();
+                } else {
+                    queryURI = TheMovieDB.prepareAPIUri(VIDEOS_PATH, movieId);
+                }
                 return new VideosLoader(mContext, queryURI, gotFavorite);
             case REVIEWS_LOADER_ID:
+                if (gotFavorite) {
+                    queryURI = MovieContract.ReviewsTable.REVIEWS_CONTENT_URI.buildUpon().appendPath(movieId).build();
+                } else {
+                    queryURI = TheMovieDB.prepareAPIUri(REVIEWS_PATH, movieId);
+                }
+                reviews_loading_indicator.setVisibility(View.VISIBLE);
                 return new ReviewsLoader(mContext, queryURI, gotFavorite);
             default:
                 return null;
@@ -275,16 +327,15 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         }
     }
 
-    private void populateReviews(ArrayList<ReviewsObject> reviewsObjects) {
-
-    }
-
     private void populateVideos(ArrayList<VideoObject> videoObjects) {
-
+        videosAdapter.swapVideoData(videoObjects);
+        videos_loading_indicator.setVisibility(View.GONE);
     }
 
-
-
+    private void populateReviews(ArrayList<ReviewsObject> reviewsObjects) {
+        reviewsAdapter.swapReviewData(reviewsObjects);
+        reviews_loading_indicator.setVisibility(View.GONE);
+    }
 
     /**
      * Called when a previously created loader is being reset, and thus
@@ -295,16 +346,20 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
      */
     @Override
     public void onLoaderReset(Loader loader) {
-
+        switch (loader.getId()) {
+            case VIDEOS_LOADER_ID:
+                populateVideos(null);
+                break;
+            case REVIEWS_LOADER_ID:
+                populateReviews(null);
+                break;
+        }
     }
 
     private void closeNoData() {
         finish();
         Toast.makeText(this, R.string.no_movie_data, Toast.LENGTH_SHORT).show();
     }
-
-
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -389,7 +444,12 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     }
 
     @Override
-    public void onVideoClicked(MovieObject movie, Boolean isFavorite) {
+    public void onVideoClicked(VideoObject videoObject) {
+        Toast.makeText(mContext, "Clicked video " + videoObject.getName(), Toast.LENGTH_LONG).show();
+    }
 
+    @Override
+    public void onReviewClicked(ReviewsObject reviewObject) {
+        Toast.makeText(mContext, "Clicked Review " + reviewObject.getContent(), Toast.LENGTH_LONG).show();
     }
 }

@@ -73,13 +73,19 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         movieSection = sharedPrefs.getString(getString(R.string.movie_section_pref_key), POPULAR_MOVIES_PATH);
         selectedRadioId = sharedPrefs.getInt(getString(R.string.radio_selected_key), R.id.radio_popular);
 
-        Bundle bundle = new Bundle(1);
-        bundle.putString(LOADER_BUNDLE, movieSection);
-        if (movieSection == FAVORITE_MOVIES) {
-            getSupportLoaderManager().initLoader(LOADER_ID_DATABASE, bundle, this).startLoading();
+        int loaderID;
+        String stringURI;
+        if (movieSection.equals(FAVORITE_MOVIES)) {
+            loaderID = LOADER_ID_DATABASE;
+            stringURI = MovieContract.MovieTable.MOVIES_CONTENT_URI.toString();
         } else {
-            getSupportLoaderManager().initLoader(LOADER_ID_INTERNET, bundle, this).startLoading();
+            loaderID = LOADER_ID_INTERNET;
+            stringURI = TheMovieDB.prepareAPIUri(movieSection, null).toString();
         }
+
+        Bundle bundleURI = new Bundle(1);
+        bundleURI.putString(LOADER_BUNDLE, stringURI);
+        getSupportLoaderManager().initLoader(loaderID, bundleURI, this);
 
     }
 
@@ -237,7 +243,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     }
 
     private void loadFavouriteMovies() {
-        selectedRadioId = R.id.radio_favourite;
         restartLoader(FAVORITE_MOVIES);
         saveMovieSectionPreference(FAVORITE_MOVIES, R.id.radio_favourite);
     }
@@ -265,11 +270,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
 
         String stringURI;
         int loaderID;
-        if (section == FAVORITE_MOVIES) {
+        if (section.equals(FAVORITE_MOVIES)) {
             stringURI = MovieContract.MovieTable.MOVIES_CONTENT_URI.toString();
             loaderID = LOADER_ID_DATABASE;
         } else {
-            stringURI = TheMovieDB.prepareAPIStringURI(section, null);
+            stringURI = TheMovieDB.prepareAPIUri(section, null).toString();
             loaderID = LOADER_ID_INTERNET;
         }
 
@@ -299,11 +304,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     public Loader<ArrayList<MovieObject>> onCreateLoader(int id, Bundle args) {
         Uri queryUri = Uri.parse(args.getString(LOADER_BUNDLE));
 
-        MoviesLoader movieloader = new MoviesLoader(getApplicationContext(), queryUri, id == LOADER_ID_DATABASE ? true : false);
+        MoviesLoader moviesLoader = new MoviesLoader(getApplicationContext(), queryUri, id == LOADER_ID_DATABASE ? true : false);
 
         // forceLoad overridden in onStartLoading
-        //movieloader.forceLoad();
-        return movieloader;
+        //moviesLoader.forceLoad();
+        return moviesLoader;
     }
 
     @Override

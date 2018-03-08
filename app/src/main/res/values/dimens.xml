@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="grid_image_width">185dp</dimen>
-    <dimen name="grid_image_height">277dp</dimen>
-    <dimen name="details_image_width">92dp</dimen>
-    <dimen name="details_image_height">138dp</dimen>
+    <dimen name="grid_image_width">180dp</dimen>
+    <dimen name="grid_image_height">270dp</dimen>
+    <dimen name="details_image_width">120dp</dimen>
+    <dimen name="details_image_height">180dp</dimen>
     <dimen name="spacing_16dp">16dp</dimen>
 </resources>

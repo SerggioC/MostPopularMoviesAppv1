@@ -2,7 +2,6 @@ package com.sergiocruz.mostpopularmovies.Adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +11,7 @@ import android.widget.ListView;
 import com.bumptech.glide.Glide;
 import com.sergiocruz.mostpopularmovies.MovieObject;
 import com.sergiocruz.mostpopularmovies.R;
+import com.sergiocruz.mostpopularmovies.Utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +33,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     public MovieAdapter(Context context, PosterClickListener mPosterClickListener) {
         this.mContext = context;
         this.mPosterClickListener = mPosterClickListener;
-        String[] imageSizes = context.getResources().getStringArray(R.array.image_sizes);
-        this.imageSize = imageSizes[2];
+        this.imageSize = AndroidUtils.getOptimalImageWidth(context, (int) context.getResources().getDimension(R.dimen.grid_image_width));
     }
 
     /**
@@ -94,8 +93,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         Glide.with(mContext)
                 .load(posterPath)
                 .into(holder.posterImageView);
-
-        Log.i("Sergio>", this + " onBindViewHolder\nposterPath= " + posterPath);
     }
 
     /**

@@ -11,7 +11,7 @@ import android.util.Log;
 
 import com.sergiocruz.mostpopularmovies.JSONParser;
 import com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract;
-import com.sergiocruz.mostpopularmovies.NetworkUtils;
+import com.sergiocruz.mostpopularmovies.Utils.NetworkUtils;
 import com.sergiocruz.mostpopularmovies.ReviewsObject;
 
 import java.lang.ref.WeakReference;
@@ -35,7 +35,7 @@ public class ReviewsLoader extends AsyncTaskLoader<ArrayList<ReviewsObject>> {
     }
 
     // Initialize a VideoObject, this will hold all the videos data
-    private ArrayList<ReviewsObject> mReviewsObjects = null;
+    private ArrayList<ReviewsObject> mReviewsObjects;
 
     /**
      * Subclasses must implement this to take care of loading their data,
@@ -106,10 +106,7 @@ public class ReviewsLoader extends AsyncTaskLoader<ArrayList<ReviewsObject>> {
 
                 String jsonDataFromAPI = NetworkUtils.getJSONDataFromAPI(queryUri);
                 if (jsonDataFromAPI == null) return null;
-
                 reviewsData = JSONParser.parseReviewsDataFromJSON(jsonDataFromAPI);
-
-                Log.i("Sergio>", this + " loadInBackground\nreviewsData= " + reviewsData);
             }
 
         } catch (Exception e) {

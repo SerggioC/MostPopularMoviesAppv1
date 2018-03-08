@@ -27,4 +27,14 @@
         <item>original</item>
     </string-array>
 
+    <integer-array name="image_width_px">
+        <item>92</item>
+        <item>154</item>
+        <item>185</item>
+        <item>342</item>
+        <item>500</item>
+        <item>780</item>
+        <item>781</item>
+    </integer-array>
+
 </resources>

@@ -1,4 +1,4 @@
-package com.sergiocruz.mostpopularmovies;
+package com.sergiocruz.mostpopularmovies.Utils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -22,7 +22,7 @@ public class NetworkUtils {
     public static boolean hasActiveNetworkConnection(Context context) {
         ConnectivityManager connManager = (ConnectivityManager)
                 context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
+        NetworkInfo activeNetwork = connManager != null ? connManager.getActiveNetworkInfo() : null;
         return activeNetwork != null && activeNetwork.isConnectedOrConnecting() && activeNetwork.isAvailable();
     }
 
