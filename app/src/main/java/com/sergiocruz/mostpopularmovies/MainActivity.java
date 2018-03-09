@@ -1,5 +1,6 @@
 package com.sergiocruz.mostpopularmovies;
 
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -279,11 +280,17 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     }
 
     @Override
-    public void onPosterClicked(MovieObject movie, Boolean isFavorite) {
+    public void onPosterClicked(MovieObject movie, Boolean isFavorite, View itemView) {
         Intent detailsIntent = new Intent(MainActivity.this, DetailsActivity.class);
         detailsIntent.putExtra(INTENT_MOVIE_EXTRA, movie);
         detailsIntent.putExtra(INTENT_EXTRA_IS_FAVORITE, isFavorite);
-        startActivity(detailsIntent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            ActivityOptions activityOptions = ActivityOptions
+                    .makeScaleUpAnimation(itemView, 0, 0, itemView.getWidth(), itemView.getHeight());
+            startActivity(detailsIntent, activityOptions.toBundle());
+        } else {
+            startActivity(detailsIntent);
+        }
     }
 
     /**

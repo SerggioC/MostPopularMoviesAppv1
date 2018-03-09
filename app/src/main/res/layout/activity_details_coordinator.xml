@@ -24,6 +24,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
                 android:layout_marginTop="?attr/actionBarSize"
+                android:contentDescription="TODO"
                 android:fitsSystemWindows="false"
                 android:scaleType="centerCrop"
                 android:src="@drawable/looper_poster"
@@ -62,10 +63,10 @@
                         android:layout_marginTop="8dp"
                         android:gravity="bottom|center|start"
                         android:maxLines="2"
-                        android:text="Big Title Hollywood Movie Name Taking Two Lines"
                         android:textColor="@android:color/white"
                         android:textSize="30sp"
-                        app:autoSizeTextType="uniform"/>
+                        app:autoSizeTextType="uniform"
+                        tools:text="Big Title Hollywood Movie Name Taking Two Lines"/>
 
                     <TextView
                         android:id="@+id/genre_textview"
@@ -78,6 +79,8 @@
                         android:layout_marginTop="4dp"
                         android:text="Movie genre subtext"
                         android:textColor="@android:color/white"/>
+
+
                 </LinearLayout>
             </android.support.v7.widget.CardView>
 
@@ -146,6 +149,20 @@
                         app:layout_constraintTop_toTopOf="@+id/poster_imageView"
                         tools:text="2018"/>
 
+                    <android.support.v7.widget.AppCompatRatingBar
+                        android:id="@+id/ratingBar"
+                        style="?android:attr/ratingBarStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="32dp"
+                        android:layout_marginStart="32dp"
+                        android:layout_marginTop="8dp"
+                        android:numStars="5"
+                        android:progress="70"
+                        android:stepSize="0.1"
+                        app:layout_constraintStart_toEndOf="@+id/poster_imageView"
+                        app:layout_constraintTop_toBottomOf="@+id/date_textView"/>
+
                     <TextView
                         android:id="@+id/rating_textView"
                         android:layout_width="0dp"
@@ -158,11 +175,29 @@
                         android:textSize="18sp"
                         android:textStyle="bold"
                         app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/poster_imageView"
-                        app:layout_constraintTop_toBottomOf="@+id/date_textView"
+                        app:layout_constraintTop_toBottomOf="@+id/ratingBar"
                         tools:text="9/10"/>
+
+                    <LinearLayout
+                        android:id="@+id/genres_linear_layout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginLeft="32dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_marginStart="32dp"
+                        android:layout_marginTop="16dp"
+                        android:orientation="vertical"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/poster_imageView"
+                        app:layout_constraintTop_toBottomOf="@+id/rating_textView"/>
 
                     <TextView
                         android:id="@+id/synopsis_textView"
@@ -173,12 +208,13 @@
                         android:layout_marginStart="8dp"
                         android:layout_marginTop="8dp"
                         android:ellipsize="none"
-                        android:lineSpacingExtra="2dp"
-                        android:text="@string/lorem"
-                        android:textSize="16sp"
+                        android:lineSpacingMultiplier="1.1"
                         android:textColor="@android:color/white"
+                        android:textSize="16sp"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/poster_imageView"/>
+                        app:layout_constraintTop_toBottomOf="@+id/poster_imageView"
+                        tools:text="@string/lorem"/>
+
                 </android.support.constraint.ConstraintLayout>
 
             </android.support.v7.widget.CardView>

@@ -124,7 +124,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     }
 
     public interface PosterClickListener {
-        void onPosterClicked(MovieObject movie, Boolean isFavorite);
+        void onPosterClicked(MovieObject movie, Boolean isFavorite, View itemView);
     }
 
     public class MovieViewHolder extends RecyclerView.ViewHolder {
@@ -135,7 +135,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
             posterImageView = itemView.findViewById(R.id.movie_poster);
             posterImageView.setOnClickListener(v -> {
                 int clickedPosition = getAdapterPosition();
-                mPosterClickListener.onPosterClicked(mMovieData.get(clickedPosition), isFavorite);
+                mPosterClickListener.onPosterClicked(mMovieData.get(clickedPosition), isFavorite, itemView);
             });
         }
     }

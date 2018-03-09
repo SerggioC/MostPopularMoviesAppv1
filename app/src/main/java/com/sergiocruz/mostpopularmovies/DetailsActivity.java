@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
@@ -17,11 +18,16 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +44,7 @@ import com.sergiocruz.mostpopularmovies.Utils.AndroidUtils;
 import com.sergiocruz.mostpopularmovies.Utils.NetworkUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 import static com.sergiocruz.mostpopularmovies.MainActivity.INTENT_EXTRA_IS_FAVORITE;
@@ -54,7 +61,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     private static final String LOADER_BUNDLE_MOVIE_ID = "movie_id_bundle";
     private static final String LOADER_BUNDLE_GOT_FAVORITE = "got_favorite_bundle";
     private static final String LOADER_BUNDLE_HAS_INTERNET = "has_internet_bundle";
-
+    static MovieObject mMovieDataFromIntent;
     private Context mContext;
     private TextView titleTV;
     private ImageView posterImageView;
@@ -64,17 +71,21 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     private Toolbar toolbar;
     private FloatingActionButton favorite_star;
     private ImageView backdropImageView;
-    static MovieObject mMovieDataFromIntent;
     private RecyclerView videosRecyclerView;
     private RecyclerView reviewsRecyclerView;
     private VideosAdapter videosAdapter;
     private ReviewsAdapter reviewsAdapter;
     private ProgressBar videos_loading_indicator;
     private ProgressBar reviews_loading_indicator;
+    private CoordinatorLayout mainCoordinator;
+    private TextView genresTextView;
+    private LinearLayout genresLinearLayout;
 
     private void bindViews() {
+        mainCoordinator = findViewById(R.id.main_coordinator);
         toolbar = findViewById(R.id.toolbar);
         titleTV = findViewById(R.id.title_textView);
+        genresTextView = findViewById(R.id.genre_textview);
         posterImageView = findViewById(R.id.poster_imageView);
         dateTV = findViewById(R.id.date_textView);
         ratingTV = findViewById(R.id.rating_textView);
@@ -85,6 +96,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         reviewsRecyclerView = findViewById(R.id.reviewsRecyclerView);
         videos_loading_indicator = findViewById(R.id.videos_loading_indicator);
         reviews_loading_indicator = findViewById(R.id.reviews_loading_indicator);
+        genresLinearLayout = findViewById(R.id.genres_linear_layout);
 
         favorite_star.setOnClickListener(v -> {
             Toast.makeText(mContext, "Favorite / Unfavorite", Toast.LENGTH_SHORT).show();
@@ -97,6 +109,18 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         mContext = getApplicationContext();
         setContentView(R.layout.activity_details_coordinator);
         bindViews();
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+            ViewTreeObserver.OnPreDrawListener listener = new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    animateViewsOnPreDraw(new View[]{titleTV, genresTextView, posterImageView, dateTV, ratingTV, favorite_star, synopsisTV, genresLinearLayout});
+                    mainCoordinator.getViewTreeObserver().removeOnPreDrawListener(this);
+                    return true;
+                }
+            };
+            mainCoordinator.getViewTreeObserver().addOnPreDrawListener(listener);
+        }
 
         LinearLayoutManager videosLinearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
         videosAdapter = new VideosAdapter(mContext, this);
@@ -165,6 +189,22 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         return true;
     }
 
+    public void animateViewsOnPreDraw(View[] viewsToAnimate) {
+        Interpolator interpolator = new DecelerateInterpolator();
+        for (int i = 0; i < viewsToAnimate.length; ++i) {
+            View view = viewsToAnimate[i];
+            view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+            view.setAlpha(0);
+            view.setTranslationY(100);
+            view.animate()
+                    .setInterpolator(interpolator)
+                    .alpha(1)
+                    .translationY(0)
+                    .setStartDelay(100 * (i + 1))
+                    .start();
+        }
+    }
+
     private void initializeUIPopulating(MovieObject movieData, Boolean gotFavorite, Boolean hasInternet) {
 
         RequestOptions glideOptions = new RequestOptions()
@@ -210,13 +250,21 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         ratingTV.setText(movieData.getVoteAverage() + "/10");
         synopsisTV.setText(movieData.getOverview());
 
+        List<Integer> genreList = movieData.getGenreIDs();
+        for (int i = 0; i < genreList.size(); i++) {
+            TextView genreMiniLayout = (TextView) LayoutInflater.from(mContext).inflate(R.layout.genre_mini_layout, null, false);
+            genreMiniLayout.setText(TheMovieDB.genres.get(genreList.get(i)));
+            genresLinearLayout.addView(genreMiniLayout);
+        }
+
+
     }
 
     /**
      * Instantiate and return a new Loader for the given ID.
      *
-     * @param loaderID   The ID whose loader is to be created.
-     * @param args Any arguments supplied by the caller.
+     * @param loaderID The ID whose loader is to be created.
+     * @param args     Any arguments supplied by the caller.
      * @return Return a new Loader instance that is ready to start loading.
      */
     @Override

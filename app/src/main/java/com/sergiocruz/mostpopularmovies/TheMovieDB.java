@@ -2,6 +2,8 @@ package com.sergiocruz.mostpopularmovies;
 
 import android.net.Uri;
 
+import java.util.LinkedHashMap;
+
 /**
  * Created by Sergio on 04/03/2018.
  * TheMovieDB.org API constants
@@ -21,7 +23,33 @@ public final class TheMovieDB {
     public static final String UPCOMING_MOVIES_PATH = "upcoming";
     public static final String LATEST_MOVIES_PATH = "latest";
     public static final String NOW_PLAYING_PATH = "now_playing";
+    static LinkedHashMap<Integer, String> genres = populateGenres();
 
+    static LinkedHashMap<Integer, String> populateGenres() {
+        genres = (LinkedHashMap<Integer, String>) new LinkedHashMap(19);
+        genres.put(28, "Action");
+        genres.put(12, "Adventure");
+        genres.put(16, "Animation");
+        genres.put(35, "Comedy");
+        genres.put(80, "Crime");
+        genres.put(99, "Documentary");
+        genres.put(18, "Drama");
+        genres.put(10751, "Family");
+        genres.put(14, "Fantasy");
+        genres.put(36, "History");
+        genres.put(27, "Horror");
+        genres.put(10402, "Music");
+        genres.put(9648, "Mystery");
+        genres.put(10749, "Romance");
+        genres.put(878, "Science Fiction");
+        genres.put(10770, "TV Movie");
+        genres.put(53, "Thriller");
+        genres.put(10752, "War");
+        genres.put(37, "Western");
+        return genres;
+    }
+
+    // example api urls
     // https://api.themoviedb.org/3/movie/{movie_id}/reviews?api_key=<<api_key>>&language=en-US&page=1
     // https://api.themoviedb.org/3/movie/{movie_id}/videos?api_key=<<api_key>>&language=en-US
     // https://api.themoviedb.org/3/movie/popular?api_key=<<api_key>>&language=en-US&page=1
