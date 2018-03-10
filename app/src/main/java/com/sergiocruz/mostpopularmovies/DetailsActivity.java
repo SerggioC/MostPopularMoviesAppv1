@@ -1,5 +1,6 @@
 package com.sergiocruz.mostpopularmovies;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -14,11 +15,14 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatRatingBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.RelativeSizeSpan;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,7 +31,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -79,13 +82,13 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     private ProgressBar reviews_loading_indicator;
     private CoordinatorLayout mainCoordinator;
     private TextView genresTextView;
-    private LinearLayout genresLinearLayout;
+    private AppCompatRatingBar ratingBar;
+    private TextView votesTextView;
 
     private void bindViews() {
         mainCoordinator = findViewById(R.id.main_coordinator);
         toolbar = findViewById(R.id.toolbar);
         titleTV = findViewById(R.id.title_textView);
-        genresTextView = findViewById(R.id.genre_textview);
         posterImageView = findViewById(R.id.poster_imageView);
         dateTV = findViewById(R.id.date_textView);
         ratingTV = findViewById(R.id.rating_textView);
@@ -96,7 +99,9 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         reviewsRecyclerView = findViewById(R.id.reviewsRecyclerView);
         videos_loading_indicator = findViewById(R.id.videos_loading_indicator);
         reviews_loading_indicator = findViewById(R.id.reviews_loading_indicator);
-        genresLinearLayout = findViewById(R.id.genres_linear_layout);
+        genresTextView = findViewById(R.id.genres_textview);
+        ratingBar = findViewById(R.id.ratingBar);
+        votesTextView = findViewById(R.id.votes_textview);
 
         favorite_star.setOnClickListener(v -> {
             Toast.makeText(mContext, "Favorite / Unfavorite", Toast.LENGTH_SHORT).show();
@@ -114,7 +119,17 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
             ViewTreeObserver.OnPreDrawListener listener = new ViewTreeObserver.OnPreDrawListener() {
                 @Override
                 public boolean onPreDraw() {
-                    animateViewsOnPreDraw(new View[]{titleTV, genresTextView, posterImageView, dateTV, ratingTV, favorite_star, synopsisTV, genresLinearLayout});
+                    animateViewsOnPreDraw(new View[]{
+                            titleTV,
+                            posterImageView,
+                            dateTV,
+                            ratingBar,
+                            votesTextView,
+                            ratingTV,
+                            favorite_star,
+                            synopsisTV,
+                            genresTextView,
+                            backdropImageView});
                     mainCoordinator.getViewTreeObserver().removeOnPreDrawListener(this);
                     return true;
                 }
@@ -200,7 +215,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
                     .setInterpolator(interpolator)
                     .alpha(1)
                     .translationY(0)
-                    .setStartDelay(100 * (i + 1))
+                    .setStartDelay(50 * (i + 1))
                     .start();
         }
     }
@@ -215,8 +230,8 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
 //        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(100, 100);
 //        iv.setLayoutParams(layoutParams);
 
-// http://image.tmdb.org/t/p/w92/cGOPbv9wA5gEejkUN892JrveARt.jpg 92/138
-// http://image.tmdb.org/t/p/w342/vsjBeMPZtyB7yNsYY56XYxifaQZ.jpg 342/192
+//        http://image.tmdb.org/t/p/w92/cGOPbv9wA5gEejkUN892JrveARt.jpg 92/138
+//        http://image.tmdb.org/t/p/w342/vsjBeMPZtyB7yNsYY56XYxifaQZ.jpg 342/192
 
         if (gotFavorite) {
             favorite_star.setImageDrawable(ContextCompat.getDrawable(mContext, android.R.drawable.btn_star_big_on));
@@ -247,18 +262,32 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
 
         titleTV.setText(movieData.getTitle());
         dateTV.setText(movieData.getReleaseDate().split("-")[0]);
-        ratingTV.setText(movieData.getVoteAverage() + "/10");
+
+        ObjectAnimator anim = ObjectAnimator.ofFloat(ratingBar, "rating", 0, movieData.getVoteAverage() / 2);
+        anim.setDuration(1500);
+        anim.start();
+
+        SpannableStringBuilder ssb = new SpannableStringBuilder(movieData.getVoteAverage().toString());
+        ssb.setSpan(new RelativeSizeSpan(2), 0, ssb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        ssb.append("/10 ");
+        ratingTV.setText(ssb);
+
+        votesTextView.setText(movieData.getVoteCount() + " " + mContext.getString(R.string.votes));
         synopsisTV.setText(movieData.getOverview());
 
         List<Integer> genreList = movieData.getGenreIDs();
-        for (int i = 0; i < genreList.size(); i++) {
-            TextView genreMiniLayout = (TextView) LayoutInflater.from(mContext).inflate(R.layout.genre_mini_layout, null, false);
-            genreMiniLayout.setText(TheMovieDB.genres.get(genreList.get(i)));
-            genresLinearLayout.addView(genreMiniLayout);
+        StringBuilder sb = new StringBuilder();
+        int size = genreList.size();
+        for (int i = 0; i < size; i++) {
+            String genreText = TheMovieDB.genres.get(genreList.get(i));
+            sb.append(genreText);
+            if (i < size - 1)
+                sb.append(", ");
         }
-
+        genresTextView.setText(sb);
 
     }
+
 
     /**
      * Instantiate and return a new Loader for the given ID.
