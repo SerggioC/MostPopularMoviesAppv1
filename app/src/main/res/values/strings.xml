@@ -20,6 +20,10 @@
     <string name="action_share">Share Movie</string>
     <string name="movie_section_pref_key">movie_pref_key</string>
     <string name="votes">votes</string>
+    <string name="options_icon">Options Icon</string>
+    <string name="reviews">Reviews</string>
+    <string name="videos">Videos</string>
+    <string name="no_review_data">No review available</string>
 
     // themoviedb image sizes "w92", "w154", "w185", "w342", "w500", "w780", or "original".
     <string-array name="image_sizes">

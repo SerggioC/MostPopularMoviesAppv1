@@ -5,4 +5,5 @@
     <dimen name="details_image_width">120dp</dimen>
     <dimen name="details_image_height">180dp</dimen>
     <dimen name="spacing_16dp">16dp</dimen>
+    <dimen name="corner_radius">4dp</dimen>
 </resources>

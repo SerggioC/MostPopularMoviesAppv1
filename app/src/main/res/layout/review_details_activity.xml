@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="@drawable/gradient_background_black"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/main_linear_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            app:cardCornerRadius="@dimen/corner_radius"
+            app:cardElevation="8dp">
+
+            <TextView
+                android:id="@+id/reviewAuthorTextView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/gradient_card_black"
+                android:ellipsize="none"
+                android:padding="8dp"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="16sp"
+                tools:text="TextView"/>
+
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            app:cardCornerRadius="@dimen/corner_radius"
+            app:cardElevation="8dp">
+
+            <TextView
+                android:id="@+id/reviewDetailTextView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/gradient_card_black"
+                android:ellipsize="none"
+                android:lineSpacingMultiplier="1.1"
+                android:padding="8dp"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="16sp"
+                tools:text="TextView"/>
+
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            app:cardCornerRadius="@dimen/corner_radius"
+            app:cardElevation="8dp">
+
+            <TextView
+                android:id="@+id/reviewURLTextView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/gradient_card_black"
+                android:ellipsize="none"
+                android:padding="8dp"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="16sp"
+                tools:text="TextView"/>
+
+        </android.support.v7.widget.CardView>
+
+    </LinearLayout>
+
+</ScrollView>

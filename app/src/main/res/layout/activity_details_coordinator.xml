@@ -40,7 +40,7 @@
                 android:background="@color/transparent"
                 android:fitsSystemWindows="true"
                 app:cardBackgroundColor="@color/transparent"
-                app:cardCornerRadius="4dp"
+                app:cardCornerRadius="@dimen/corner_radius"
                 app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="0.3">
 
@@ -57,7 +57,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:layout_marginBottom="16dp"
+                        android:layout_marginBottom="24dp"
                         android:layout_marginLeft="16dp"
                         android:layout_marginRight="16dp"
                         android:layout_marginTop="8dp"
@@ -94,12 +94,9 @@
                 android:id="@+id/main_cardview"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginBottom="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginTop="8dp"
+                android:layout_margin="8dp"
                 android:padding="@dimen/default_gap"
-                app:cardCornerRadius="4dp"
+                app:cardCornerRadius="@dimen/corner_radius"
                 app:cardElevation="8dp">
 
                 <android.support.constraint.ConstraintLayout
@@ -153,9 +150,9 @@
                         android:id="@+id/votes_textview"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="2dp"
+                        android:textColor="@color/color_300"
                         android:textSize="12sp"
-                        android:textColor="@color/color_800"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintStart_toStartOf="@+id/ratingBar"
@@ -210,9 +207,21 @@
 
             </android.support.v7.widget.CardView>
 
+            <TextView
+                android:id="@+id/VideosTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:padding="4dp"
+                android:text="@string/videos"
+                android:textColor="@color/color_300"
+                android:textSize="14sp"/>
+
             <FrameLayout
+                android:id="@+id/VideosFrameGroup"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:layout_margin="8dp">
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/videosRecyclerView"
@@ -230,15 +239,26 @@
                     android:visibility="gone"/>
             </FrameLayout>
 
+            <TextView
+                android:id="@+id/ReviewsTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:padding="4dp"
+                android:text="@string/reviews"
+                android:textColor="@color/color_300"
+                android:textSize="14sp"/>
+
             <FrameLayout
+                android:id="@+id/ReviewsFrameGroup"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:layout_margin="8dp">
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/reviewsRecyclerView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="0dp"
                     android:adjustViewBounds="true"
                     android:padding="4dp"/>
 

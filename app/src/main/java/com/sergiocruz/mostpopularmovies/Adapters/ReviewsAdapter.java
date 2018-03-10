@@ -35,6 +35,7 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewsV
     public void onBindViewHolder(ReviewsAdapter.ReviewsViewHolder holder, int position) {
 
         holder.reviewTextView.setText(reviewObjects.get(position).getContent());
+        //
 
     }
 
@@ -49,7 +50,7 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewsV
     }
 
     public interface ReviewClickListener {
-        void onReviewClicked(ReviewsObject reviewObject);
+        void onReviewClicked(ReviewsObject reviewObject, View itemView);
     }
 
     public class ReviewsViewHolder extends RecyclerView.ViewHolder {
@@ -60,7 +61,7 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewsV
             reviewTextView = itemView.findViewById(R.id.reviewTextView);
             reviewTextView.setOnClickListener(v -> {
                 int clickedPosition = getAdapterPosition();
-                mReviewsClickListener.onReviewClicked(reviewObjects.get(clickedPosition));
+                mReviewsClickListener.onReviewClicked(reviewObjects.get(clickedPosition), itemView);
             });
         }
     }

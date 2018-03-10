@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".Activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -23,12 +23,21 @@
         </activity>
 
         <activity
-            android:name=".DetailsActivity"
-            android:parentActivityName=".MainActivity"
+            android:name=".Activities.DetailsActivity"
+            android:parentActivityName=".Activities.MainActivity"
             android:theme="@style/coordinatorTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".Activities.MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".Activities.ReviewDetailsActivity"
+            android:parentActivityName=".Activities.DetailsActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".Activities.DetailsActivity" />
         </activity>
 
         <provider

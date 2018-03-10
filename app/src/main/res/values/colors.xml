@@ -19,6 +19,7 @@
     <color name="color_700">#2c2827</color>
     <color name="color_800">#252221</color>
     <color name="color_900">#212121</color>
+    <color name="grey_900">#212121</color>
     <color name="color_A100">#f79668</color>
     <color name="color_A200">#f47438</color>
     <color name="color_A400">#f95300</color>

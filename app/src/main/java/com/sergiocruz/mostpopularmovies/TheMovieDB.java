@@ -23,9 +23,9 @@ public final class TheMovieDB {
     public static final String UPCOMING_MOVIES_PATH = "upcoming";
     public static final String LATEST_MOVIES_PATH = "latest";
     public static final String NOW_PLAYING_PATH = "now_playing";
-    static LinkedHashMap<Integer, String> genres = populateGenres();
+    public static LinkedHashMap<Integer, String> genres = populateGenres();
 
-    static LinkedHashMap<Integer, String> populateGenres() {
+    public static LinkedHashMap<Integer, String> populateGenres() {
         genres = (LinkedHashMap<Integer, String>) new LinkedHashMap(19);
         genres.put(28, "Action");
         genres.put(12, "Adventure");

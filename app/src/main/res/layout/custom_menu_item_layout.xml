@@ -13,12 +13,13 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
         android:orientation="horizontal"
         android:paddingBottom="8dp"
+        android:paddingEnd="12dp"
         android:paddingLeft="8dp"
         android:paddingRight="12dp"
-        android:paddingTop="8dp">
+        android:paddingTop="8dp"
+        android:paddingStart="8dp">
 
         <RadioGroup
             android:id="@+id/radioGroup"
@@ -54,9 +55,10 @@
                 android:layout_height="40dp"/>
 
             <ImageView
-                android:padding="8dp"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
+                android:contentDescription="@string/options_icon"
+                android:padding="8dp"
                 app:srcCompat="@drawable/ic_three_dots"/>
 
         </RadioGroup>
@@ -73,11 +75,11 @@
                 android:layout_height="40dp"
                 android:drawableLeft="@drawable/ic_popular"
                 android:drawablePadding="8dp"
+                android:drawableStart="@drawable/ic_popular"
                 android:gravity="center_vertical"
                 android:text="@string/action_most_popular"
                 android:textColor="@android:color/white"
-                android:textSize="16dp"/>
-
+                android:textSize="16sp"/>
 
             <TextView
                 android:id="@+id/menu_textView_top_rated"
@@ -85,6 +87,7 @@
                 android:layout_height="40dp"
                 android:drawableLeft="@drawable/ic_top_rated"
                 android:drawablePadding="8dp"
+                android:drawableStart="@drawable/ic_top_rated"
                 android:gravity="center_vertical"
                 android:text="@string/action_highest_rated"
                 android:textColor="@android:color/white"
@@ -96,6 +99,7 @@
                 android:layout_height="40dp"
                 android:drawableLeft="@drawable/ic_new_badge"
                 android:drawablePadding="8dp"
+                android:drawableStart="@drawable/ic_new_badge"
                 android:gravity="center_vertical"
                 android:text="@string/action_upcoming_movies"
                 android:textColor="@android:color/white"
@@ -107,6 +111,7 @@
                 android:layout_height="40dp"
                 android:drawableLeft="@drawable/ic_movie_player"
                 android:drawablePadding="8dp"
+                android:drawableStart="@drawable/ic_movie_player"
                 android:gravity="center_vertical"
                 android:text="@string/action_now_playing_movies"
                 android:textColor="@android:color/white"
@@ -118,6 +123,7 @@
                 android:layout_height="40dp"
                 android:drawableLeft="@drawable/ic_favourite2"
                 android:drawablePadding="8dp"
+                android:drawableStart="@drawable/ic_favourite2"
                 android:gravity="center_vertical"
                 android:text="@string/action_saved_movies"
                 android:textColor="@android:color/white"
@@ -129,6 +135,7 @@
                 android:layout_height="40dp"
                 android:drawableLeft="@drawable/ic_settings"
                 android:drawablePadding="8dp"
+                android:drawableStart="@drawable/ic_settings"
                 android:gravity="center_vertical"
                 android:text="@string/action_more_settings"
                 android:textColor="@android:color/white"

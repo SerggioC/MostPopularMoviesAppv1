@@ -5,7 +5,10 @@ import android.content.res.Resources;
 import android.graphics.Point;
 import android.util.DisplayMetrics;
 import android.view.Display;
+import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
 
 import com.sergiocruz.mostpopularmovies.R;
 
@@ -69,5 +72,20 @@ public class AndroidUtils {
         return width;
     }
 
+    public static void animateViewsOnPreDraw(View[] viewsToAnimate) {
+        Interpolator interpolator = new DecelerateInterpolator();
+        for (int i = 0; i < viewsToAnimate.length; ++i) {
+            View view = viewsToAnimate[i];
+            view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+            view.setAlpha(0);
+            view.setTranslationY(100);
+            view.animate()
+                    .setInterpolator(interpolator)
+                    .alpha(1)
+                    .translationY(0)
+                    .setStartDelay(50 * (i + 1))
+                    .start();
+        }
+    }
 
 }

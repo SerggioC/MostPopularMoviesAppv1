@@ -1,11 +1,13 @@
-package com.sergiocruz.mostpopularmovies;
+package com.sergiocruz.mostpopularmovies.Activities;
 
 import android.animation.ObjectAnimator;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -27,8 +29,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.Interpolator;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -43,15 +43,20 @@ import com.sergiocruz.mostpopularmovies.Adapters.VideosAdapter;
 import com.sergiocruz.mostpopularmovies.Loaders.ReviewsLoader;
 import com.sergiocruz.mostpopularmovies.Loaders.VideosLoader;
 import com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract;
+import com.sergiocruz.mostpopularmovies.MovieObject;
+import com.sergiocruz.mostpopularmovies.R;
+import com.sergiocruz.mostpopularmovies.ReviewsObject;
+import com.sergiocruz.mostpopularmovies.TheMovieDB;
 import com.sergiocruz.mostpopularmovies.Utils.AndroidUtils;
 import com.sergiocruz.mostpopularmovies.Utils.NetworkUtils;
+import com.sergiocruz.mostpopularmovies.VideoObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
-import static com.sergiocruz.mostpopularmovies.MainActivity.INTENT_EXTRA_IS_FAVORITE;
-import static com.sergiocruz.mostpopularmovies.MainActivity.INTENT_MOVIE_EXTRA;
+import static com.sergiocruz.mostpopularmovies.Activities.MainActivity.INTENT_EXTRA_IS_FAVORITE;
+import static com.sergiocruz.mostpopularmovies.Activities.MainActivity.INTENT_MOVIE_EXTRA;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.BASE_IMAGE_URL;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.REVIEWS_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.VIDEOS_PATH;
@@ -64,6 +69,8 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     private static final String LOADER_BUNDLE_MOVIE_ID = "movie_id_bundle";
     private static final String LOADER_BUNDLE_GOT_FAVORITE = "got_favorite_bundle";
     private static final String LOADER_BUNDLE_HAS_INTERNET = "has_internet_bundle";
+    public static final String INTENT_REVIEW_EXTRA = "review_data_extra";
+
     static MovieObject mMovieDataFromIntent;
     private Context mContext;
     private TextView titleTV;
@@ -104,7 +111,19 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         votesTextView = findViewById(R.id.votes_textview);
 
         favorite_star.setOnClickListener(v -> {
-            Toast.makeText(mContext, "Favorite / Unfavorite", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, "Click to add to Favorites / Long press to remove from favorites", Toast.LENGTH_LONG).show();
+        });
+        favorite_star.setOnLongClickListener(new View.OnLongClickListener() {
+            /**
+             * Called when a view has been clicked and held.
+             * @param v The view that was clicked and held.
+             * @return true if the callback consumed the long click, false otherwise.
+             */
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(mContext, "Remove from favorite", Toast.LENGTH_SHORT).show();
+                return true;
+            }
         });
     }
 
@@ -119,7 +138,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
             ViewTreeObserver.OnPreDrawListener listener = new ViewTreeObserver.OnPreDrawListener() {
                 @Override
                 public boolean onPreDraw() {
-                    animateViewsOnPreDraw(new View[]{
+                    AndroidUtils.animateViewsOnPreDraw(new View[]{
                             titleTV,
                             posterImageView,
                             dateTV,
@@ -204,21 +223,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         return true;
     }
 
-    public void animateViewsOnPreDraw(View[] viewsToAnimate) {
-        Interpolator interpolator = new DecelerateInterpolator();
-        for (int i = 0; i < viewsToAnimate.length; ++i) {
-            View view = viewsToAnimate[i];
-            view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-            view.setAlpha(0);
-            view.setTranslationY(100);
-            view.animate()
-                    .setInterpolator(interpolator)
-                    .alpha(1)
-                    .translationY(0)
-                    .setStartDelay(50 * (i + 1))
-                    .start();
-        }
-    }
+
 
     private void initializeUIPopulating(MovieObject movieData, Boolean gotFavorite, Boolean hasInternet) {
 
@@ -425,7 +430,16 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     }
 
     @Override
-    public void onReviewClicked(ReviewsObject reviewObject) {
-        Toast.makeText(mContext, "Clicked Review " + reviewObject.getContent(), Toast.LENGTH_LONG).show();
+    public void onReviewClicked(ReviewsObject reviewObject, View itemView) {
+
+        Intent detailsIntent = new Intent(DetailsActivity.this, ReviewDetailsActivity.class);
+        detailsIntent.putExtra(INTENT_REVIEW_EXTRA, reviewObject);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            ActivityOptions activityOptions = ActivityOptions
+                    .makeScaleUpAnimation(itemView, 0, 0, itemView.getWidth(), itemView.getHeight());
+            startActivity(detailsIntent, activityOptions.toBundle());
+        } else {
+            startActivity(detailsIntent);
+        }
     }
 }

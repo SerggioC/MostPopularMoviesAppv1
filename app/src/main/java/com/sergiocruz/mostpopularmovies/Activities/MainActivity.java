@@ -1,4 +1,4 @@
-package com.sergiocruz.mostpopularmovies;
+package com.sergiocruz.mostpopularmovies.Activities;
 
 import android.app.ActivityOptions;
 import android.content.Context;
@@ -25,6 +25,9 @@ import android.widget.RadioGroup;
 import com.sergiocruz.mostpopularmovies.Adapters.MovieAdapter;
 import com.sergiocruz.mostpopularmovies.Loaders.MoviesLoader;
 import com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract;
+import com.sergiocruz.mostpopularmovies.MovieObject;
+import com.sergiocruz.mostpopularmovies.R;
+import com.sergiocruz.mostpopularmovies.TheMovieDB;
 
 import java.util.ArrayList;
 
