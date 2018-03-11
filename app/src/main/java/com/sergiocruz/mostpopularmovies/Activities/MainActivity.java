@@ -38,6 +38,7 @@ import static com.sergiocruz.mostpopularmovies.TheMovieDB.TOP_RATED_MOVIES_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.UPCOMING_MOVIES_PATH;
 import static com.sergiocruz.mostpopularmovies.Utils.AndroidUtils.getPxFromDp;
 import static com.sergiocruz.mostpopularmovies.Utils.AndroidUtils.getWindowSizeXY;
+import static com.sergiocruz.mostpopularmovies.Utils.AndroidUtils.verifyStoragePermissions;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.PosterClickListener,
         android.support.v4.app.LoaderManager.LoaderCallbacks<ArrayList<MovieObject>> {
@@ -90,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         Bundle bundleURI = new Bundle(1);
         bundleURI.putString(LOADER_BUNDLE, stringURI);
         getSupportLoaderManager().initLoader(loaderID, bundleURI, this);
-
+        verifyStoragePermissions(MainActivity.this);
     }
 
     /**

@@ -19,6 +19,7 @@ import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
+import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.sergiocruz.mostpopularmovies.R;
@@ -157,7 +158,10 @@ public class AndroidUtils {
     }
 
     @Nullable
-    public static Uri saveBitmapToDevice(Context context, Bitmap bitmap, String fileName) {
+    public static Uri saveBitmapToDevice(Context context, ImageView imageView, String fileName) {
+        imageView.setDrawingCacheEnabled(true);
+        imageView.buildDrawingCache();
+        Bitmap bitmap = imageView.getDrawingCache();
         Uri fileUri;
         try {
             String path = Environment.getExternalStorageDirectory().toString();

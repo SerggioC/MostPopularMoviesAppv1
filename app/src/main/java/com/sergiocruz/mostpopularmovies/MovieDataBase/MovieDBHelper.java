@@ -40,7 +40,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         final String CREATE_MOVIES_TABLE = "CREATE TABLE " + MovieTable.MOVIES_TABLE_NAME + " (" +
-                MovieTable._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                MovieTable._ID + " INTEGER, " +
                 MovieTable.VOTE_COUNT + " INTEGER, " +
                 MovieTable.MOVIE_ID + " INTEGER PRIMARY KEY, " +
                 MovieTable.HAS_VIDEO + " INTEGER, " +
@@ -54,7 +54,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 MovieTable.BACKDROP_PATH + " TEXT, " +
                 MovieTable.IS_ADULT + " INTEGER, " + //  0 - false, 1 - true
                 MovieTable.OVERVIEW + " TEXT, " +
-                MovieTable.RELEASE_DATE + " TEXT" +
+                MovieTable.RELEASE_DATE + " TEXT, " +
                 MovieTable.IS_FAVORITE + " INTEGER, " + //  0 - false, 1 - true
                 MovieTable.POSTER_FILE_PATH + " TEXT, " +
                 MovieTable.BACKDROP_FILE_PATH + " TEXT, " +
@@ -62,7 +62,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 ");";
 
         final String CREATE_VIDEOS_TABLE = "CREATE TABLE " + VideosTable.VIDEOS_TABLE_NAME + " (" +
-                VideosTable._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                VideosTable._ID + " INTEGER, " +
                 VideosTable.MOVIE_ID + " INTEGER PRIMARY KEY, " +
                 VideosTable.VIDEO_ID + " TEXT, " +
                 VideosTable.ISO_639_1 + " TEXT, " +
@@ -79,7 +79,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 ");";
 
         final String CREATE_REVIEWS_TABLE = "CREATE TABLE " + ReviewsTable.REVIEWS_TABLE_NAME + " (" +
-                ReviewsTable._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                ReviewsTable._ID + " INTEGER, " +
                 ReviewsTable.MOVIE_ID + " INTEGER PRIMARY KEY, " +
                 ReviewsTable.REVIEW_ID + " INTEGER, " +
                 ReviewsTable.AUTHOR + " TEXT, " +

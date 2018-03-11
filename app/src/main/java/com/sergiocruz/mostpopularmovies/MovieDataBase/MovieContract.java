@@ -52,7 +52,7 @@ public class MovieContract {
         public static final String IS_ADULT = "is_adult";
         public static final String OVERVIEW = "overview";
         public static final String RELEASE_DATE = "release_date";
-        public static final String IS_FAVORITE = "is_favorite";
+        public static final String IS_FAVORITE = "isfavorite";
         public static final String POSTER_FILE_PATH = "poster_file_path";
         public static final String BACKDROP_FILE_PATH = "backdrop_file_path";
         
