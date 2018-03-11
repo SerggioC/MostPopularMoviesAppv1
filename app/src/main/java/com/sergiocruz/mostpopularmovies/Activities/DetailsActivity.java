@@ -2,10 +2,12 @@ package com.sergiocruz.mostpopularmovies.Activities;
 
 import android.animation.ObjectAnimator;
 import android.app.ActivityOptions;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,7 +30,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -51,6 +52,8 @@ import com.sergiocruz.mostpopularmovies.Utils.AndroidUtils;
 import com.sergiocruz.mostpopularmovies.Utils.NetworkUtils;
 import com.sergiocruz.mostpopularmovies.VideoObject;
 
+import org.json.JSONArray;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,17 +63,17 @@ import static com.sergiocruz.mostpopularmovies.Activities.MainActivity.INTENT_MO
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.BASE_IMAGE_URL;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.REVIEWS_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.VIDEOS_PATH;
+import static com.sergiocruz.mostpopularmovies.Utils.AndroidUtils.verifyStoragePermissions;
 
 public class DetailsActivity extends AppCompatActivity implements android.support.v4.app.LoaderManager.LoaderCallbacks,
         VideosAdapter.VideoClickListener, ReviewsAdapter.ReviewClickListener {
 
+    public static final String INTENT_REVIEW_EXTRA = "review_data_extra";
     private static final int VIDEOS_LOADER_ID = 101;
     private static final int REVIEWS_LOADER_ID = 202;
     private static final String LOADER_BUNDLE_MOVIE_ID = "movie_id_bundle";
     private static final String LOADER_BUNDLE_GOT_FAVORITE = "got_favorite_bundle";
     private static final String LOADER_BUNDLE_HAS_INTERNET = "has_internet_bundle";
-    public static final String INTENT_REVIEW_EXTRA = "review_data_extra";
-
     static MovieObject mMovieDataFromIntent;
     private Context mContext;
     private TextView titleTV;
@@ -111,10 +114,11 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         votesTextView = findViewById(R.id.votes_textview);
 
         favorite_star.setOnClickListener(v -> {
-            Toast.makeText(mContext, "Click to add to Favorites / Long press to remove from favorites", Toast.LENGTH_LONG).show();
+            getContentResolver().insert(MovieContract.MovieTable.MOVIES_CONTENT_URI, saveToContentValues(mMovieDataFromIntent));
+            Toast.makeText(mContext, "Movie data saved to Favorites", Toast.LENGTH_LONG).show();
         });
         favorite_star.setOnLongClickListener(new View.OnLongClickListener() {
-            /**
+            /**!
              * Called when a view has been clicked and held.
              * @param v The view that was clicked and held.
              * @return true if the callback consumed the long click, false otherwise.
@@ -127,6 +131,38 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         });
     }
 
+    private ContentValues saveToContentValues(MovieObject movieObject) {
+        ContentValues values = new ContentValues();
+        values.put(MovieContract.MovieTable.VOTE_COUNT, movieObject.getVoteCount());
+        values.put(MovieContract.MovieTable.MOVIE_ID, movieObject.getId());
+        values.put(MovieContract.MovieTable.HAS_VIDEO, movieObject.getVideo());
+        values.put(MovieContract.MovieTable.VOTE_AVERAGE, movieObject.getVoteAverage());
+        values.put(MovieContract.MovieTable.TITLE, movieObject.getTitle());
+        values.put(MovieContract.MovieTable.POPULARITY, movieObject.getPopularity());
+        values.put(MovieContract.MovieTable.POSTER_PATH, movieObject.getPosterPath());
+        values.put(MovieContract.MovieTable.ORIGINAL_LANGUAGE, movieObject.getOriginalLanguage());
+        values.put(MovieContract.MovieTable.ORIGINAL_TITLE, movieObject.getOriginalTitle());
+        String jsonGenreIDs = new JSONArray(movieObject.getGenreIDs()).toString();
+        values.put(MovieContract.MovieTable.GENRE_ID, jsonGenreIDs);
+        values.put(MovieContract.MovieTable.BACKDROP_PATH, movieObject.getBackdropPath());
+        values.put(MovieContract.MovieTable.IS_ADULT, movieObject.getAdult());
+        values.put(MovieContract.MovieTable.OVERVIEW, movieObject.getOverview());
+        values.put(MovieContract.MovieTable.RELEASE_DATE, movieObject.getReleaseDate());
+        values.put(MovieContract.MovieTable.IS_FAVORITE, true);
+
+        Bitmap posterBitmapURL = AndroidUtils.getBitmapFromURL(mContext, movieObject.getPosterPath());
+        Uri posterFileUri = AndroidUtils.saveBitmapToDevice(mContext, posterBitmapURL, movieObject.getPosterPath().replace("/", ""));
+        values.put(MovieContract.MovieTable.POSTER_FILE_PATH, posterFileUri.toString());
+
+        Bitmap backDropBitmapURL = AndroidUtils.getBitmapFromURL(mContext, movieObject.getBackdropPath());
+        Uri backDropFileUri = AndroidUtils.saveBitmapToDevice(mContext, backDropBitmapURL, movieObject.getBackdropPath().replace("/", ""));
+        values.put(MovieContract.MovieTable.BACKDROP_FILE_PATH, backDropFileUri.toString());
+
+        return values;
+    }
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -134,27 +170,10 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         setContentView(R.layout.activity_details_coordinator);
         bindViews();
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
-            ViewTreeObserver.OnPreDrawListener listener = new ViewTreeObserver.OnPreDrawListener() {
-                @Override
-                public boolean onPreDraw() {
-                    AndroidUtils.animateViewsOnPreDraw(new View[]{
-                            titleTV,
-                            posterImageView,
-                            dateTV,
-                            ratingBar,
-                            votesTextView,
-                            ratingTV,
-                            favorite_star,
-                            synopsisTV,
-                            genresTextView,
-                            backdropImageView});
-                    mainCoordinator.getViewTreeObserver().removeOnPreDrawListener(this);
-                    return true;
-                }
-            };
-            mainCoordinator.getViewTreeObserver().addOnPreDrawListener(listener);
-        }
+        AndroidUtils.animateViewsOnPreDraw(mainCoordinator, new View[]{ titleTV,
+                posterImageView, dateTV, ratingBar,
+                votesTextView, ratingTV, favorite_star,
+                synopsisTV, genresTextView, backdropImageView});
 
         LinearLayoutManager videosLinearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
         videosAdapter = new VideosAdapter(mContext, this);
@@ -224,7 +243,6 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     }
 
 
-
     private void initializeUIPopulating(MovieObject movieData, Boolean gotFavorite, Boolean hasInternet) {
 
         RequestOptions glideOptions = new RequestOptions()
@@ -292,7 +310,6 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         genresTextView.setText(sb);
 
     }
-
 
     /**
      * Instantiate and return a new Loader for the given ID.
@@ -420,9 +437,40 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
+            case R.id.menu_action_share:
+                shareMovieData();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private void shareMovieData() {
+        verifyStoragePermissions(DetailsActivity.this);
+
+        String message = new StringBuilder()
+                .append("Hey Check out this cool movie").append("\n")
+                .append(mMovieDataFromIntent.getTitle()).append("\n")
+                .append(mMovieDataFromIntent.getReleaseDate()).append("\n")
+                .append(mMovieDataFromIntent.getOverview()).append("\n")
+                .append("Sent from: " + getString(R.string.app_name))
+                .toString();
+
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, message);
+
+        posterImageView.setDrawingCacheEnabled(true);
+        posterImageView.buildDrawingCache();
+        Bitmap bitmap = posterImageView.getDrawingCache();
+        Uri fileUri = AndroidUtils.saveBitmapToDevice(mContext, bitmap, "shareimage.jpg");
+
+        sendIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+        sendIntent.setType("image/jpeg");
+        startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.send_to)));
+
+    }
+
+
 
     @Override
     public void onVideoClicked(VideoObject videoObject) {

@@ -1,13 +1,13 @@
 package com.sergiocruz.mostpopularmovies.Activities;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
+import android.text.util.Linkify;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,20 +35,8 @@ public class ReviewDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.review_details_activity);
         bindViews();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            ViewTreeObserver.OnPreDrawListener listener = new ViewTreeObserver.OnPreDrawListener() {
-                @Override
-                public boolean onPreDraw() {
-                    AndroidUtils.animateViewsOnPreDraw(new View[]{
-                            reviewAuthorTextView,
-                            reviewDetailTextView,
-                            reviewURLTextView,});
-                    main_linear_layout.getViewTreeObserver().removeOnPreDrawListener(this);
-                    return true;
-                }
-            };
-            main_linear_layout.getViewTreeObserver().addOnPreDrawListener(listener);
-        }
+        AndroidUtils.animateViewsOnPreDraw(main_linear_layout, new View[]{
+                reviewAuthorTextView, reviewDetailTextView, reviewURLTextView,});
 
         // Intent that started this activity
         Intent intent = getIntent();
@@ -68,9 +56,14 @@ public class ReviewDetailsActivity extends AppCompatActivity {
     }
 
     private void populateView(ReviewsObject reviewData) {
-        reviewAuthorTextView.setText(reviewData.getAuthor());
+        reviewAuthorTextView.append(" " + reviewData.getAuthor());
         reviewDetailTextView.setText(reviewData.getContent());
-        reviewURLTextView.setText(reviewData.getUrl());
+
+        String url = reviewData.getUrl();
+        reviewURLTextView.setText(Html.fromHtml(url));
+        reviewURLTextView.setLinksClickable(true);
+        reviewURLTextView.setAutoLinkMask(Linkify.ALL);
+
     }
 
 
@@ -92,11 +85,5 @@ public class ReviewDetailsActivity extends AppCompatActivity {
         super.onBackPressed();
         return true;
     }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
-
 
 }

@@ -55,14 +55,6 @@ public class MovieContract {
         public static final String IS_FAVORITE = "is_favorite";
         public static final String POSTER_FILE_PATH = "poster_file_path";
         public static final String BACKDROP_FILE_PATH = "backdrop_file_path";
-
-        public static final String[] ALL_MOVIES_COLUMNS = new String[]{
-                MovieTable._ID, VOTE_COUNT, MOVIE_ID,
-                HAS_VIDEO, VOTE_AVERAGE, TITLE,
-                POPULARITY, POSTER_PATH, ORIGINAL_LANGUAGE,
-                ORIGINAL_TITLE, GENRE_ID, BACKDROP_PATH, IS_ADULT,
-                OVERVIEW, RELEASE_DATE, IS_FAVORITE, POSTER_FILE_PATH, BACKDROP_FILE_PATH
-        };
         
         public static final int _ID_INDEX = 0;
         public static final int VOTE_COUNT_INDEX = 1;

@@ -17,8 +17,6 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import static com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract.MovieTable.MOVIES_TABLE_NAME;
-import static com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract.ReviewsTable.REVIEWS_TABLE_NAME;
-import static com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract.VideosTable.VIDEOS_TABLE_NAME;
 
 /**
  * Created by Sergio on 23/02/2018.
@@ -177,56 +175,6 @@ public class MovieProvider extends ContentProvider {
                         null,
                         null,
                         sortOrder);
-
-/*
-                // start example
-                String sql = "SELECT martian._id, martian.name, martian_tripod.description" +
-                        "    FROM martian, martian_tripod" +
-                        "   WHERE martian.martian_tripod_id = martian_tripod._id" +
-                        "     AND martian._id = ?";
-                String[] selectionArgs =  new String[] { "2" };
-                resultCursor = db.rawQuery(sql, selectionArgs);
-                // end example
-                */
-
-                // Select remainder data for details activity
-                String sqlQuery = "SELECT " +
-                        MOVIES_TABLE_NAME + "." + MovieContract.MovieTable._ID + ", " +
-                        MOVIES_TABLE_NAME + "." + MovieContract.MovieTable.MOVIE_ID + ", " +
-                        MOVIES_TABLE_NAME + "." + MovieContract.MovieTable.POSTER_FILE_PATH + ", " +
-                        MOVIES_TABLE_NAME + "." + MovieContract.MovieTable.BACKDROP_FILE_PATH + ", " +
-                        MOVIES_TABLE_NAME + "." + MovieContract.MovieTable.BACKDROP_FILE_PATH + ", " +
-                        VIDEOS_TABLE_NAME + "." + MovieContract.VideosTable.MOVIE_ID + ", " +
-                        VIDEOS_TABLE_NAME + "." + MovieContract.VideosTable.VIDEO_ID + ", " + // needed?
-                        VIDEOS_TABLE_NAME + "." + MovieContract.VideosTable.ISO_639_1 + ", " +
-                        VIDEOS_TABLE_NAME + "." + MovieContract.VideosTable.ISO_3166_1 + ", " +
-                        VIDEOS_TABLE_NAME + "." + MovieContract.VideosTable.KEY + ", " +
-                        VIDEOS_TABLE_NAME + "." + MovieContract.VideosTable.NAME + ", " +
-                        VIDEOS_TABLE_NAME + "." + MovieContract.VideosTable.SITE + ", " +
-                        VIDEOS_TABLE_NAME + "." + MovieContract.VideosTable.SIZE + ", " +
-                        VIDEOS_TABLE_NAME + "." + MovieContract.VideosTable.TYPE + ", " +
-                        VIDEOS_TABLE_NAME + "." + MovieContract.VideosTable.TYPE + ", " +
-                        REVIEWS_TABLE_NAME + "." + MovieContract.ReviewsTable.MOVIE_ID + ", " +
-                        REVIEWS_TABLE_NAME + "." + MovieContract.ReviewsTable.REVIEW_ID + ", " + // needed?
-                        REVIEWS_TABLE_NAME + "." + MovieContract.ReviewsTable.AUTHOR + ", " +
-                        REVIEWS_TABLE_NAME + "." + MovieContract.ReviewsTable.CONTENT + ", " +
-                        REVIEWS_TABLE_NAME + "." + MovieContract.ReviewsTable.URL + ", " +
-                        "WHERE " +
-                        MOVIES_TABLE_NAME + "." + MovieContract.MovieTable.MOVIE_ID + " = " +
-                        VIDEOS_TABLE_NAME + "." + MovieContract.VideosTable.MOVIE_ID +
-                        " AND " +
-                        REVIEWS_TABLE_NAME + "." + MovieContract.MovieTable.MOVIE_ID + " = " +
-                        REVIEWS_TABLE_NAME + "." + MovieContract.ReviewsTable.MOVIE_ID +
-
-
-
-
-
-                        VIDEOS_TABLE_NAME + " , " + REVIEWS_TABLE_NAME;
-
-
-
-                resultCursor = db.rawQuery(sqlQuery, selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);

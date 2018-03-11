@@ -24,6 +24,9 @@
     <string name="reviews">Reviews</string>
     <string name="videos">Videos</string>
     <string name="no_review_data">No review available</string>
+    <string name="author">Author: </string>
+    <string name="url">Url: </string>
+    <string name="send_to">Sendo Movie data to:</string>
 
     // themoviedb image sizes "w92", "w154", "w185", "w342", "w500", "w780", or "original".
     <string-array name="image_sizes">
