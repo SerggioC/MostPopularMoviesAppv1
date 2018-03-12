@@ -28,6 +28,10 @@ public class MovieProvider extends ContentProvider {
     // and related ints (101, 102, 103, ...) for items in that directory.
     public static final int MOVIES = 100;
     public static final int MOVIES_WITH_ID = 101;
+    public static final int VIDEOS = 200;
+    public static final int VIDEOS_WITH_ID = 201;
+    public static final int REVIEWS = 300;
+    public static final int REVIEWS_WITH_ID = 301;
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private MovieDBHelper movieDbHelper;
 
@@ -46,6 +50,12 @@ public class MovieProvider extends ContentProvider {
           The two calls below add matches for the movies directory and a single item by ID. */
         uriMatcher.addURI(MovieContract.AUTHORITY, MovieContract.PATH_MOVIES, MOVIES);
         uriMatcher.addURI(MovieContract.AUTHORITY, MovieContract.PATH_MOVIES + "/#", MOVIES_WITH_ID);
+
+        uriMatcher.addURI(MovieContract.AUTHORITY, MovieContract.PATH_VIDEOS, VIDEOS);
+        uriMatcher.addURI(MovieContract.AUTHORITY, MovieContract.PATH_VIDEOS + "/#", VIDEOS_WITH_ID);
+
+        uriMatcher.addURI(MovieContract.AUTHORITY, MovieContract.PATH_REVIEWS, REVIEWS);
+        uriMatcher.addURI(MovieContract.AUTHORITY, MovieContract.PATH_REVIEWS + "/#", REVIEWS_WITH_ID);
 
         return uriMatcher;
     }
@@ -148,6 +158,7 @@ public class MovieProvider extends ContentProvider {
         final SQLiteDatabase db = movieDbHelper.getReadableDatabase();
 
         Cursor resultCursor;
+        String id;
 
         // Write URI match code and set a variable to return a Cursor
         int match = sUriMatcher.match(uri);
@@ -160,14 +171,12 @@ public class MovieProvider extends ContentProvider {
                         null,
                         null,
                         sortOrder);
-
-                Log.i("Sergio>", this + " query");
                 break;
 
             case MOVIES_WITH_ID:
                 // Get the movie ID from the URI path
                 // Use selections/selectionArgs to filter for this ID
-                String id = uri.getPathSegments().get(1);
+                id = uri.getPathSegments().get(1);
                 resultCursor = db.query(MOVIES_TABLE_NAME,
                         new String[]{MovieContract.MovieTable.IS_FAVORITE, MovieContract.MovieTable.BACKDROP_FILE_PATH, MovieContract.MovieTable.POSTER_FILE_PATH},
                         "_id=?",
@@ -176,6 +185,29 @@ public class MovieProvider extends ContentProvider {
                         null,
                         sortOrder);
                 break;
+
+            case VIDEOS_WITH_ID:
+                id = uri.getPathSegments().get(1);
+                resultCursor = db.query(MovieContract.VideosTable.VIDEOS_TABLE_NAME,
+                        projection,
+                        MovieContract.VideosTable.MOVIE_ID + "=?",
+                        new String[]{id},
+                        null,
+                        null,
+                        sortOrder);
+                break;
+
+            case REVIEWS_WITH_ID:
+                id = uri.getPathSegments().get(1);
+                resultCursor = db.query(MovieContract.ReviewsTable.REVIEWS_TABLE_NAME,
+                        projection,
+                        MovieContract.ReviewsTable.MOVIE_ID + "=?",
+                        new String[]{id},
+                        null,
+                        null,
+                        sortOrder);
+                break;
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -213,6 +245,14 @@ public class MovieProvider extends ContentProvider {
                 return ContentResolver.CURSOR_ITEM_BASE_TYPE;
             case MOVIES:
                 return ContentResolver.CURSOR_DIR_BASE_TYPE;
+            case VIDEOS_WITH_ID:
+                return ContentResolver.CURSOR_ITEM_BASE_TYPE;
+            case VIDEOS:
+                return ContentResolver.CURSOR_DIR_BASE_TYPE;
+            case REVIEWS_WITH_ID:
+                return ContentResolver.CURSOR_ITEM_BASE_TYPE;
+            case REVIEWS:
+                return ContentResolver.CURSOR_DIR_BASE_TYPE;
             default:
                 return null;
         }
@@ -235,19 +275,14 @@ public class MovieProvider extends ContentProvider {
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
         final SQLiteDatabase db = movieDbHelper.getWritableDatabase();
-        Uri returnUri; // URI to be returned
+        Uri returnUri;
 
-        // Write URI matching code to identify the match for the tasks directory
         int match = sUriMatcher.match(uri);
         switch (match) {
             case MOVIES:
-                // Insert new values into the database
-                // Inserting values into tasks table
                 long id = db.insert(MOVIES_TABLE_NAME, null, values);
                 if (id > 0) {
                     returnUri = ContentUris.withAppendedId(MovieContract.MovieTable.MOVIES_CONTENT_URI, id);
-
-                    Log.i("Sergio>", this + " insert");
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
@@ -264,6 +299,78 @@ public class MovieProvider extends ContentProvider {
         // Return constructed uri (this points to the newly inserted row of data)
         return returnUri;
     }
+
+
+
+    @Override
+    public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
+        final SQLiteDatabase db = movieDbHelper.getWritableDatabase();
+
+        int rowsInserted;
+        switch (sUriMatcher.match(uri)) {
+            case VIDEOS:
+                db.beginTransaction();
+                rowsInserted = 0;
+                try {
+                    int valuesLength = values.length;
+                    for (int i = 0; i < valuesLength; i++) {
+                        // Insert new values into the database Inserting values into tasks table
+                        long id = db.insert(MovieContract.VideosTable.VIDEOS_TABLE_NAME, null, values[i]);
+                        if (id > 0) {
+                            rowsInserted++;
+                            Log.i("Sergio>", this + "\n" +
+                                    "inserted value " + i + " = " + values[i]);
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    db.endTransaction();
+                }
+
+                if (rowsInserted > 0) {
+                    // Notify the resolver if the uri has been changed, and return the newly inserted URI
+                    getContext().getContentResolver().notifyChange(uri, null);
+                }
+
+                return rowsInserted;
+
+            case REVIEWS:
+                db.beginTransaction();
+                rowsInserted = 0;
+                try {
+                    int valuesLength = values.length;
+                    for (int i = 0; i < valuesLength; i++) {
+                        // Insert new values into the database Inserting values into tasks table
+                        long id = db.insert(MovieContract.ReviewsTable.REVIEWS_TABLE_NAME, null, values[i]);
+                        if (id > 0) {
+                            rowsInserted++;
+                            Log.i("Sergio>", this + "\n" +
+                                    "inserted value " + i + " = " + values[i]);
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    db.endTransaction();
+                }
+
+                if (rowsInserted > 0) {
+                    // Notify the resolver if the uri has been changed, and return the newly inserted URI
+                    getContext().getContentResolver().notifyChange(uri, null);
+                }
+
+                return rowsInserted;
+
+            default:
+                return super.bulkInsert(uri, values);
+        }
+
+
+    }
+
 
     /**
      * Implement this to handle requests to delete one or more rows.
@@ -303,7 +410,7 @@ public class MovieProvider extends ContentProvider {
             case MOVIES_WITH_ID:
                 // Get the movie ID from the URI path
                 // Use selections/selectionArgs to filter for this ID
-                moviesDeleted = db.delete(MOVIES_TABLE_NAME, "_id=?", new String[]{id});
+                moviesDeleted = db.delete(MOVIES_TABLE_NAME, MovieContract.MovieTable.MOVIE_ID + "=?", new String[]{id});
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);

@@ -62,8 +62,8 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 ");";
 
         final String CREATE_VIDEOS_TABLE = "CREATE TABLE " + VideosTable.VIDEOS_TABLE_NAME + " (" +
-                VideosTable._ID + " INTEGER, " +
-                VideosTable.MOVIE_ID + " INTEGER PRIMARY KEY, " +
+                VideosTable._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                VideosTable.MOVIE_ID + " INTEGER, " +
                 VideosTable.VIDEO_ID + " TEXT, " +
                 VideosTable.ISO_639_1 + " TEXT, " +
                 VideosTable.ISO_3166_1 + " TEXT, " +
@@ -72,20 +72,18 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 VideosTable.SITE + " TEXT, " +
                 VideosTable.SIZE + " INTEGER, " +
                 VideosTable.TYPE + " INTEGER, " +
-                " UNIQUE (" + VideosTable._ID + " , " + VideosTable.MOVIE_ID + ")" +
                 " FOREIGN KEY (" + VideosTable.MOVIE_ID + ") REFERENCES " +
                 MovieTable.MOVIES_TABLE_NAME + " (" + MovieTable.MOVIE_ID + ")" +
                 " ON DELETE CASCADE);" +
                 ");";
 
         final String CREATE_REVIEWS_TABLE = "CREATE TABLE " + ReviewsTable.REVIEWS_TABLE_NAME + " (" +
-                ReviewsTable._ID + " INTEGER, " +
-                ReviewsTable.MOVIE_ID + " INTEGER PRIMARY KEY, " +
+                ReviewsTable._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                ReviewsTable.MOVIE_ID + " INTEGER, " +
                 ReviewsTable.REVIEW_ID + " INTEGER, " +
                 ReviewsTable.AUTHOR + " TEXT, " +
                 ReviewsTable.CONTENT + " TEXT, " +
                 ReviewsTable.URL + " TEXT, " +
-                " UNIQUE (" + ReviewsTable._ID + " , " + ReviewsTable.MOVIE_ID + ")" +
                 " FOREIGN KEY (" + ReviewsTable.MOVIE_ID + ") REFERENCES " +
                 MovieTable.MOVIES_TABLE_NAME + " (" + MovieTable.MOVIE_ID + ")" +
                 " ON DELETE CASCADE);" +

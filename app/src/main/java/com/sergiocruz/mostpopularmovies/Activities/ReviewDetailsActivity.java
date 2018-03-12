@@ -13,7 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sergiocruz.mostpopularmovies.R;
-import com.sergiocruz.mostpopularmovies.ReviewsObject;
+import com.sergiocruz.mostpopularmovies.ReviewObject;
 import com.sergiocruz.mostpopularmovies.Utils.AndroidUtils;
 
 import static com.sergiocruz.mostpopularmovies.Activities.DetailsActivity.INTENT_REVIEW_EXTRA;
@@ -45,7 +45,7 @@ public class ReviewDetailsActivity extends AppCompatActivity {
             return;
         }
 
-        ReviewsObject reviewDataFromIntent = intent.getParcelableExtra(INTENT_REVIEW_EXTRA);
+        ReviewObject reviewDataFromIntent = intent.getParcelableExtra(INTENT_REVIEW_EXTRA);
         if (reviewDataFromIntent == null) {
             closeNoData();
             return;
@@ -55,7 +55,7 @@ public class ReviewDetailsActivity extends AppCompatActivity {
 
     }
 
-    private void populateView(ReviewsObject reviewData) {
+    private void populateView(ReviewObject reviewData) {
         reviewAuthorTextView.append(" " + reviewData.getAuthor());
         reviewDetailTextView.setText(reviewData.getContent());
 

@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.sergiocruz.mostpopularmovies.R;
-import com.sergiocruz.mostpopularmovies.ReviewsObject;
+import com.sergiocruz.mostpopularmovies.ReviewObject;
 
 import java.util.ArrayList;
 
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewsViewHolder> {
     final private ReviewClickListener mReviewsClickListener;
     private Context mContext;
-    private ArrayList<ReviewsObject> reviewObjects;
+    private ArrayList<ReviewObject> reviewObjects;
 
     public ReviewsAdapter(Context context, ReviewClickListener mReviewClickListener) {
         this.mContext = context;
@@ -39,7 +39,7 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewsV
 
     }
 
-    public void swapReviewData(ArrayList<ReviewsObject> reviewData) {
+    public void swapReviewData(ArrayList<ReviewObject> reviewData) {
         this.reviewObjects = reviewData;
         notifyDataSetChanged();
     }
@@ -50,7 +50,7 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewsV
     }
 
     public interface ReviewClickListener {
-        void onReviewClicked(ReviewsObject reviewObject, View itemView);
+        void onReviewClicked(ReviewObject reviewObject, View itemView);
     }
 
     public class ReviewsViewHolder extends RecyclerView.ViewHolder {

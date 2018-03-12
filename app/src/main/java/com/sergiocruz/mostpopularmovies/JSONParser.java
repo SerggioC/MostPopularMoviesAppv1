@@ -12,6 +12,7 @@ import java.util.List;
 
 /**
  * Created by Sergio on 18/02/2018.
+ * JSON Parsing
  */
 
 public class JSONParser {
@@ -141,8 +142,8 @@ public class JSONParser {
         static final String URL = "url";
     }
 
-    public static ArrayList<ReviewsObject> parseReviewsDataFromJSON(String JSONDataFromAPI) {
-        ArrayList<ReviewsObject> reviewsObjects;
+    public static ArrayList<ReviewObject> parseReviewsDataFromJSON(String JSONDataFromAPI) {
+        ArrayList<ReviewObject> reviewObjects;
 
         try {
             JSONObject jsonData = new JSONObject(JSONDataFromAPI);
@@ -150,7 +151,7 @@ public class JSONParser {
             if (resultsArray == null) return null;
 
             int length = resultsArray.length();
-            reviewsObjects = new ArrayList<>(length);
+            reviewObjects = new ArrayList<>(length);
 
             for (int i = 0; i < length; i++) {
                 JSONObject review = (JSONObject) resultsArray.get(i);
@@ -160,7 +161,7 @@ public class JSONParser {
                 String content = review.optString(ReviewsKeys.CONTENT);
                 String url = review.optString(ReviewsKeys.URL);
 
-                reviewsObjects.add(new ReviewsObject(reviewID, author, content, url));
+                reviewObjects.add(new ReviewObject(reviewID, author, content, url));
             }
 
         } catch (JSONException e) {
@@ -168,26 +169,24 @@ public class JSONParser {
             return null;
         }
 
-        return reviewsObjects;
+        return reviewObjects;
     }
 
     public static List<Integer> getIntArrayFromJSON(String stringJSONData) {
-        List<Integer> genreIDs = null;
+        List<Integer> genreIDs;
         if (TextUtils.isEmpty(stringJSONData)) {
-            return genreIDs;
+            return null;
         } else {
             try {
-                JSONObject jsonData = new JSONObject(stringJSONData);
-                JSONArray jsonArray = jsonData.optJSONArray("genres");
+                JSONArray jsonArray = new JSONArray(stringJSONData);
                 int arSize = jsonArray.length();
                 genreIDs = new ArrayList<>(arSize);
                 for (int i = 0; i < arSize; i++) {
                     genreIDs.add(jsonArray.optInt(i));
                 }
-
             } catch (JSONException e) {
                 e.printStackTrace();
-                return genreIDs;
+                return null;
             }
 
         }

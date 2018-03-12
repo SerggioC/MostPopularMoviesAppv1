@@ -11,8 +11,8 @@ import android.util.Log;
 
 import com.sergiocruz.mostpopularmovies.JSONParser;
 import com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract;
+import com.sergiocruz.mostpopularmovies.ReviewObject;
 import com.sergiocruz.mostpopularmovies.Utils.NetworkUtils;
-import com.sergiocruz.mostpopularmovies.ReviewsObject;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -22,10 +22,12 @@ import java.util.ArrayList;
  */
 
 
-public class ReviewsLoader extends AsyncTaskLoader<ArrayList<ReviewsObject>> {
+public class ReviewsLoader extends AsyncTaskLoader<ArrayList<ReviewObject>> {
     private WeakReference<Context> weakContext;
     private Uri queryUri;
     private Boolean gotFavorite;
+    // Initialize a VideoObject, this will hold all the videos data
+    private ArrayList<ReviewObject> mReviewObjects;
 
     public ReviewsLoader(Context context, Uri queryURI, Boolean gotFavorite) {
         super(context);
@@ -33,9 +35,6 @@ public class ReviewsLoader extends AsyncTaskLoader<ArrayList<ReviewsObject>> {
         this.queryUri = queryURI;
         this.gotFavorite = gotFavorite;
     }
-
-    // Initialize a VideoObject, this will hold all the videos data
-    private ArrayList<ReviewsObject> mReviewsObjects;
 
     /**
      * Subclasses must implement this to take care of loading their data,
@@ -46,9 +45,9 @@ public class ReviewsLoader extends AsyncTaskLoader<ArrayList<ReviewsObject>> {
      */
     @Override
     protected void onStartLoading() {
-        if (mReviewsObjects != null) {
+        if (mReviewObjects != null) {
             // Delivers any previously loaded data immediately
-            deliverResult(mReviewsObjects);
+            deliverResult(mReviewObjects);
 
         } else {
             // Force a new load
@@ -83,13 +82,13 @@ public class ReviewsLoader extends AsyncTaskLoader<ArrayList<ReviewsObject>> {
      */
     @Nullable
     @Override
-    public ArrayList<ReviewsObject> loadInBackground() {
+    public ArrayList<ReviewObject> loadInBackground() {
 
         // Query and load all task data in the background; sort by priority
         // [Hint] use a try/catch block to catch any errors in loading data
         // * https://api.themoviedb.org/3/movie/{movie_id}/videos?api_key=<<api_key>>&language=en-US
 
-        ArrayList<ReviewsObject> reviewsData;
+        ArrayList<ReviewObject> reviewsData;
 
         try {
             if (gotFavorite) { // get all favorites from database
@@ -120,23 +119,23 @@ public class ReviewsLoader extends AsyncTaskLoader<ArrayList<ReviewsObject>> {
     }
 
     // deliverResult sends the result of the load, a Cursor, to the registered listener
-    public void deliverResult(ArrayList<ReviewsObject> data) {
-        mReviewsObjects = data;
+    public void deliverResult(ArrayList<ReviewObject> data) {
+        mReviewObjects = data;
         super.deliverResult(data);
 
     }
 
-    private ArrayList<ReviewsObject> getArrayListFromCursor(Cursor cursor) {
+    private ArrayList<ReviewObject> getArrayListFromCursor(Cursor cursor) {
         int cursorCount = cursor.getCount();
 
         Log.i("Sergio>", this + " getArrayListFromCursor\n= columnCount" + cursor.getColumnCount());
 
-        ArrayList<ReviewsObject> arrayList = new ArrayList<>(cursorCount);
+        ArrayList<ReviewObject> arrayList = new ArrayList<>(cursorCount);
 
         for (int i = 0; i < cursorCount; i++) {
             while (cursor.moveToNext()) {
                 arrayList.add(
-                        new ReviewsObject(
+                        new ReviewObject(
                                 cursor.getString(MovieContract.ReviewsTable.REVIEW_ID_INDEX),
                                 cursor.getString(MovieContract.ReviewsTable.AUTHOR_INDEX),
                                 cursor.getString(MovieContract.ReviewsTable.CONTENT_INDEX),

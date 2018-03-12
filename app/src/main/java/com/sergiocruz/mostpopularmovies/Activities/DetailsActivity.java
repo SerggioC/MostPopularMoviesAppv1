@@ -46,7 +46,7 @@ import com.sergiocruz.mostpopularmovies.Loaders.VideosLoader;
 import com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract;
 import com.sergiocruz.mostpopularmovies.MovieObject;
 import com.sergiocruz.mostpopularmovies.R;
-import com.sergiocruz.mostpopularmovies.ReviewsObject;
+import com.sergiocruz.mostpopularmovies.ReviewObject;
 import com.sergiocruz.mostpopularmovies.TheMovieDB;
 import com.sergiocruz.mostpopularmovies.Utils.AndroidUtils;
 import com.sergiocruz.mostpopularmovies.Utils.NetworkUtils;
@@ -67,13 +67,15 @@ import static com.sergiocruz.mostpopularmovies.TheMovieDB.VIDEOS_PATH;
 public class DetailsActivity extends AppCompatActivity implements android.support.v4.app.LoaderManager.LoaderCallbacks,
         VideosAdapter.VideoClickListener, ReviewsAdapter.ReviewClickListener {
 
-    public static final String INTENT_REVIEW_EXTRA = "review_data_extra";
     private static final int VIDEOS_LOADER_ID = 101;
     private static final int REVIEWS_LOADER_ID = 202;
+    public static final String INTENT_REVIEW_EXTRA = "review_data_extra";
     private static final String LOADER_BUNDLE_MOVIE_ID = "movie_id_bundle";
     private static final String LOADER_BUNDLE_GOT_FAVORITE = "got_favorite_bundle";
     private static final String LOADER_BUNDLE_HAS_INTERNET = "has_internet_bundle";
-    static MovieObject mMovieDataFromIntent;
+    private MovieObject mMovieDataFromIntent;
+    private ArrayList<VideoObject> mVideosObjects;
+    private ArrayList<ReviewObject> mReviewObjects;
     private Context mContext;
     private TextView titleTV;
     private ImageView posterImageView;
@@ -112,35 +114,109 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         ratingBar = findViewById(R.id.ratingBar);
         votesTextView = findViewById(R.id.votes_textview);
 
-        favorite_star.setOnClickListener(v -> {
+        favorite_star.setOnClickListener(view -> {
+            if (mMovieDataFromIntent.getFavorite()) {
+                Toast.makeText(mContext, "Movie already saved in favorites.\nLong Press to remove from favorites.", Toast.LENGTH_LONG).show();
+                return;
+            }
 
-            AsyncTask<Void, Void, Uri> asyncTask = new AsyncTask<Void, Void, Uri>() {
+            AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
 
                 @Override
-                protected Uri doInBackground(Void... voids) {
-                    return getContentResolver().insert(MovieContract.MovieTable.MOVIES_CONTENT_URI, saveToContentValues(mMovieDataFromIntent));
+                protected Void doInBackground(Void... nothing) {
+
+                    getContentResolver().insert(MovieContract.MovieTable.MOVIES_CONTENT_URI, saveToContentValues(mMovieDataFromIntent));
+                    int videos_inserted = getContentResolver()
+                            .bulkInsert(MovieContract.VideosTable.VIDEOS_CONTENT_URI, saveVideosToContentValues(mVideosObjects, mMovieDataFromIntent.getId()));
+                    int reviews_inserted = getContentResolver()
+                            .bulkInsert(MovieContract.ReviewsTable.REVIEWS_CONTENT_URI, saveReviewsToContentValues(mReviewObjects, mMovieDataFromIntent.getId()));
+                    Log.i("Sergio>", this + " doInBackground\nvideos_inserted, reviews_inserted= " + videos_inserted + " , " + reviews_inserted);
+                    return null;
                 }
 
                 @Override
-                protected void onPostExecute(Uri uri) {
-                    super.onPostExecute(uri);
+                protected void onPostExecute(Void nothing) {
+                    super.onPostExecute(nothing);
+                    favorite_star.setImageDrawable(ContextCompat.getDrawable(mContext, android.R.drawable.btn_star_big_on));
+                    mMovieDataFromIntent.setFavorite(true);
                     Toast.makeText(mContext, "Movie data saved to Favorites", Toast.LENGTH_LONG).show();
                 }
             };
             asyncTask.execute();
         });
 
-
         favorite_star.setOnLongClickListener(v -> {
-            Toast.makeText(mContext, "Remove from favorite", Toast.LENGTH_SHORT).show();
+
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... voids) {
+                    int deleted = getContentResolver().delete(
+                            MovieContract.MovieTable.MOVIES_CONTENT_URI.buildUpon()
+                                    .appendPath(mMovieDataFromIntent.getId().toString())
+                                    .build()
+                            ,null, null);
+                    Boolean deletedPoster = AndroidUtils.deleteImageFile(mContext, mMovieDataFromIntent.getPosterFilePath());
+                    Boolean deletedBackDrop = AndroidUtils.deleteImageFile(mContext, mMovieDataFromIntent.getBackdropFilePath());
+                    mMovieDataFromIntent.setPosterFilePath(null);
+                    mMovieDataFromIntent.setBackdropFilePath(null);
+
+                    Log.i("Sergio>", this + " doInBackground\n" +
+                            "deleted row = " + deleted + "\n" +
+                            "DeletedPoster = " + deletedPoster +"\n" +
+                            "deletedBackdrop = " + deletedBackDrop);
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    super.onPostExecute(aVoid);
+                    favorite_star.setImageDrawable(ContextCompat.getDrawable(mContext, android.R.drawable.btn_star_big_off));
+                    mMovieDataFromIntent.setFavorite(false);
+                    Toast.makeText(mContext, "Removed from favorites", Toast.LENGTH_SHORT).show();
+                }
+            }.execute();
+
             return true;
         });
     }
 
 
+    private ContentValues[] saveReviewsToContentValues(ArrayList<ReviewObject> mReviewObjects, Integer id) {
+        int size = mReviewObjects.size();
+        ContentValues[] values = new ContentValues[size];
+        for (int i = 0; i < size; i++) {
+            ReviewObject review = mReviewObjects.get(i);
+            values[i] = new ContentValues(5);
+            values[i].put(MovieContract.ReviewsTable.MOVIE_ID, id.toString());
+            values[i].put(MovieContract.ReviewsTable.REVIEW_ID, review.getReviewId());
+            values[i].put(MovieContract.ReviewsTable.AUTHOR, review.getAuthor());
+            values[i].put(MovieContract.ReviewsTable.CONTENT, review.getContent());
+            values[i].put(MovieContract.ReviewsTable.URL, review.getUrl());
+        }
+        return values;
+    }
+
+    private ContentValues[] saveVideosToContentValues(ArrayList<VideoObject> mVideosObjects, Integer id) {
+        int size = mVideosObjects.size();
+        ContentValues[] values = new ContentValues[size];
+        for (int i = 0; i < size; i++) {
+            VideoObject video = mVideosObjects.get(i);
+            values[i] = new ContentValues(9);
+            values[i].put(MovieContract.VideosTable.MOVIE_ID, id.toString());
+            values[i].put(MovieContract.VideosTable.VIDEO_ID, video.getVideo_id());
+            values[i].put(MovieContract.VideosTable.ISO_639_1, video.getIso_639_1());
+            values[i].put(MovieContract.VideosTable.ISO_3166_1, video.getIso_3166_1());
+            values[i].put(MovieContract.VideosTable.KEY, video.getKey());
+            values[i].put(MovieContract.VideosTable.NAME, video.getName());
+            values[i].put(MovieContract.VideosTable.SITE, video.getSite());
+            values[i].put(MovieContract.VideosTable.SIZE, video.getSize());
+            values[i].put(MovieContract.VideosTable.TYPE, video.getType());
+        }
+        return values;
+    }
 
     private ContentValues saveToContentValues(MovieObject movieObject) {
-        ContentValues values = new ContentValues();
+        ContentValues values = new ContentValues(17);
         values.put(MovieContract.MovieTable.VOTE_COUNT, movieObject.getVoteCount());
         values.put(MovieContract.MovieTable.MOVIE_ID, movieObject.getId());
         values.put(MovieContract.MovieTable.HAS_VIDEO, movieObject.getVideo());
@@ -161,14 +237,17 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         values.put(MovieContract.MovieTable.IS_FAVORITE, 1);
 
         Uri posterFileUri = AndroidUtils.saveBitmapToDevice(mContext, posterImageView, relativePosterPath.replace("/", ""));
-        values.put(MovieContract.MovieTable.POSTER_FILE_PATH, posterFileUri != null ? posterFileUri.toString() : "");
+        String posterStringUri = posterFileUri != null ? posterFileUri.toString() : "";
+        values.put(MovieContract.MovieTable.POSTER_FILE_PATH, posterStringUri);
+        mMovieDataFromIntent.setPosterFilePath(posterStringUri);
 
         Uri backDropFileUri = AndroidUtils.saveBitmapToDevice(mContext, backdropImageView, relativeBackdropPath.replace("/", ""));
-        values.put(MovieContract.MovieTable.BACKDROP_FILE_PATH, backDropFileUri != null ? backDropFileUri.toString() : "");
+        String backdropStringUri = backDropFileUri != null ? backDropFileUri.toString() : "";
+        values.put(MovieContract.MovieTable.BACKDROP_FILE_PATH, backdropStringUri);
+        mMovieDataFromIntent.setBackdropFilePath(backdropStringUri);
 
         return values;
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -215,6 +294,8 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
             closeNoData();
             return;
         }
+        if (!gotFavorite)
+            mMovieDataFromIntent.setFavorite(false);
 
         Boolean hasInternet = NetworkUtils.hasActiveNetworkConnection(mContext);
         if (!hasInternet) {
@@ -275,10 +356,10 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
             if (hasInternet) {
 
                 int posterWidthDp = (int) mContext.getResources().getDimension(R.dimen.details_image_width);
-                String posterWidth = AndroidUtils.getOptimalImageWidth(mContext, posterWidthDp);
+                String posterWidth = AndroidUtils.getOptimalImageWidth(mContext, posterWidthDp / 2);
 
                 int backDropWidthDp = AndroidUtils.getWindowSizeXY(mContext).x; // match window width
-                String backDropWidth = AndroidUtils.getOptimalImageWidth(mContext, backDropWidthDp);
+                String backDropWidth = AndroidUtils.getOptimalImageWidth(mContext, backDropWidthDp / 2);
 
                 String posterImageURI = new StringBuilder(BASE_IMAGE_URL).append(posterWidth).append(movieData.getPosterPath()).toString();
                 String backDropImageURI = new StringBuilder(BASE_IMAGE_URL).append(backDropWidth).append(movieData.getBackdropPath()).toString();
@@ -398,18 +479,20 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
                 populateVideos((ArrayList<VideoObject>) data);
                 break;
             case REVIEWS_LOADER_ID:
-                populateReviews((ArrayList<ReviewsObject>) data);
+                populateReviews((ArrayList<ReviewObject>) data);
                 break;
         }
     }
 
     private void populateVideos(ArrayList<VideoObject> videoObjects) {
+        this.mVideosObjects = videoObjects;
         videosAdapter.swapVideoData(videoObjects);
         videos_loading_indicator.setVisibility(View.GONE);
     }
 
-    private void populateReviews(ArrayList<ReviewsObject> reviewsObjects) {
-        reviewsAdapter.swapReviewData(reviewsObjects);
+    private void populateReviews(ArrayList<ReviewObject> reviewObjects) {
+        this.mReviewObjects = reviewObjects;
+        reviewsAdapter.swapReviewData(reviewObjects);
         reviews_loading_indicator.setVisibility(View.GONE);
     }
 
@@ -458,7 +541,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
                 .append(mMovieDataFromIntent.getTitle()).append("\n")
                 .append(mMovieDataFromIntent.getReleaseDate()).append("\n")
                 .append(mMovieDataFromIntent.getOverview()).append("\n")
-                .append("Sent from: " + getString(R.string.app_name))
+                .append("Sent from: " + getString(R.string.app_name)).append(" Android App")
                 .toString();
 
         Intent sendIntent = new Intent();
@@ -480,7 +563,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     }
 
     @Override
-    public void onReviewClicked(ReviewsObject reviewObject, View itemView) {
+    public void onReviewClicked(ReviewObject reviewObject, View itemView) {
 
         Intent detailsIntent = new Intent(DetailsActivity.this, ReviewDetailsActivity.class);
         detailsIntent.putExtra(INTENT_REVIEW_EXTRA, reviewObject);

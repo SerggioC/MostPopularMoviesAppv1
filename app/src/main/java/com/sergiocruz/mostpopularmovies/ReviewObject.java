@@ -8,13 +8,13 @@ import android.os.Parcelable;
  * Parcelable to be able to send in intent Extra to details activity
  */
 
-public class ReviewsObject implements Parcelable{
+public class ReviewObject implements Parcelable{
     private String reviewId;
     private String author;
     private String content;
     private String url;
 
-    public ReviewsObject(String reviewId, String author, String content, String url) {
+    public ReviewObject(String reviewId, String author, String content, String url) {
         this.reviewId = reviewId;
         this.author = author;
         this.content = content;
@@ -37,7 +37,7 @@ public class ReviewsObject implements Parcelable{
         return url;
     }
 
-    protected ReviewsObject(Parcel in) {
+    protected ReviewObject(Parcel in) {
         reviewId = in.readString();
         author = in.readString();
         content = in.readString();
@@ -58,15 +58,15 @@ public class ReviewsObject implements Parcelable{
     }
 
     @SuppressWarnings("unused")
-    public static final Parcelable.Creator<ReviewsObject> CREATOR = new Parcelable.Creator<ReviewsObject>() {
+    public static final Parcelable.Creator<ReviewObject> CREATOR = new Parcelable.Creator<ReviewObject>() {
         @Override
-        public ReviewsObject createFromParcel(Parcel in) {
-            return new ReviewsObject(in);
+        public ReviewObject createFromParcel(Parcel in) {
+            return new ReviewObject(in);
         }
 
         @Override
-        public ReviewsObject[] newArray(int size) {
-            return new ReviewsObject[size];
+        public ReviewObject[] newArray(int size) {
+            return new ReviewObject[size];
         }
     };
 }

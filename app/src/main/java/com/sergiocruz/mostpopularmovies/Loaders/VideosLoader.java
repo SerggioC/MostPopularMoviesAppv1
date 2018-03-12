@@ -26,16 +26,15 @@ public class VideosLoader extends AsyncTaskLoader<ArrayList<VideoObject>> {
     private WeakReference<Context> weakContext;
     private Uri queryUri;
     private Boolean gotFavorite;
+    // Initialize a VideoObject, this will hold all the videos data
+    private ArrayList<VideoObject> mVideoData;
 
-    public VideosLoader(@NonNull Context context, Uri queryURI,  Boolean gotFavorite) {
+    public VideosLoader(@NonNull Context context, Uri queryURI, Boolean gotFavorite) {
         super(context);
         this.weakContext = new WeakReference<>(context);
         this.queryUri = queryURI;
         this.gotFavorite = gotFavorite;
     }
-
-    // Initialize a VideoObject, this will hold all the videos data
-    private ArrayList<VideoObject> mVideoData;
 
     /**
      * Subclasses must implement this to take care of loading their data,

@@ -35,7 +35,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     public MovieAdapter(Context context, PosterClickListener mPosterClickListener) {
         this.mContext = context;
         this.mPosterClickListener = mPosterClickListener;
-        this.imageSize = AndroidUtils.getOptimalImageWidth(context, (int) context.getResources().getDimension(R.dimen.grid_image_width));
+        this.imageSize = AndroidUtils.getOptimalImageWidth(context, (int) context.getResources().getDimension(R.dimen.grid_image_width) / 2);
     }
 
     /**
@@ -87,10 +87,15 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     @Override
     public void onBindViewHolder(MovieViewHolder holder, int position) {
 
-        String posterPath = new StringBuilder(BASE_IMAGE_URL)
-                .append(imageSize)
-                .append(mMovieData.get(position).getPosterPath())
-                .toString();
+        String posterPath;
+        if (isFavorite) {
+            posterPath = mMovieData.get(position).getPosterFilePath();
+        } else {
+            posterPath = new StringBuilder(BASE_IMAGE_URL)
+                    .append(imageSize)
+                    .append(mMovieData.get(position).getPosterPath())
+                    .toString();
+        }
 
         Glide.with(mContext)
                 .load(posterPath)

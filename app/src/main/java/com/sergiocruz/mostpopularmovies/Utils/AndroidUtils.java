@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
@@ -24,11 +23,11 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.sergiocruz.mostpopularmovies.R;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -157,6 +156,8 @@ public class AndroidUtils {
         return bitmap;
     }
 
+
+
     @Nullable
     public static Uri saveBitmapToDevice(Context context, ImageView imageView, String fileName) {
         imageView.setDrawingCacheEnabled(true);
@@ -164,13 +165,15 @@ public class AndroidUtils {
         Bitmap bitmap = imageView.getDrawingCache();
         Uri fileUri;
         try {
-            String path = Environment.getExternalStorageDirectory().toString();
-            File file = new File(path, fileName);
-            OutputStream fileOutputStream = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream); // saving the Bitmap to a file compressed as a JPEG with 100% quality
+            FileOutputStream fileOutputStream = context.openFileOutput(fileName, Context.MODE_PRIVATE);
+
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream); // write the bitmap to a ByteArrayOutputStream compressed as a JPEG with 100% quality
+
+            fileOutputStream.write(stream.toByteArray());
             fileOutputStream.flush();
             fileOutputStream.close();
-            fileUri = Uri.parse(MediaStore.Images.Media.insertImage(context.getContentResolver(), file.getAbsolutePath(), file.getName(), file.getName()));
+            fileUri = Uri.parse(Environment.getExternalStorageDirectory().getPath() + File.separatorChar + fileName).buildUpon().build();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;
@@ -180,4 +183,12 @@ public class AndroidUtils {
         }
         return fileUri;
     }
+
+    public static Boolean deleteImageFile(Context context, String filePath) {
+        if (filePath == null) return false;
+        File file = new File(filePath);
+        return file.exists() && file.delete();
+    }
+
+
 }
