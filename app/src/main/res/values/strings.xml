@@ -27,6 +27,11 @@
     <string name="author">Author: </string>
     <string name="url">Url: </string>
     <string name="send_to">Send Movie data to:</string>
+    <string name="movie_in_favorites">Movie already saved in favorites.\n Long Press to remove from favorites.</string>
+    <string name="youtube_thumbnail">Youtube video thumbnail</string>
+    <string name="hey_check_this">Hey Check out this cool movie</string>
+    <string name="android_app"> Android App</string>
+    <string name="sent_from">Sent from: </string>
 
     // themoviedb image sizes "w92", "w154", "w185", "w342", "w500", "w780", or "original".
     <string-array name="image_sizes">
