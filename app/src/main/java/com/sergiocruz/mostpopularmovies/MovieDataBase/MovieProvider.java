@@ -176,14 +176,15 @@ public class MovieProvider extends ContentProvider {
             case MOVIES_WITH_ID:
                 // Get the movie ID from the URI path
                 // Use selections/selectionArgs to filter for this ID
+                // Check if the movie_id is in the DB
                 id = uri.getPathSegments().get(1);
                 resultCursor = db.query(MOVIES_TABLE_NAME,
-                        new String[]{MovieContract.MovieTable.IS_FAVORITE, MovieContract.MovieTable.BACKDROP_FILE_PATH, MovieContract.MovieTable.POSTER_FILE_PATH},
-                        "_id=?",
+                        new String[]{MovieContract.MovieTable.MOVIE_ID},
+                        MovieContract.MovieTable.MOVIE_ID + "=?",
                         new String[]{id},
                         null,
                         null,
-                        sortOrder);
+                        null);
                 break;
 
             case VIDEOS_WITH_ID:

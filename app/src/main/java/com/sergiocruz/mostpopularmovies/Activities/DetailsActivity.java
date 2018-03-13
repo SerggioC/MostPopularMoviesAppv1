@@ -115,7 +115,13 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         votesTextView = findViewById(R.id.votes_textview);
 
         favorite_star.setOnClickListener(view -> {
-            if (mMovieDataFromIntent.getFavorite()) {
+
+            //  Check if DB already has the movie_id favorite
+            Uri queryUri = MovieContract.MovieTable.MOVIES_CONTENT_URI.buildUpon().appendPath(mMovieDataFromIntent.getId().toString()).build();
+            Cursor queryCursor = getContentResolver().query(queryUri, null, null, null, null);
+            queryCursor.close();
+
+            if (mMovieDataFromIntent.getFavorite() || queryCursor.getCount() > 0 ) {
                 Toast.makeText(mContext, "Movie already saved in favorites.\nLong Press to remove from favorites.", Toast.LENGTH_LONG).show();
                 return;
             }
@@ -145,34 +151,36 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
             asyncTask.execute();
         });
 
+        // Delete favorite on Long click
         favorite_star.setOnLongClickListener(v -> {
 
-            new AsyncTask<Void, Void, Void>() {
+            new AsyncTask<Void, Void, Boolean>() {
                 @Override
-                protected Void doInBackground(Void... voids) {
-                    int deleted = getContentResolver().delete(
+                protected Boolean doInBackground(Void... voids) {
+                    int deletedRow = getContentResolver().delete(
                             MovieContract.MovieTable.MOVIES_CONTENT_URI.buildUpon()
                                     .appendPath(mMovieDataFromIntent.getId().toString())
                                     .build()
                             ,null, null);
-                    Boolean deletedPoster = AndroidUtils.deleteImageFile(mContext, mMovieDataFromIntent.getPosterFilePath());
-                    Boolean deletedBackDrop = AndroidUtils.deleteImageFile(mContext, mMovieDataFromIntent.getBackdropFilePath());
+                    Boolean deletedPoster = AndroidUtils.deleteImageFile(mMovieDataFromIntent.getPosterFilePath());
+                    Boolean deletedBackDrop = AndroidUtils.deleteImageFile(mMovieDataFromIntent.getBackdropFilePath());
                     mMovieDataFromIntent.setPosterFilePath(null);
                     mMovieDataFromIntent.setBackdropFilePath(null);
 
                     Log.i("Sergio>", this + " doInBackground\n" +
-                            "deleted row = " + deleted + "\n" +
+                            "deletedRow row = " + deletedRow + "\n" +
                             "DeletedPoster = " + deletedPoster +"\n" +
                             "deletedBackdrop = " + deletedBackDrop);
-                    return null;
+
+                    return deletedRow == 1 && deletedPoster && deletedBackDrop;
                 }
 
                 @Override
-                protected void onPostExecute(Void aVoid) {
-                    super.onPostExecute(aVoid);
+                protected void onPostExecute(Boolean success) {
+                    super.onPostExecute(success);
                     favorite_star.setImageDrawable(ContextCompat.getDrawable(mContext, android.R.drawable.btn_star_big_off));
                     mMovieDataFromIntent.setFavorite(false);
-                    Toast.makeText(mContext, "Removed from favorites", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "Removed from favorites" + (success ? " successfully." : " with errors...\nCheck log.") , Toast.LENGTH_SHORT).show();
                 }
             }.execute();
 

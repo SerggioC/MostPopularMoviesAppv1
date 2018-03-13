@@ -30,6 +30,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
+import static android.os.Environment.DIRECTORY_PICTURES;
+
 /**
  * Created by Sergio on 25/02/2018.
  */
@@ -165,7 +167,13 @@ public class AndroidUtils {
         Bitmap bitmap = imageView.getDrawingCache();
         Uri fileUri;
         try {
-            FileOutputStream fileOutputStream = context.openFileOutput(fileName, Context.MODE_PRIVATE);
+            File picturesDirectory = Environment.getExternalStoragePublicDirectory(DIRECTORY_PICTURES);
+            File mostPMFolder = new File(picturesDirectory, context.getString(R.string.app_name));
+            mostPMFolder.mkdirs(); // Make folder if it doesn't exist
+            File imageFile = new File(mostPMFolder, fileName);
+
+            FileOutputStream fileOutputStream = new FileOutputStream(imageFile);
+            //FileOutputStream fileOutputStream = context.openFileOutput(fileName, Context.MODE_PRIVATE);
 
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream); // write the bitmap to a ByteArrayOutputStream compressed as a JPEG with 100% quality
@@ -173,7 +181,8 @@ public class AndroidUtils {
             fileOutputStream.write(stream.toByteArray());
             fileOutputStream.flush();
             fileOutputStream.close();
-            fileUri = Uri.parse(Environment.getExternalStorageDirectory().getPath() + File.separatorChar + fileName).buildUpon().build();
+
+            fileUri = Uri.parse(imageFile.getAbsolutePath());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;
@@ -184,9 +193,9 @@ public class AndroidUtils {
         return fileUri;
     }
 
-    public static Boolean deleteImageFile(Context context, String filePath) {
+    public static Boolean deleteImageFile(String filePath) {
         if (filePath == null) return false;
-        File file = new File(filePath);
+        File file = new File(filePath).getAbsoluteFile();
         return file.exists() && file.delete();
     }
 
