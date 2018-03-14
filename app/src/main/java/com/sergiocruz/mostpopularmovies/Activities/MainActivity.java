@@ -1,5 +1,6 @@
 package com.sergiocruz.mostpopularmovies.Activities;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +9,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -32,6 +34,7 @@ import com.sergiocruz.mostpopularmovies.TheMovieDB;
 import java.util.ArrayList;
 
 import static android.widget.GridLayout.VERTICAL;
+import static com.sergiocruz.mostpopularmovies.Activities.DetailsActivity.FAVORITES_ACTIVITY_RESULT;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.NOW_PLAYING_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.POPULAR_MOVIES_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.TOP_RATED_MOVIES_PATH;
@@ -43,16 +46,17 @@ import static com.sergiocruz.mostpopularmovies.Utils.AndroidUtils.verifyStorageP
 public class MainActivity extends AppCompatActivity implements MovieAdapter.PosterClickListener,
         android.support.v4.app.LoaderManager.LoaderCallbacks<ArrayList<MovieObject>> {
 
+    private static final int LOADER_ID_INTERNET = 11;
+    private static final int LOADER_ID_DATABASE = 22;
+    public static final int CHANGED_FAVORITES_REQUEST = 33;
     public static final String LOADER_BUNDLE = "movie_loader_bundle";
-    public static final int LOADER_ID_INTERNET = 11;
-    public static final int LOADER_ID_DATABASE = 22;
     public static final String INTENT_MOVIE_EXTRA = "intent_movie_extra";
     public static final String INTENT_EXTRA_IS_FAVORITE = "intent_extra_is_favorite";
-    public static final String FAVORITE_MOVIES = "favorite";
+    private static final String FAVORITE_MOVIES_SECTION = "favorite";
     private static final String SAVED_INSTANCE_STATE_KEY = "saved_instance_bundle";
 
-    public static String movieSection;
-    public int selectedRadioId;
+    private static String movieSection;
+    private int selectedRadioId;
     PopupWindow popupWindow;
     private MovieAdapter movieAdapter;
     private ProgressBar loading_indicator;
@@ -82,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
 
         int loaderID;
         String stringURI;
-        if (movieSection.equals(FAVORITE_MOVIES)) {
+        if (movieSection.equals(FAVORITE_MOVIES_SECTION)) {
             loaderID = LOADER_ID_DATABASE;
             stringURI = MovieContract.MovieTable.MOVIES_CONTENT_URI.toString();
         } else {
@@ -190,6 +194,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     }
 
     private void onOverFlowMenuClick(View menuItemView) {
+
         LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View popupLayout = layoutInflater.inflate(R.layout.custom_menu_item_layout, null);
 
@@ -198,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
 
-        popupWindow.setOutsideTouchable(true);
+        popupWindow.setOutsideTouchable(false);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             popupWindow.setElevation(8);
@@ -211,37 +216,27 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         setRadioSelection(radioGroup, selectedRadioId, false);
 
         RadioButton radioPopular = popupLayout.findViewById(R.id.radio_popular);
-        View.OnClickListener radioPopularListener = v -> {
-            reloadMovies(POPULAR_MOVIES_PATH, radioGroup, R.id.radio_popular, true);
-        };
+        View.OnClickListener radioPopularListener = v -> reloadMovies(POPULAR_MOVIES_PATH, radioGroup, R.id.radio_popular);
         radioPopular.setOnClickListener(radioPopularListener);
         popupLayout.findViewById(R.id.menu_textView_popular).setOnClickListener(radioPopularListener);
 
         RadioButton radioButtonTopRated = popupLayout.findViewById(R.id.radio_top_rated);
-        View.OnClickListener radio_top_rated = v -> {
-            reloadMovies(TOP_RATED_MOVIES_PATH, radioGroup, R.id.radio_top_rated, true);
-        };
+        View.OnClickListener radio_top_rated = v -> reloadMovies(TOP_RATED_MOVIES_PATH, radioGroup, R.id.radio_top_rated);
         radioButtonTopRated.setOnClickListener(radio_top_rated);
         popupLayout.findViewById(R.id.menu_textView_top_rated).setOnClickListener(radio_top_rated);
 
         RadioButton radioButtonUpcoming = popupLayout.findViewById(R.id.radio_upcuming);
-        View.OnClickListener upcomingClickListener = v -> {
-            reloadMovies(UPCOMING_MOVIES_PATH, radioGroup, R.id.radio_upcuming, true);
-        };
+        View.OnClickListener upcomingClickListener = v -> reloadMovies(UPCOMING_MOVIES_PATH, radioGroup, R.id.radio_upcuming);
         radioButtonUpcoming.setOnClickListener(upcomingClickListener);
         popupLayout.findViewById(R.id.menu_textView_upcoming).setOnClickListener(upcomingClickListener);
 
         RadioButton radioButtonNowPlaying = popupLayout.findViewById(R.id.radio_now_playing);
-        View.OnClickListener nowPlayingClickListener = v -> {
-            reloadMovies(NOW_PLAYING_PATH, radioGroup, R.id.radio_now_playing, true);
-        };
+        View.OnClickListener nowPlayingClickListener = v -> reloadMovies(NOW_PLAYING_PATH, radioGroup, R.id.radio_now_playing);
         radioButtonNowPlaying.setOnClickListener(nowPlayingClickListener);
         popupLayout.findViewById(R.id.menu_textView_now_playing).setOnClickListener(nowPlayingClickListener);
 
         RadioButton radioButtonFavourite = popupLayout.findViewById(R.id.radio_favourite);
-        View.OnClickListener radio_favourite = v -> {
-            reloadMovies(FAVORITE_MOVIES, radioGroup, R.id.radio_favourite, true);
-        };
+        View.OnClickListener radio_favourite = v -> reloadMovies(FAVORITE_MOVIES_SECTION, radioGroup, R.id.radio_favourite);
         radioButtonFavourite.setOnClickListener(radio_favourite);
         popupLayout.findViewById(R.id.menu_textView_favourite).setOnClickListener(radio_favourite);
 
@@ -254,10 +249,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         if (dismiss) popupWindow.dismiss();
     }
 
-    private void reloadMovies(String MovieSection, RadioGroup radioGroup, int radioID, boolean dismiss) {
+    private void reloadMovies(String MovieSection, RadioGroup radioGroup, int radioID) {
         restartLoader(MovieSection);
         saveMovieSectionPreference(MovieSection, radioID);
-        setRadioSelection(radioGroup, radioID, dismiss);
+        setRadioSelection(radioGroup, radioID, true);
     }
 
     private void saveMovieSectionPreference(String section, int radioId) {
@@ -273,7 +268,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
 
         String stringURI;
         int loaderID;
-        if (section.equals(FAVORITE_MOVIES)) {
+        if (section.equals(FAVORITE_MOVIES_SECTION)) {
             stringURI = MovieContract.MovieTable.MOVIES_CONTENT_URI.toString();
             loaderID = LOADER_ID_DATABASE;
         } else {
@@ -288,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         gridRecyclerView.smoothScrollToPosition(0);
     }
 
-    @Override
+    @Override @SuppressLint("RestrictedApi")
     public void onPosterClicked(MovieObject movie, Boolean isFavorite, View itemView) {
         Intent detailsIntent = new Intent(MainActivity.this, DetailsActivity.class);
         detailsIntent.putExtra(INTENT_MOVIE_EXTRA, movie);
@@ -296,9 +291,18 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             ActivityOptions activityOptions = ActivityOptions
                     .makeScaleUpAnimation(itemView, 0, 0, itemView.getWidth(), itemView.getHeight());
-            startActivity(detailsIntent, activityOptions.toBundle());
+            startActivityForResult(detailsIntent, CHANGED_FAVORITES_REQUEST, activityOptions.toBundle());
         } else {
+            startActivityForResult(detailsIntent, CHANGED_FAVORITES_REQUEST);
             startActivity(detailsIntent);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == CHANGED_FAVORITES_REQUEST && resultCode == RESULT_OK && data.getBooleanExtra(FAVORITES_ACTIVITY_RESULT, false)) {
+            restartLoader(FAVORITE_MOVIES_SECTION);
+            saveMovieSectionPreference(FAVORITE_MOVIES_SECTION, R.id.radio_favourite);
         }
     }
 
@@ -309,6 +313,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
      * @param args Any arguments supplied by the caller.
      * @return Return a new Loader instance that is ready to start loading.
      */
+    @NonNull
     @Override
     public Loader<ArrayList<MovieObject>> onCreateLoader(int id, Bundle args) {
         Uri queryUri = Uri.parse(args.getString(LOADER_BUNDLE));
@@ -321,15 +326,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     }
 
     @Override
-    public void onLoadFinished(Loader<ArrayList<MovieObject>> loader, ArrayList<MovieObject> data) {
-        Boolean isFavorite = loader.getId() == LOADER_ID_DATABASE ? true : false;
+    public void onLoadFinished(@NonNull Loader<ArrayList<MovieObject>> loader, ArrayList<MovieObject> data) {
+        Boolean isFavorite = loader.getId() == LOADER_ID_DATABASE;
         movieAdapter.swapMovieData(data, isFavorite);
         showDataView();
         if (outStateRecyclerViewPosition != null) {
             gridRecyclerView.smoothScrollToPosition(outStateRecyclerViewPosition);
             outStateRecyclerViewPosition = null;
         }
-
     }
 
     /**
@@ -340,8 +344,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
      * @param loader The Loader that is being reset.
      */
     @Override
-    public void onLoaderReset(Loader<ArrayList<MovieObject>> loader) {
-        Boolean isFavorite = loader.getId() == LOADER_ID_DATABASE ? true : false;
+    public void onLoaderReset(@NonNull Loader<ArrayList<MovieObject>> loader) {
+        Boolean isFavorite = loader.getId() == LOADER_ID_DATABASE;
         movieAdapter.swapMovieData(null, isFavorite);
     }
 

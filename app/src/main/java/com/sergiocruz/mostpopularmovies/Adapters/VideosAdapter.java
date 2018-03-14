@@ -1,6 +1,7 @@
 package com.sergiocruz.mostpopularmovies.Adapters;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,7 @@ import static com.sergiocruz.mostpopularmovies.Activities.DetailsActivity.YOUTUB
 
 /**
  * Created by Sergio on 06/03/2018.
+ *
  */
 
 public class VideosAdapter extends RecyclerView.Adapter<VideosAdapter.VideosViewHolder> {
@@ -33,27 +35,45 @@ public class VideosAdapter extends RecyclerView.Adapter<VideosAdapter.VideosView
         this.mVideoClickListener = mVideoClickListener;
     }
 
+    @NonNull
     @Override
-    public VideosAdapter.VideosViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public VideosAdapter.VideosViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.video_item_layout, parent, false);
         return new VideosAdapter.VideosViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(VideosAdapter.VideosViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull VideosAdapter.VideosViewHolder holder, int position) {
 
         holder.videoTextView.setText(videoObjects.get(position).getName());
         Glide.with(mContext)
                 .load(String.format(YOUTUBE_THUMBNAIL_URL, videoObjects.get(position).getKey()))
                 .transition(withCrossFade())
-                .apply(new RequestOptions().error(R.drawable.noimage))
-                .apply(new RequestOptions().centerCrop())
+                .apply(new RequestOptions().centerCrop().error(R.drawable.noimage))
                 .into(holder.youtubeThumbnailIV);
+
+        Glide.with(mContext)
+                .load(R.drawable.video_play_icon)
+                .into(holder.videoIcon);
+
     }
 
     public void swapVideoData(ArrayList<VideoObject> videoData) {
         this.videoObjects = videoData;
         notifyDataSetChanged();
+    }
+
+    /**
+     * Return the stable ID for the item at <code>position</code>. If {@link #hasStableIds()}
+     * would return false this method should return {@link RecyclerView#NO_ID}. The default implementation
+     * of this method returns {@link RecyclerView#NO_ID}.
+     *
+     * @param position Adapter position to query
+     * @return the stable ID of the item at position
+     */
+    @Override
+    public long getItemId(int position) {
+        return super.getItemId(position);
     }
 
     @Override
@@ -68,11 +88,13 @@ public class VideosAdapter extends RecyclerView.Adapter<VideosAdapter.VideosView
     public class VideosViewHolder extends RecyclerView.ViewHolder {
         TextView videoTextView;
         ImageView youtubeThumbnailIV;
+        ImageView videoIcon;
 
-        public VideosViewHolder(View itemView) {
+        private VideosViewHolder(View itemView) {
             super(itemView);
             videoTextView = itemView.findViewById(R.id.videosTextView);
             youtubeThumbnailIV = itemView.findViewById(R.id.youtube_thumbnail);
+            videoIcon = itemView.findViewById(R.id.video_icon);
 
             itemView.setOnClickListener(v -> {
                 int clickedPosition = getAdapterPosition();

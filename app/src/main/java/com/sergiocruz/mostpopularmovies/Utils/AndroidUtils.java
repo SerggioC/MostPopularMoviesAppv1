@@ -34,9 +34,14 @@ import static android.os.Environment.DIRECTORY_PICTURES;
 
 /**
  * Created by Sergio on 25/02/2018.
+ * Utilities
  */
 
-public class AndroidUtils {
+public final class AndroidUtils {
+
+    //Avoid instantiation
+    private AndroidUtils() {}
+
     // Storage Permissions
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static final String[] PERMISSIONS_STORAGE = {
@@ -62,20 +67,20 @@ public class AndroidUtils {
         return height;
     }
 
-    public static final int getPxFromDp(int dp) {
+    public static int getPxFromDp(int dp) {
         return (int) (dp * (getDisplayDensity() / 160f));
     }
 
-    public static final int getDpFromPx(int pixels) {
+    public static int getDpFromPx(int pixels) {
         return (int) (pixels * 160f) / getDisplayDensity();
     }
 
-    public static final int getDisplayDensity() {
+    public static int getDisplayDensity() {
         DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
         return metrics.densityDpi;
     }
 
-    public static final int getDensityFactor() {
+    public static int getDensityFactor() {
         DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
         return (int) (metrics.densityDpi / 160f);
     }
@@ -100,8 +105,6 @@ public class AndroidUtils {
 
     public static void animateViewsOnPreDraw(View parent, View[] viewsToAnimate) {
 
-        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN)
-            return;
         ViewTreeObserver.OnPreDrawListener listener = new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {

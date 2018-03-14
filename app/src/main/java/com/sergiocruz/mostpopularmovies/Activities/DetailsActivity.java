@@ -1,6 +1,7 @@
 package com.sergiocruz.mostpopularmovies.Activities;
 
 import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
@@ -12,6 +13,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
@@ -68,15 +70,16 @@ import static com.sergiocruz.mostpopularmovies.TheMovieDB.VIDEOS_PATH;
 public class DetailsActivity extends AppCompatActivity implements android.support.v4.app.LoaderManager.LoaderCallbacks,
         VideosAdapter.VideoClickListener, ReviewsAdapter.ReviewClickListener {
 
-    public static final String INTENT_REVIEW_EXTRA = "review_data_extra";
     private static final int VIDEOS_LOADER_ID = 101;
     private static final int REVIEWS_LOADER_ID = 202;
+    public static final String INTENT_REVIEW_EXTRA = "review_data_extra";
+    public static final String FAVORITES_ACTIVITY_RESULT = "activity_result";
     private static final String LOADER_BUNDLE_MOVIE_ID = "movie_id_bundle";
     private static final String LOADER_BUNDLE_GOT_FAVORITE = "got_favorite_bundle";
     private static final String LOADER_BUNDLE_HAS_INTERNET = "has_internet_bundle";
     private static final String SAVED_INSTANCE_STATE_KEY = "saved_instance_bundle";
     public static final String YOUTUBE_URL_PREFIX = "http://www.youtube.com/watch?v=";
-    public static final String YOUTUBE_THUMBNAIL_URL = "http://img.youtube.com/vi/%s/0.jpg"; // /1, /2, /3
+    public static final String YOUTUBE_THUMBNAIL_URL = "http://img.youtube.com/vi/%s/0.jpg"; // /1.jpg /2.jpg /3.jpg /default.jpg
 
     private MovieObject mMovieDataFromIntent;
     private ArrayList<VideoObject> mVideosObjects;
@@ -125,9 +128,9 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
             //  Check if DB already has the movie_id favorite
             Uri queryUri = MovieContract.MovieTable.MOVIES_CONTENT_URI.buildUpon().appendPath(mMovieDataFromIntent.getId().toString()).build();
             Cursor queryCursor = getContentResolver().query(queryUri, null, null, null, null);
-            queryCursor.close();
+            if (queryCursor != null) queryCursor.close();
 
-            if (mMovieDataFromIntent.getFavorite() || queryCursor.getCount() > 0) {
+            if (queryCursor != null && (mMovieDataFromIntent.getFavorite() || queryCursor.getCount() > 0)) {
                 Toast.makeText(mContext, R.string.movie_in_favorites, Toast.LENGTH_LONG).show();
                 return;
             }
@@ -149,6 +152,8 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
                     if (saveReviewsToContentValues != null)
                         reviews_inserted = getContentResolver().bulkInsert(MovieContract.ReviewsTable.REVIEWS_CONTENT_URI, saveReviewsToContentValues);
 
+                    setActivityResult();
+
                     Log.i("Sergio>", this + " doInBackground\nvideos_inserted= %s, reviews_inserted= %s" + videos_inserted + " , " + reviews_inserted);
                     return null;
                 }
@@ -158,7 +163,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
                     super.onPostExecute(nothing);
                     favorite_star.setImageDrawable(ContextCompat.getDrawable(mContext, android.R.drawable.btn_star_big_on));
                     mMovieDataFromIntent.setFavorite(true);
-                    Toast.makeText(mContext, "Movie data saved to Favorites", Toast.LENGTH_LONG).show();
+                    Toast.makeText(mContext, R.string.saved_movie, Toast.LENGTH_LONG).show();
                 }
             };
             asyncTask.execute();
@@ -179,6 +184,8 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
                     Boolean deletedBackDrop = AndroidUtils.deleteImageFile(mMovieDataFromIntent.getBackdropFilePath());
                     mMovieDataFromIntent.setPosterFilePath(null);
                     mMovieDataFromIntent.setBackdropFilePath(null);
+
+                    if (deletedRow == 1) setActivityResult();
 
                     Log.i("Sergio>", this + " doInBackground\n" +
                             "deletedRow row = " + deletedRow + "\n" +
@@ -201,6 +208,11 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         });
     }
 
+    private void setActivityResult() {
+        Intent intent = new Intent();
+        intent.putExtra(FAVORITES_ACTIVITY_RESULT, true);
+        setResult(Activity.RESULT_OK, intent);
+    }
 
     private ContentValues[] saveReviewsToContentValues(ArrayList<ReviewObject> mReviewObjects, Integer id) {
         if (mReviewObjects == null) return null;
@@ -224,7 +236,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         ContentValues[] values = new ContentValues[size];
         for (int i = 0; i < size; i++) {
             VideoObject video = mVideosObjects.get(i);
-            values[i] = new ContentValues(9);
+            values[i] = new ContentValues(10);
             values[i].put(MovieContract.VideosTable.MOVIE_ID, id.toString());
             values[i].put(MovieContract.VideosTable.VIDEO_ID, video.getVideo_id());
             values[i].put(MovieContract.VideosTable.ISO_639_1, video.getIso_639_1());
@@ -234,6 +246,17 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
             values[i].put(MovieContract.VideosTable.SITE, video.getSite());
             values[i].put(MovieContract.VideosTable.SIZE, video.getSize());
             values[i].put(MovieContract.VideosTable.TYPE, video.getType());
+
+
+
+
+            videosAdapter.getItemId(i);
+
+            View itemView = videosRecyclerView.findViewHolderForAdapterPosition(i).itemView;
+            ImageView imageView = itemView.findViewById(R.id.youtube_thumbnail);
+            Uri imageFileUri = AndroidUtils.saveBitmapToDevice(mContext, imageView, video.getKey() + ".jpeg");
+            String imageStringUri = imageFileUri != null ? imageFileUri.toString() : "";
+            values[i].put(MovieContract.VideosTable.THUMBNAIL_FILE_URI, imageStringUri);
         }
         return values;
     }
@@ -286,6 +309,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
 
         LinearLayoutManager videosLinearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
         videosAdapter = new VideosAdapter(mContext, this);
+        videosAdapter.setHasStableIds(true);
         videosRecyclerView.setAdapter(videosAdapter);
         videosRecyclerView.setLayoutManager(videosLinearLayoutManager);
 
@@ -431,6 +455,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
      * @param args     Any arguments supplied by the caller.
      * @return Return a new Loader instance that is ready to start loading.
      */
+    @NonNull
     @Override
     public Loader onCreateLoader(int loaderID, Bundle args) {
         String movieId = args.getString(LOADER_BUNDLE_MOVIE_ID);
@@ -536,7 +561,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
      * @param loader The Loader that is being reset.
      */
     @Override
-    public void onLoaderReset(Loader loader) {
+    public void onLoaderReset(@NonNull Loader loader) {
         switch (loader.getId()) {
             case VIDEOS_LOADER_ID:
                 populateVideos(null);

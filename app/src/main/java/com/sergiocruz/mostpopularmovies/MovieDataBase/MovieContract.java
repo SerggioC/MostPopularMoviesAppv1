@@ -102,6 +102,7 @@ public class MovieContract {
         public static final String SITE = "site";
         public static final String SIZE = "size";
         public static final String TYPE = "type";
+        public static final String THUMBNAIL_FILE_URI = "thumbnail_uri";
 
         public static final int _ID_INDEX = 0;
         public static final int MOVIE_ID_INDEX = 1;
@@ -113,6 +114,7 @@ public class MovieContract {
         public static final int SITE_INDEX = 7;
         public static final int SIZE_INDEX = 8;
         public static final int TYPE_INDEX = 9;
+        public static final int THUMBNAIL_URI_INDEX = 10;
 
     }
 
@@ -144,7 +146,6 @@ public class MovieContract {
         public static final int AUTHOR_INDEX = 3;
         public static final int CONTENT_INDEX = 4;
         public static final int URL_INDEX = 5;
-
 
     }
 

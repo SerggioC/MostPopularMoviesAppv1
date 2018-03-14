@@ -17,7 +17,8 @@ import java.net.URL;
  * Created by Sergio on 18/02/2018.
  */
 
-public class NetworkUtils {
+public final class NetworkUtils {
+    private NetworkUtils() {}
 
     public static boolean hasActiveNetworkConnection(Context context) {
         ConnectivityManager connManager = (ConnectivityManager)

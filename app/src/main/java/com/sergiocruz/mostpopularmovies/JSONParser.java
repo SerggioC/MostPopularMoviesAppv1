@@ -123,7 +123,7 @@ public class JSONParser {
                 Integer size = video.optInt(VideoKeys.SIZE);
                 String type = video.optString(VideoKeys.TYPE);
 
-                videoObjects.add(new VideoObject(videoID, iso6391, iso31661, key, name, site, size, type));
+                videoObjects.add(new VideoObject(videoID, iso6391, iso31661, key, name, site, size, type, null));
             }
 
         } catch (JSONException e) {

@@ -18,8 +18,9 @@ public class VideoObject implements Parcelable {
     private String site;
     private Integer size;
     private String type;
+    private String thumbnailUri;
 
-    public VideoObject(String video_id, String iso_639_1, String iso_3166_1, String key, String name, String site, Integer size, String type) {
+    public VideoObject(String video_id, String iso_639_1, String iso_3166_1, String key, String name, String site, Integer size, String type, String thumbnailUri) {
         this.video_id = video_id;
         this.iso_639_1 = iso_639_1;
         this.iso_3166_1 = iso_3166_1;
@@ -28,6 +29,7 @@ public class VideoObject implements Parcelable {
         this.site = site;
         this.size = size;
         this.type = type;
+        this.thumbnailUri = thumbnailUri;
     }
 
     protected VideoObject(Parcel in) {
@@ -39,6 +41,7 @@ public class VideoObject implements Parcelable {
         site = in.readString();
         size = in.readByte() == 0x00 ? null : in.readInt();
         type = in.readString();
+        thumbnailUri = in.readString();
     }
 
     public String getVideo_id() {
@@ -69,9 +72,10 @@ public class VideoObject implements Parcelable {
         return size;
     }
 
-    public String getType() {
-        return type;
-    }
+    public String getType() { return type; }
+
+    public String getThumbnailUri() { return thumbnailUri; }
+
 
     @Override
     public int describeContents() {
@@ -93,6 +97,7 @@ public class VideoObject implements Parcelable {
             dest.writeInt(size);
         }
         dest.writeString(type);
+        dest.writeString(thumbnailUri);
     }
 
     @SuppressWarnings("unused")

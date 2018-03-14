@@ -142,7 +142,8 @@ public class VideosLoader extends AsyncTaskLoader<ArrayList<VideoObject>> {
                                 cursor.getString(MovieContract.VideosTable.NAME_INDEX),
                                 cursor.getString(MovieContract.VideosTable.SITE_INDEX),
                                 cursor.getInt(MovieContract.VideosTable.SIZE_INDEX),
-                                cursor.getString(MovieContract.VideosTable.TYPE_INDEX)
+                                cursor.getString(MovieContract.VideosTable.TYPE_INDEX),
+                                cursor.getString(MovieContract.VideosTable.THUMBNAIL_URI_INDEX)
                         ));
             }
         }

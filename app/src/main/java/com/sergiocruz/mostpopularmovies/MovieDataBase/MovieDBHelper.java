@@ -72,6 +72,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 VideosTable.SITE + " TEXT, " +
                 VideosTable.SIZE + " INTEGER, " +
                 VideosTable.TYPE + " INTEGER, " +
+                VideosTable.THUMBNAIL_FILE_URI + " TEXT, " +
                 " FOREIGN KEY (" + VideosTable.MOVIE_ID + ") REFERENCES " +
                 MovieTable.MOVIES_TABLE_NAME + " (" + MovieTable.MOVIE_ID + ")" +
                 " ON DELETE CASCADE);" +
@@ -117,6 +118,8 @@ public class MovieDBHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + MovieTable.MOVIES_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + VideosTable.VIDEOS_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + ReviewsTable.REVIEWS_TABLE_NAME);
         onCreate(db);
     }
 

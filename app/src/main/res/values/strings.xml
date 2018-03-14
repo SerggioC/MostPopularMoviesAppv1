@@ -32,8 +32,9 @@
     <string name="hey_check_this">Hey Check out this cool movie</string>
     <string name="android_app"> Android App</string>
     <string name="sent_from">Sent from: </string>
+    <string name="saved_movie">Movie data saved to Favorites</string>
 
-    // themoviedb image sizes "w92", "w154", "w185", "w342", "w500", "w780", or "original".
+    <!-- themoviedb image sizes "w92", "w154", "w185", "w342", "w500", "w780", or "original".-->
     <string-array name="image_sizes">
         <item>w92</item>
         <item>w154</item>
