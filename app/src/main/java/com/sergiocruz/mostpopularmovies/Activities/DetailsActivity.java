@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -247,14 +248,8 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
             values[i].put(MovieContract.VideosTable.SIZE, video.getSize());
             values[i].put(MovieContract.VideosTable.TYPE, video.getType());
 
-
-
-
-            videosAdapter.getItemId(i);
-
-            View itemView = videosRecyclerView.findViewHolderForAdapterPosition(i).itemView;
-            ImageView imageView = itemView.findViewById(R.id.youtube_thumbnail);
-            Uri imageFileUri = AndroidUtils.saveBitmapToDevice(mContext, imageView, video.getKey() + ".jpeg");
+            Bitmap bitmap = AndroidUtils.getBitmapFromURL(mContext, String.format(YOUTUBE_THUMBNAIL_URL, video.getKey()));
+            Uri imageFileUri = AndroidUtils.saveBitmapToDevice(mContext, bitmap, video.getKey() + ".jpeg");
             String imageStringUri = imageFileUri != null ? imageFileUri.toString() : "";
             values[i].put(MovieContract.VideosTable.THUMBNAIL_FILE_URI, imageStringUri);
         }

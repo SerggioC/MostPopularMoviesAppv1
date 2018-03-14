@@ -161,13 +161,16 @@ public final class AndroidUtils {
         return bitmap;
     }
 
-
-
     @Nullable
     public static Uri saveBitmapToDevice(Context context, ImageView imageView, String fileName) {
         imageView.setDrawingCacheEnabled(true);
         imageView.buildDrawingCache();
         Bitmap bitmap = imageView.getDrawingCache();
+        return getUri(context, bitmap, fileName);
+    }
+
+    @Nullable
+    private static Uri getUri(Context context, Bitmap bitmap, String fileName) {
         Uri fileUri;
         try {
             File picturesDirectory = Environment.getExternalStoragePublicDirectory(DIRECTORY_PICTURES);
@@ -203,4 +206,7 @@ public final class AndroidUtils {
     }
 
 
+    public static Uri saveBitmapToDevice(Context mContext, Bitmap bitmap, String fileName) {
+        return getUri(mContext, bitmap, fileName);
+    }
 }

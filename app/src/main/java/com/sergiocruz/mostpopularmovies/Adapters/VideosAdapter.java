@@ -63,19 +63,6 @@ public class VideosAdapter extends RecyclerView.Adapter<VideosAdapter.VideosView
         notifyDataSetChanged();
     }
 
-    /**
-     * Return the stable ID for the item at <code>position</code>. If {@link #hasStableIds()}
-     * would return false this method should return {@link RecyclerView#NO_ID}. The default implementation
-     * of this method returns {@link RecyclerView#NO_ID}.
-     *
-     * @param position Adapter position to query
-     * @return the stable ID of the item at position
-     */
-    @Override
-    public long getItemId(int position) {
-        return super.getItemId(position);
-    }
-
     @Override
     public int getItemCount() {
         return videoObjects == null ? 0 : videoObjects.size();
