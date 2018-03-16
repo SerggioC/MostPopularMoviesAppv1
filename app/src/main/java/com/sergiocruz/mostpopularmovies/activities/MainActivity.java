@@ -24,27 +24,27 @@ import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import com.sergiocruz.mostpopularmovies.adapters.MovieAdapter;
-import com.sergiocruz.mostpopularmovies.loaders.MoviesLoader;
-import com.sergiocruz.mostpopularmovies.movieDataBase.MovieContract;
 import com.sergiocruz.mostpopularmovies.MovieObject;
 import com.sergiocruz.mostpopularmovies.R;
 import com.sergiocruz.mostpopularmovies.TheMovieDB;
+import com.sergiocruz.mostpopularmovies.adapters.MovieAdapter;
+import com.sergiocruz.mostpopularmovies.loaders.MoviesLoader;
+import com.sergiocruz.mostpopularmovies.movieDataBase.MovieContract;
 
 import java.util.ArrayList;
 
 import static android.widget.GridLayout.VERTICAL;
-import static com.sergiocruz.mostpopularmovies.activities.DetailsActivity.FAVORITES_ACTIVITY_RESULT;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.NOW_PLAYING_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.POPULAR_MOVIES_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.TOP_RATED_MOVIES_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.UPCOMING_MOVIES_PATH;
+import static com.sergiocruz.mostpopularmovies.activities.DetailsActivity.FAVORITES_ACTIVITY_RESULT;
 import static com.sergiocruz.mostpopularmovies.utils.AndroidUtils.getPxFromDp;
 import static com.sergiocruz.mostpopularmovies.utils.AndroidUtils.getWindowSizeXY;
 import static com.sergiocruz.mostpopularmovies.utils.AndroidUtils.verifyStoragePermissions;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.PosterClickListener,
-        android.support.v4.app.LoaderManager.LoaderCallbacks<ArrayList<MovieObject>> {
+        android.support.v4.app.LoaderManager.LoaderCallbacks<ArrayList<MovieObject>>, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final int LOADER_ID_INTERNET = 11;
     private static final int LOADER_ID_DATABASE = 22;
@@ -84,6 +84,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         movieSection = sharedPrefs.getString(getString(R.string.movie_section_pref_key), POPULAR_MOVIES_PATH);
         selectedRadioId = sharedPrefs.getInt(getString(R.string.radio_selected_key), R.id.radio_popular);
 
+        // Register the shared Preference listener
+        sharedPrefs.registerOnSharedPreferenceChangeListener(this);
+
         int loaderID;
         String stringURI;
         if (movieSection.equals(FAVORITE_MOVIES_SECTION)) {
@@ -91,12 +94,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
             stringURI = MovieContract.MovieTable.MOVIES_CONTENT_URI.toString();
         } else {
             loaderID = LOADER_ID_INTERNET;
-            stringURI = TheMovieDB.prepareAPIUri(movieSection, null).toString();
+            stringURI = TheMovieDB.prepareAPIUri(this, movieSection, null).toString();
         }
 
         Bundle bundleURI = new Bundle(1);
         bundleURI.putString(LOADER_BUNDLE, stringURI);
         getSupportLoaderManager().initLoader(loaderID, bundleURI, this);
+
         verifyStoragePermissions(MainActivity.this);
         if (savedInstanceState != null) {
             outStateRecyclerViewPosition = savedInstanceState.getInt(SAVED_INSTANCE_STATE_KEY);
@@ -274,11 +278,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         String stringURI;
         int loaderID;
         if (section.equals(FAVORITE_MOVIES_SECTION)) {
-            stringURI = MovieContract.MovieTable.MOVIES_CONTENT_URI.toString();
             loaderID = LOADER_ID_DATABASE;
+            stringURI = MovieContract.MovieTable.MOVIES_CONTENT_URI.toString();
         } else {
-            stringURI = TheMovieDB.prepareAPIUri(section, null).toString();
             loaderID = LOADER_ID_INTERNET;
+            stringURI = TheMovieDB.prepareAPIUri(this, section, null).toString();
         }
 
         Bundle bundleURI = new Bundle(1);
@@ -375,4 +379,26 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         outState.putInt(SAVED_INSTANCE_STATE_KEY, position);
     }
 
+    /**
+     * Called when a shared preference is changed, added, or removed. This
+     * may be called even if a preference is set to its existing value.
+     * <p>
+     * <p>This callback will be run on your main thread.
+     *
+     * @param sharedPreferences The {@link SharedPreferences} that received
+     *                          the change.
+     * @param key               The key of the preference that was changed, added, or
+     */
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        restartLoader(movieSection);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Unregister VisualizerActivity as an OnPreferenceChangedListener to avoid any memory leaks.
+        android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(this)
+                .unregisterOnSharedPreferenceChangeListener(this);
+    }
 }

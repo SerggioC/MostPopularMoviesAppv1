@@ -1,6 +1,10 @@
 package com.sergiocruz.mostpopularmovies;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.v7.preference.PreferenceManager;
 
 import java.util.LinkedHashMap;
 
@@ -59,8 +63,9 @@ public final class TheMovieDB {
     // https://api.themoviedb.org/3/movie/upcoming?api_key=<<api_key>>&language=en-US&page=1
     // https://api.themoviedb.org/3/movie/latest?api_key=<<api_key>>&language=en-US
 
-    public static Uri prepareAPIUri(String section, String movieID) {
+    public static Uri prepareAPIUri(Context context, String section, String movieID) {
         Uri uri;
+        String language = getPreferedLanguage(context);
 
         if (movieID != null) {
             uri = Uri.parse(BASE_API_URL_V3).buildUpon()
@@ -68,7 +73,7 @@ public final class TheMovieDB {
                     .appendPath(movieID)
                     .appendPath(section)
                     .appendQueryParameter(API_KEY_PARAM, BuildConfig.THEMOVIEDB_API_KEY_V3)
-                    .appendQueryParameter(LANGUAGE_PARAM, "en-US") // TODO save/get language preference
+                    .appendQueryParameter(LANGUAGE_PARAM, language)
                     .appendQueryParameter(PAGE_PARAM, "1")
                     .build();
         } else {
@@ -76,11 +81,19 @@ public final class TheMovieDB {
                     .appendPath(MOVIE_PATH)
                     .appendPath(section)
                     .appendQueryParameter(API_KEY_PARAM, BuildConfig.THEMOVIEDB_API_KEY_V3)
-                    .appendQueryParameter(LANGUAGE_PARAM, "en-US") // TODO save/get language preference
+                    .appendQueryParameter(LANGUAGE_PARAM, language)
                     .appendQueryParameter(PAGE_PARAM, "1")
                     .build();
         }
 
         return uri;
+    }
+
+    @NonNull
+    private static String getPreferedLanguage(Context context) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return sharedPreferences.getString(
+                context.getString(R.string.pref_language_key),
+                context.getString(R.string.default_language));
     }
 }

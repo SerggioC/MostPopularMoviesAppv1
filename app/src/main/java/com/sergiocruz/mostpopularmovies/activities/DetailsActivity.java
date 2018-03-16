@@ -467,7 +467,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
                     queryURI = MovieContract.VideosTable.VIDEOS_CONTENT_URI.buildUpon().appendPath(movieId).build();
                 } else {
                     if (hasInternet)
-                        queryURI = TheMovieDB.prepareAPIUri(VIDEOS_PATH, movieId);
+                        queryURI = TheMovieDB.prepareAPIUri(mContext, VIDEOS_PATH, movieId);
                 }
                 return new VideosLoader(mContext, queryURI, gotFavorite);
             case REVIEWS_LOADER_ID:
@@ -475,7 +475,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
                     queryURI = MovieContract.ReviewsTable.REVIEWS_CONTENT_URI.buildUpon().appendPath(movieId).build();
                 } else {
                     if (hasInternet)
-                        queryURI = TheMovieDB.prepareAPIUri(REVIEWS_PATH, movieId);
+                        queryURI = TheMovieDB.prepareAPIUri(mContext, REVIEWS_PATH, movieId);
                 }
                 reviews_loading_indicator.setVisibility(View.VISIBLE);
                 return new ReviewsLoader(mContext, queryURI, gotFavorite);
