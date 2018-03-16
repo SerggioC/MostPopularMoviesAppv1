@@ -65,11 +65,17 @@
     <string-array name="pref_language_labels">
         <item>Português</item>
         <item>English</item>
+        <item>Español</item>
+        <item>Français</item>
+        <item>Deutsche</item>
     </string-array>
 
     <string-array name="pref_language_values">
         <item>pt-PT</item>
         <item>en-US</item>
+        <item>es-ES</item>
+        <item>fr-FR</item>
+        <item>de-DE</item>
     </string-array>
 
     <!--<string-array name="pref_language_labels">-->

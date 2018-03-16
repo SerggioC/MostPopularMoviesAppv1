@@ -2,11 +2,14 @@ package com.sergiocruz.mostpopularmovies;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v7.preference.PreferenceManager;
 
 import java.util.LinkedHashMap;
+import java.util.Locale;
 
 /**
  * Created by Sergio on 04/03/2018.
@@ -65,7 +68,7 @@ public final class TheMovieDB {
 
     public static Uri prepareAPIUri(Context context, String section, String movieID) {
         Uri uri;
-        String language = getPreferedLanguage(context);
+        String language = getPreferredLanguage(context);
 
         if (movieID != null) {
             uri = Uri.parse(BASE_API_URL_V3).buildUpon()
@@ -90,10 +93,23 @@ public final class TheMovieDB {
     }
 
     @NonNull
-    private static String getPreferedLanguage(Context context) {
+    private static String getPreferredLanguage(Context context) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        Locale deviceLocale;
+        Configuration configuration = context.getResources().getConfiguration();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            deviceLocale = configuration.getLocales().get(0);
+        } else {
+            deviceLocale = configuration.locale;
+        }
+
         return sharedPreferences.getString(
                 context.getString(R.string.pref_language_key),
-                context.getString(R.string.default_language));
+                deviceLocale.toString()
+        );
     }
+
+
+
+
 }
