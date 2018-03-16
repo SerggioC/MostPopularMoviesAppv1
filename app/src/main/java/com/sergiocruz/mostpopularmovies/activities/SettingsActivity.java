@@ -17,7 +17,6 @@ package com.sergiocruz.mostpopularmovies.activities;
  */
 
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
@@ -35,7 +34,10 @@ public class SettingsActivity extends AppCompatActivity {
         // Set the action bar back button to look like an up button
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setDisplayShowHomeEnabled(true);
         }
+
+
     }
 
     @Override
@@ -43,8 +45,18 @@ public class SettingsActivity extends AppCompatActivity {
         int id = item.getItemId();
         // When the home button is pressed, take the user back to the VisualizerActivity
         if (id == android.R.id.home) {
-            NavUtils.navigateUpFromSameTask(this);
+            onBackPressed();
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+
+
 }

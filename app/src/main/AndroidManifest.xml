@@ -29,7 +29,7 @@
             android:theme="@style/coordinatorTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainActivity" />
+                android:value=".activities.MainActivity"/>
         </activity>
 
         <activity
@@ -38,7 +38,7 @@
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.DetailsActivity" />
+                android:value=".activities.DetailsActivity"/>
         </activity>
 
         <provider
@@ -48,6 +48,16 @@
             android:exported="true"
             android:readPermission="com.sergiocruz.mostpopularmovies.READ_ME"
             android:writePermission="com.sergiocruz.mostpopularmovies.WRITE_ME"/>
+
+        <activity
+            android:name=".activities.SettingsActivity"
+            android:label="@string/settings_activity_title"
+            android:parentActivityName=".activities.MainActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity"/>
+        </activity>
 
     </application>
 

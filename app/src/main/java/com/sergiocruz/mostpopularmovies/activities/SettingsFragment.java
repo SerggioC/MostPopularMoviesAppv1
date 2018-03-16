@@ -1,20 +1,5 @@
 package com.sergiocruz.mostpopularmovies.activities;
 
-/*
- * Copyright (C) 2016 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -29,7 +14,6 @@ import android.widget.Toast;
 
 import com.sergiocruz.mostpopularmovies.R;
 
-// COMPLETED (1) Implement OnPreferenceChangeListener
 public class SettingsFragment extends PreferenceFragmentCompat implements
         OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener {
 
@@ -39,24 +23,24 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
         // Add visualizer preferences, defined in the XML file in res->xml->pref_visualizer
         addPreferencesFromResource(R.xml.preferences);
 
-        SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
         PreferenceScreen prefScreen = getPreferenceScreen();
+        SharedPreferences sharedPreferences = prefScreen.getSharedPreferences();
         int count = prefScreen.getPreferenceCount();
 
         // Go through all of the preferences, and set up their preference summary.
         for (int i = 0; i < count; i++) {
-            Preference p = prefScreen.getPreference(i);
+            Preference preference = prefScreen.getPreference(i);
             // You don't need to set up preference summaries for checkbox preferences because
             // they are already set up in xml using summaryOff and summary On
-            if (!(p instanceof CheckBoxPreference)) {
-                String value = sharedPreferences.getString(p.getKey(), "");
-                setPreferenceSummary(p, value);
+            if (!(preference instanceof CheckBoxPreference)) {
+                String value = sharedPreferences.getString(preference.getKey(), "");
+                setPreferenceSummary(preference, value);
             }
         }
 
         // COMPLETED (3) Add the OnPreferenceChangeListener specifically to the EditTextPreference
         // Add the preference listener which checks that the size is correct to the size preference
-        Preference preference = findPreference(getString(R.string.pref_size_key));
+        Preference preference = findPreference(getString(R.string.pref_language_key));
         preference.setOnPreferenceChangeListener(this);
     }
 
@@ -107,7 +91,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
         Toast error = Toast.makeText(getContext(), "Please select a number between 0.1 and 3", Toast.LENGTH_SHORT);
 
         // Double check that the preference is the size preference
-        String sizeKey = getString(R.string.pref_size_key);
+        String sizeKey = getString(R.string.pref_language_key);
         if (preference.getKey().equals(sizeKey)) {
             String stringSize = (String) newValue;
             try {

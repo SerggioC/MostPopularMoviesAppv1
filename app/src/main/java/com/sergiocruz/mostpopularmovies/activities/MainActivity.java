@@ -240,6 +240,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         radioButtonFavourite.setOnClickListener(radio_favourite);
         popupLayout.findViewById(R.id.menu_textView_favourite).setOnClickListener(radio_favourite);
 
+        popupLayout.findViewById(R.id.menu_other_settings).setOnClickListener(v -> {
+            Intent startSettingsActivity = new Intent(this, SettingsActivity.class);
+            startActivity(startSettingsActivity);
+        });
+
     }
 
     private void setRadioSelection(RadioGroup radioGroup, int radioId, boolean dismiss) {

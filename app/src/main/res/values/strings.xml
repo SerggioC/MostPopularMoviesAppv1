@@ -34,6 +34,9 @@
     <string name="sent_from">Sent from: </string>
     <string name="saved_movie">Movie data saved to Favorites</string>
     <string name="pref_title_label">Select Language</string>
+    <string name="pref_default_lang">pt-PT</string>
+    <string name="pref_language_key">language_preferences</string>
+    <string name="settings_activity_title">Settings</string>
 
     <!-- themoviedb image sizes "w92", "w154", "w185", "w342", "w500", "w780", or "original".-->
     <string-array name="image_sizes">
@@ -55,5 +58,18 @@
         <item>780</item>
         <item>781</item>
     </integer-array>
+
+    <!-- Label ordering must match values -->
+    <string-array name="pref_language_labels">
+        <item>Português</item>
+        <item>English</item>
+    </string-array>
+
+    <string-array name="pref_language_values">
+        <item>pt-PT</item>
+        <item>en-US</item>
+    </string-array>
+
+
 
 </resources>
