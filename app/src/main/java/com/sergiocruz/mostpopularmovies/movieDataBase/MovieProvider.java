@@ -1,4 +1,4 @@
-package com.sergiocruz.mostpopularmovies.MovieDataBase;
+package com.sergiocruz.mostpopularmovies.movieDataBase;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -16,7 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import static com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract.MovieTable.MOVIES_TABLE_NAME;
+import static com.sergiocruz.mostpopularmovies.movieDataBase.MovieContract.MovieTable.MOVIES_TABLE_NAME;
 
 /**
  * Created by Sergio on 23/02/2018.

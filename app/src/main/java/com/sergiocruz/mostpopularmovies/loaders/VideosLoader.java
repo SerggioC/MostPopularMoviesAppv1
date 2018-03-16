@@ -1,8 +1,9 @@
-package com.sergiocruz.mostpopularmovies.Loaders;
+package com.sergiocruz.mostpopularmovies.loaders;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -10,9 +11,9 @@ import android.support.v4.os.OperationCanceledException;
 import android.util.Log;
 
 import com.sergiocruz.mostpopularmovies.JSONParser;
-import com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract;
-import com.sergiocruz.mostpopularmovies.ReviewObject;
-import com.sergiocruz.mostpopularmovies.Utils.NetworkUtils;
+import com.sergiocruz.mostpopularmovies.movieDataBase.MovieContract;
+import com.sergiocruz.mostpopularmovies.utils.NetworkUtils;
+import com.sergiocruz.mostpopularmovies.VideoObject;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -21,15 +22,14 @@ import java.util.ArrayList;
  * Created by Sergio on 06/03/2018.
  */
 
-
-public class ReviewsLoader extends AsyncTaskLoader<ArrayList<ReviewObject>> {
+public class VideosLoader extends AsyncTaskLoader<ArrayList<VideoObject>> {
     private WeakReference<Context> weakContext;
     private Uri queryUri;
     private Boolean gotFavorite;
     // Initialize a VideoObject, this will hold all the videos data
-    private ArrayList<ReviewObject> mReviewObjects;
+    private ArrayList<VideoObject> mVideoData;
 
-    public ReviewsLoader(Context context, Uri queryURI, Boolean gotFavorite) {
+    public VideosLoader(@NonNull Context context, Uri queryURI, Boolean gotFavorite) {
         super(context);
         this.weakContext = new WeakReference<>(context);
         this.queryUri = queryURI;
@@ -45,9 +45,9 @@ public class ReviewsLoader extends AsyncTaskLoader<ArrayList<ReviewObject>> {
      */
     @Override
     protected void onStartLoading() {
-        if (mReviewObjects != null) {
+        if (mVideoData != null) {
             // Delivers any previously loaded data immediately
-            deliverResult(mReviewObjects);
+            deliverResult(mVideoData);
 
         } else {
             // Force a new load
@@ -82,30 +82,29 @@ public class ReviewsLoader extends AsyncTaskLoader<ArrayList<ReviewObject>> {
      */
     @Nullable
     @Override
-    public ArrayList<ReviewObject> loadInBackground() {
+    public ArrayList<VideoObject> loadInBackground() {
 
-        // Query and load all task data in the background; sort by priority
-        // [Hint] use a try/catch block to catch any errors in loading data
-        // * https://api.themoviedb.org/3/movie/{movie_id}/videos?api_key=<<api_key>>&language=en-US
+        // Query and load all data in the background;
+        // Use a try/catch block to catch any errors in loading data
 
-        ArrayList<ReviewObject> reviewsData;
+        ArrayList<VideoObject> videosData;
 
         try {
             if (gotFavorite) { // get all favorites from database
-                Cursor cursor = weakContext.get().getContentResolver()
+                Cursor cursor = (weakContext.get()).getContentResolver()
                         .query(
                                 queryUri,
                                 null,
                                 null,
                                 null,
                                 null);
-                reviewsData = getArrayListFromCursor(cursor);
+                videosData = getArrayListFromCursor(cursor);
 
             } else { // get movie data from internet
 
                 String jsonDataFromAPI = NetworkUtils.getJSONDataFromAPI(queryUri);
                 if (jsonDataFromAPI == null) return null;
-                reviewsData = JSONParser.parseReviewsDataFromJSON(jsonDataFromAPI);
+                videosData = JSONParser.parseVideosDataFromJSON(jsonDataFromAPI);
             }
 
         } catch (Exception e) {
@@ -114,37 +113,44 @@ public class ReviewsLoader extends AsyncTaskLoader<ArrayList<ReviewObject>> {
             return null;
         }
 
-        super.deliverResult(reviewsData);
-        return reviewsData;
+        super.deliverResult(videosData);
+        return videosData;
     }
 
-    // deliverResult sends the result of the load, a Cursor, to the registered listener
-    public void deliverResult(ArrayList<ReviewObject> data) {
-        mReviewObjects = data;
+    // deliverResult sends the result of the load to the registered listener
+    public void deliverResult(ArrayList<VideoObject> data) {
+        mVideoData = data;
         super.deliverResult(data);
 
     }
 
-    private ArrayList<ReviewObject> getArrayListFromCursor(Cursor cursor) {
+    private ArrayList<VideoObject> getArrayListFromCursor(Cursor cursor) {
         int cursorCount = cursor.getCount();
 
-        Log.i("Sergio>", this + " getArrayListFromCursor\n= columnCount" + cursor.getColumnCount());
+        Log.i("Sergio>", this + " getArrayListFromCursor Videos\n= columnCount" + cursor.getColumnCount());
 
-        ArrayList<ReviewObject> arrayList = new ArrayList<>(cursorCount);
+        ArrayList<VideoObject> arrayList = new ArrayList<>(cursorCount);
 
         for (int i = 0; i < cursorCount; i++) {
             while (cursor.moveToNext()) {
                 arrayList.add(
-                        new ReviewObject(
-                                cursor.getString(MovieContract.ReviewsTable.REVIEW_ID_INDEX),
-                                cursor.getString(MovieContract.ReviewsTable.AUTHOR_INDEX),
-                                cursor.getString(MovieContract.ReviewsTable.CONTENT_INDEX),
-                                cursor.getString(MovieContract.ReviewsTable.URL_INDEX)
+                        new VideoObject(
+                                cursor.getString(MovieContract.VideosTable.VIDEO_ID_INDEX),
+                                cursor.getString(MovieContract.VideosTable.ISO_639_1_INDEX),
+                                cursor.getString(MovieContract.VideosTable.ISO_3166_1_INDEX),
+                                cursor.getString(MovieContract.VideosTable.KEY_INDEX),
+                                cursor.getString(MovieContract.VideosTable.NAME_INDEX),
+                                cursor.getString(MovieContract.VideosTable.SITE_INDEX),
+                                cursor.getInt(MovieContract.VideosTable.SIZE_INDEX),
+                                cursor.getString(MovieContract.VideosTable.TYPE_INDEX),
+                                cursor.getString(MovieContract.VideosTable.THUMBNAIL_URI_INDEX)
                         ));
             }
         }
+
         return arrayList;
     }
+
 
 }
 

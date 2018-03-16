@@ -1,4 +1,4 @@
-package com.sergiocruz.mostpopularmovies.Activities;
+package com.sergiocruz.mostpopularmovies.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,9 +14,9 @@ import android.widget.Toast;
 
 import com.sergiocruz.mostpopularmovies.R;
 import com.sergiocruz.mostpopularmovies.ReviewObject;
-import com.sergiocruz.mostpopularmovies.Utils.AndroidUtils;
+import com.sergiocruz.mostpopularmovies.utils.AndroidUtils;
 
-import static com.sergiocruz.mostpopularmovies.Activities.DetailsActivity.INTENT_REVIEW_EXTRA;
+import static com.sergiocruz.mostpopularmovies.activities.DetailsActivity.INTENT_REVIEW_EXTRA;
 
 /**
  * Created by Sergio on 10/03/2018.

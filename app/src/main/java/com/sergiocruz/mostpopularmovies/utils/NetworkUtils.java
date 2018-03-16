@@ -1,4 +1,4 @@
-package com.sergiocruz.mostpopularmovies.Utils;
+package com.sergiocruz.mostpopularmovies.utils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

@@ -1,4 +1,4 @@
-package com.sergiocruz.mostpopularmovies.Utils;
+package com.sergiocruz.mostpopularmovies.utils;
 
 import android.Manifest;
 import android.app.Activity;

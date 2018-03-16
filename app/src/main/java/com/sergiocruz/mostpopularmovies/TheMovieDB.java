@@ -10,12 +10,13 @@ import java.util.LinkedHashMap;
  */
 
 public final class TheMovieDB {
-    public static final String BASE_API_URL_V3 = "https://api.themoviedb.org/3/";
+    public static final String BASE_MOVIE_URL = "https://www.themoviedb.org/movie/";
+    private static final String BASE_API_URL_V3 = "https://api.themoviedb.org/3/";
     public static final String BASE_IMAGE_URL = "http://image.tmdb.org/t/p/";
-    public static final String API_KEY_PARAM = "api_key";
-    public static final String LANGUAGE_PARAM = "language";
-    public static final String PAGE_PARAM = "page";
-    public static final String MOVIE_PATH = "movie";
+    private static final String API_KEY_PARAM = "api_key";
+    private static final String LANGUAGE_PARAM = "language";
+    private static final String PAGE_PARAM = "page";
+    private static final String MOVIE_PATH = "movie";
     public static final String VIDEOS_PATH = "videos";
     public static final String REVIEWS_PATH = "reviews";
     public static final String POPULAR_MOVIES_PATH = "popular";

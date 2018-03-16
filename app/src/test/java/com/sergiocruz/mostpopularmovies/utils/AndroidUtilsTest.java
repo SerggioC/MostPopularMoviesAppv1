@@ -1,4 +1,4 @@
-package com.sergiocruz.mostpopularmovies.Utils;
+package com.sergiocruz.mostpopularmovies.utils;
 
 import org.junit.Test;
 

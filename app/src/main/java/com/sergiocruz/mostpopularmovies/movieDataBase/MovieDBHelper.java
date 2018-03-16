@@ -1,14 +1,14 @@
-package com.sergiocruz.mostpopularmovies.MovieDataBase;
+package com.sergiocruz.mostpopularmovies.movieDataBase;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 
-import com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract.ReviewsTable;
+import com.sergiocruz.mostpopularmovies.movieDataBase.MovieContract.ReviewsTable;
 
-import static com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract.MovieTable;
-import static com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract.VideosTable;
+import static com.sergiocruz.mostpopularmovies.movieDataBase.MovieContract.MovieTable;
+import static com.sergiocruz.mostpopularmovies.movieDataBase.MovieContract.VideosTable;
 
 /**
  * Created by Sergio on 23/02/2018.

@@ -1,4 +1,4 @@
-package com.sergiocruz.mostpopularmovies.Adapters;
+package com.sergiocruz.mostpopularmovies.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -17,7 +17,7 @@ import com.sergiocruz.mostpopularmovies.VideoObject;
 import java.util.ArrayList;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
-import static com.sergiocruz.mostpopularmovies.Activities.DetailsActivity.YOUTUBE_THUMBNAIL_URL;
+import static com.sergiocruz.mostpopularmovies.activities.DetailsActivity.YOUTUBE_THUMBNAIL_URL;
 
 
 /**

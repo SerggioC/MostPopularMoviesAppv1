@@ -1,4 +1,4 @@
-package com.sergiocruz.mostpopularmovies.Adapters;
+package com.sergiocruz.mostpopularmovies.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -12,7 +12,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.sergiocruz.mostpopularmovies.MovieObject;
 import com.sergiocruz.mostpopularmovies.R;
-import com.sergiocruz.mostpopularmovies.Utils.AndroidUtils;
+import com.sergiocruz.mostpopularmovies.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;

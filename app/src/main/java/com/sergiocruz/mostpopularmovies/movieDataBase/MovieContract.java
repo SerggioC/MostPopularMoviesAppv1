@@ -1,4 +1,4 @@
-package com.sergiocruz.mostpopularmovies.MovieDataBase;
+package com.sergiocruz.mostpopularmovies.movieDataBase;
 
 import android.content.ContentResolver;
 import android.net.Uri;

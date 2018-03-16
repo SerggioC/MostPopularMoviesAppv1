@@ -1,4 +1,4 @@
-package com.sergiocruz.mostpopularmovies.Activities;
+package com.sergiocruz.mostpopularmovies.activities;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
@@ -24,9 +24,9 @@ import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import com.sergiocruz.mostpopularmovies.Adapters.MovieAdapter;
-import com.sergiocruz.mostpopularmovies.Loaders.MoviesLoader;
-import com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract;
+import com.sergiocruz.mostpopularmovies.adapters.MovieAdapter;
+import com.sergiocruz.mostpopularmovies.loaders.MoviesLoader;
+import com.sergiocruz.mostpopularmovies.movieDataBase.MovieContract;
 import com.sergiocruz.mostpopularmovies.MovieObject;
 import com.sergiocruz.mostpopularmovies.R;
 import com.sergiocruz.mostpopularmovies.TheMovieDB;
@@ -34,14 +34,14 @@ import com.sergiocruz.mostpopularmovies.TheMovieDB;
 import java.util.ArrayList;
 
 import static android.widget.GridLayout.VERTICAL;
-import static com.sergiocruz.mostpopularmovies.Activities.DetailsActivity.FAVORITES_ACTIVITY_RESULT;
+import static com.sergiocruz.mostpopularmovies.activities.DetailsActivity.FAVORITES_ACTIVITY_RESULT;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.NOW_PLAYING_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.POPULAR_MOVIES_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.TOP_RATED_MOVIES_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.UPCOMING_MOVIES_PATH;
-import static com.sergiocruz.mostpopularmovies.Utils.AndroidUtils.getPxFromDp;
-import static com.sergiocruz.mostpopularmovies.Utils.AndroidUtils.getWindowSizeXY;
-import static com.sergiocruz.mostpopularmovies.Utils.AndroidUtils.verifyStoragePermissions;
+import static com.sergiocruz.mostpopularmovies.utils.AndroidUtils.getPxFromDp;
+import static com.sergiocruz.mostpopularmovies.utils.AndroidUtils.getWindowSizeXY;
+import static com.sergiocruz.mostpopularmovies.utils.AndroidUtils.verifyStoragePermissions;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.PosterClickListener,
         android.support.v4.app.LoaderManager.LoaderCallbacks<ArrayList<MovieObject>> {

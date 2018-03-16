@@ -16,7 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".Activities.MainActivity">
+        <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -24,25 +24,25 @@
         </activity>
 
         <activity
-            android:name=".Activities.DetailsActivity"
-            android:parentActivityName=".Activities.MainActivity"
+            android:name=".activities.DetailsActivity"
+            android:parentActivityName=".activities.MainActivity"
             android:theme="@style/coordinatorTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Activities.MainActivity" />
+                android:value=".activities.MainActivity" />
         </activity>
 
         <activity
-            android:name=".Activities.ReviewDetailsActivity"
-            android:parentActivityName=".Activities.DetailsActivity"
+            android:name=".activities.ReviewDetailsActivity"
+            android:parentActivityName=".activities.DetailsActivity"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Activities.DetailsActivity" />
+                android:value=".activities.DetailsActivity" />
         </activity>
 
         <provider
-            android:name="com.sergiocruz.mostpopularmovies.MovieDataBase.MovieProvider"
+            android:name="com.sergiocruz.mostpopularmovies.movieDataBase.MovieProvider"
             android:authorities="com.sergiocruz.mostpopularmovies"
             android:enabled="true"
             android:exported="true"

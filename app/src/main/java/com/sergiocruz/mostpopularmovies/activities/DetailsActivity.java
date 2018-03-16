@@ -1,4 +1,4 @@
-package com.sergiocruz.mostpopularmovies.Activities;
+package com.sergiocruz.mostpopularmovies.activities;
 
 import android.animation.ObjectAnimator;
 import android.app.Activity;
@@ -43,28 +43,30 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.request.RequestOptions;
-import com.sergiocruz.mostpopularmovies.Adapters.ReviewsAdapter;
-import com.sergiocruz.mostpopularmovies.Adapters.VideosAdapter;
-import com.sergiocruz.mostpopularmovies.Loaders.ReviewsLoader;
-import com.sergiocruz.mostpopularmovies.Loaders.VideosLoader;
-import com.sergiocruz.mostpopularmovies.MovieDataBase.MovieContract;
+import com.sergiocruz.mostpopularmovies.adapters.ReviewsAdapter;
+import com.sergiocruz.mostpopularmovies.adapters.VideosAdapter;
+import com.sergiocruz.mostpopularmovies.loaders.ReviewsLoader;
+import com.sergiocruz.mostpopularmovies.loaders.VideosLoader;
+import com.sergiocruz.mostpopularmovies.movieDataBase.MovieContract;
 import com.sergiocruz.mostpopularmovies.MovieObject;
 import com.sergiocruz.mostpopularmovies.R;
 import com.sergiocruz.mostpopularmovies.ReviewObject;
 import com.sergiocruz.mostpopularmovies.TheMovieDB;
-import com.sergiocruz.mostpopularmovies.Utils.AndroidUtils;
-import com.sergiocruz.mostpopularmovies.Utils.NetworkUtils;
+import com.sergiocruz.mostpopularmovies.utils.AndroidUtils;
+import com.sergiocruz.mostpopularmovies.utils.NetworkUtils;
 import com.sergiocruz.mostpopularmovies.VideoObject;
 
 import org.json.JSONArray;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
-import static com.sergiocruz.mostpopularmovies.Activities.MainActivity.INTENT_EXTRA_IS_FAVORITE;
-import static com.sergiocruz.mostpopularmovies.Activities.MainActivity.INTENT_MOVIE_EXTRA;
+import static com.sergiocruz.mostpopularmovies.activities.MainActivity.INTENT_EXTRA_IS_FAVORITE;
+import static com.sergiocruz.mostpopularmovies.activities.MainActivity.INTENT_MOVIE_EXTRA;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.BASE_IMAGE_URL;
+import static com.sergiocruz.mostpopularmovies.TheMovieDB.BASE_MOVIE_URL;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.REVIEWS_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.VIDEOS_PATH;
 
@@ -587,23 +589,37 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     }
 
     private void shareMovieData() {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//        sendIntent.setType("image/*");
+
+        //sendIntent.setType("image/jpg");
+        sendIntent.setType("image/jpeg");
+
+        Uri fileUri = AndroidUtils.saveBitmapToDevice(mContext, posterImageView, "share.jpg");
+        File imageFile = new File(String.valueOf(fileUri));
+
+//        sendIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+        sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(imageFile));
+//        sendIntent.putExtra(Intent.EXTRA_STREAM, imageFile);
+//
+//        sendIntent.putExtra(Intent.EXTRA_FROM_STORAGE, fileUri);
+//        sendIntent.putExtra(Intent.EXTRA_FROM_STORAGE, imageFile);
+//        sendIntent.putExtra(Intent.EXTRA_FROM_STORAGE, Uri.fromFile(imageFile));
 
         String message = new StringBuilder()
                 .append(getString(R.string.hey_check_this)).append("\n")
                 .append(mMovieDataFromIntent.getTitle()).append("\n")
                 .append(mMovieDataFromIntent.getReleaseDate()).append("\n")
                 .append(mMovieDataFromIntent.getOverview()).append("\n")
-                .append(getString(R.string.sent_from) + getString(R.string.app_name)).append(getString(R.string.android_app))
+                .append(BASE_MOVIE_URL + mMovieDataFromIntent.getId()).append("\n")
+                .append(getString(R.string.sent_from)).append(" ").append(getString(R.string.app_name)).append(" ").append(getString(R.string.android_app))
                 .toString();
 
-        Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
         sendIntent.putExtra(Intent.EXTRA_TEXT, message);
 
-        Uri fileUri = AndroidUtils.saveBitmapToDevice(mContext, posterImageView, "share.jpg");
 
-        sendIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
-        sendIntent.setType("image/jpeg");
         startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.send_to)));
 
     }
