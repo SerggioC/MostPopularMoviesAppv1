@@ -16,6 +16,8 @@ Used tech
 - CardView
 - Glide
 - JSON + parsing
+- Custom layout animations on recyclerView' onBindViewHolder
+- Custom layout animations in details activity onPreDraw 
 - Internet Connectivity HttpURLConnection + ByteArrayOutputStream
 Watch sample app behavior video: https://github.com/SerggioC/MostPopularMoviesAppv1/blob/master/most%20popular%20movies.mp4
 
