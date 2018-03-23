@@ -113,10 +113,14 @@ public final class AndroidUtils {
                     View view = viewsToAnimate[i];
                     view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
                     view.setAlpha(0);
+                    view.setScaleX(0.8f);
+                    view.setScaleY(0.8f);
                     view.setTranslationY(100);
                     view.animate()
                             .setInterpolator(interpolator)
                             .alpha(1)
+                            .scaleX(1)
+                            .scaleY(1)
                             .translationY(0)
                             .setStartDelay(50 * (i + 1))
                             .start();

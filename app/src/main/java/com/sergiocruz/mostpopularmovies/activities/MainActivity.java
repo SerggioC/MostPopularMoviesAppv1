@@ -245,6 +245,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         popupLayout.findViewById(R.id.menu_textView_favourite).setOnClickListener(radio_favourite);
 
         popupLayout.findViewById(R.id.menu_other_settings).setOnClickListener(v -> {
+            popupWindow.dismiss();
             Intent startSettingsActivity = new Intent(this, SettingsActivity.class);
             startActivity(startSettingsActivity);
         });
@@ -258,9 +259,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         if (dismiss) popupWindow.dismiss();
     }
 
-    private void reloadMovies(String MovieSection, RadioGroup radioGroup, int radioID) {
-        restartLoader(MovieSection);
-        saveMovieSectionPreference(MovieSection, radioID);
+    private void reloadMovies(String movieSection, RadioGroup radioGroup, int radioID) {
+        restartLoader(movieSection);
+        saveMovieSectionPreference(movieSection, radioID);
         setRadioSelection(radioGroup, radioID, true);
     }
 
@@ -361,6 +362,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     private void showDataView() {
         gridRecyclerView.setVisibility(View.VISIBLE);
         loading_indicator.setVisibility(View.GONE);
+
+//        LayoutAnimationController animation =
+//                AnimationUtils.loadLayoutAnimation(this, R.anim.layout_animation_slide_from_bottom);
+//
+//        gridRecyclerView.setLayoutAnimation(animation);
+//        gridRecyclerView.scheduleLayoutAnimation();
     }
 
     // Source for saving API KEY in Native code

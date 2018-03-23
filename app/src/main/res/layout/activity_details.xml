@@ -59,7 +59,7 @@
                         android:layout_gravity="center_horizontal"
                         android:layout_marginBottom="24dp"
                         android:layout_marginLeft="16dp"
-                        android:layout_marginRight="16dp"
+                        android:layout_marginRight="32dp"
                         android:layout_marginTop="8dp"
                         android:autoSizeTextType="uniform"
                         android:gravity="bottom|center|start"
@@ -67,7 +67,6 @@
                         android:textColor="@android:color/white"
                         android:textSize="30sp"
                         tools:text="Big Title Hollywood Movie Name Taking Two Lines"/>
-
 
                 </LinearLayout>
             </android.support.v7.widget.CardView>
@@ -96,6 +95,7 @@
                 android:layout_height="match_parent"
                 android:layout_margin="8dp"
                 android:padding="@dimen/default_gap"
+                app:cardUseCompatPadding="false"
                 app:cardCornerRadius="@dimen/corner_radius"
                 app:cardElevation="8dp">
 
