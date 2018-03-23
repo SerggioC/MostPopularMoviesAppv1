@@ -19,7 +19,11 @@ Used tech
 - Custom layout animations on recyclerView' onBindViewHolder
 - Custom layout animations in details activity onPreDraw 
 - Internet Connectivity HttpURLConnection + ByteArrayOutputStream
+
 Watch sample app behavior video: https://github.com/SerggioC/MostPopularMoviesAppv1/blob/master/most%20popular%20movies.mp4
 
-![Screenshot](https://github.com/SerggioC/MostPopularMoviesAppv1/blob/master/Screenshot_20180228-170051.png?raw=true "Screenshot")
+ScreenShots
 
+<img src="https://github.com/SerggioC/MostPopularMoviesAppv1/blob/master/Screenshot_20180323-163250.png?raw=true" width="540" height="960" />
+
+<img src="https://github.com/SerggioC/MostPopularMoviesAppv1/blob/master/Screenshot_2018-03-23-16-33-15.jpg?raw=true" width="540" height="960" />
