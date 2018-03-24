@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
 
     private static String movieSection;
     private int selectedRadioId;
-    PopupWindow popupWindow;
+    private PopupWindow popupWindow;
     private MovieAdapter movieAdapter;
     private ProgressBar loading_indicator;
     private RecyclerView gridRecyclerView;
@@ -207,13 +207,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
 
+        popupWindow.setAnimationStyle(R.style.popupWindowAnimationStyle);
         popupWindow.setOutsideTouchable(false);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             popupWindow.setElevation(8);
         }
 
-        popupWindow.setAnimationStyle(2);
         popupWindow.showAsDropDown(menuItemView, -getPxFromDp(64), 0);
 
         RadioGroup radioGroup = popupLayout.findViewById(R.id.radioGroup);
@@ -404,7 +404,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Unregister VisualizerActivity as an OnPreferenceChangedListener to avoid any memory leaks.
+        // Unregister OnPreferenceChangedListener to avoid any memory leaks.
         android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(this)
                 .unregisterOnSharedPreferenceChangeListener(this);
     }
