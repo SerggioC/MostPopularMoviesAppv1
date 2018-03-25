@@ -24,7 +24,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
                 android:layout_marginTop="?attr/actionBarSize"
-                android:contentDescription="TODO"
+                android:contentDescription="@string/movie_poster"
                 android:fitsSystemWindows="false"
                 android:scaleType="centerCrop"
                 app:layout_collapseMode="parallax"
@@ -58,8 +58,10 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginBottom="24dp"
+                        android:layout_marginEnd="32dp"
                         android:layout_marginLeft="16dp"
                         android:layout_marginRight="32dp"
+                        android:layout_marginStart="16dp"
                         android:layout_marginTop="8dp"
                         android:autoSizeTextType="uniform"
                         android:gravity="bottom|center|start"
@@ -95,9 +97,9 @@
                 android:layout_height="match_parent"
                 android:layout_margin="8dp"
                 android:padding="@dimen/default_gap"
-                app:cardUseCompatPadding="false"
                 app:cardCornerRadius="@dimen/corner_radius"
-                app:cardElevation="8dp">
+                app:cardElevation="8dp"
+                app:cardUseCompatPadding="false">
 
                 <android.support.constraint.ConstraintLayout
                     android:layout_width="match_parent"
@@ -212,6 +214,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
                 android:padding="4dp"
                 android:text="@string/videos"
                 android:textColor="@color/color_300"
@@ -244,6 +247,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
                 android:padding="4dp"
                 android:text="@string/reviews"
                 android:textColor="@color/color_300"
@@ -297,6 +301,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
                 android:gravity="center_vertical"
                 android:text="@string/app_name"
                 android:textColor="@android:color/white"
@@ -314,9 +319,32 @@
         app:backgroundTintMode="add"
         app:elevation="6dp"
         app:layout_anchor="@id/nested_scrollview"
-        app:layout_anchorGravity="top|right|end"
+        app:layout_anchorGravity="top|end"
         app:pressedTranslationZ="6dp"
         app:rippleColor="@android:color/white"
         app:srcCompat="@android:drawable/btn_star_big_off"/>
+
+
+    <com.sackcentury.shinebuttonlib.ShineButton
+        android:id="@+id/po_image1"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_centerInParent="true"
+        android:layout_margin="8dp"
+        android:src="@android:color/darker_gray"
+        app:allow_random_color="true"
+        app:big_shine_color="@color/color_A400"
+        app:btn_color="@android:color/white"
+        app:btn_fill_color="@color/color_Y700"
+        app:click_animation_duration="200"
+        app:enable_flashing="true"
+        app:layout_anchor="@id/nested_scrollview"
+        app:shine_animation_duration="1000"
+        app:shine_count="10"
+        app:shine_distance_multiple="1.5"
+        app:shine_turn_angle="10"
+        app:siShape="@raw/star"
+        app:small_shine_color="#e46cef"
+        app:small_shine_offset_angle="20"/>
 
 </android.support.design.widget.CoordinatorLayout>
