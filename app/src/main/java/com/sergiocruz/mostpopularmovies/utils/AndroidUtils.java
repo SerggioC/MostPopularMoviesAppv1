@@ -103,6 +103,7 @@ public final class AndroidUtils {
         return width;
     }
 
+    /** pass new View[]{view1, view2, view3, view...} */
     public static void animateViewsOnPreDraw(View parent, View[] viewsToAnimate) {
 
         ViewTreeObserver.OnPreDrawListener listener = new ViewTreeObserver.OnPreDrawListener() {

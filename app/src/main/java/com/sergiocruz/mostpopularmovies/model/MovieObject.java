@@ -1,4 +1,4 @@
-package com.sergiocruz.mostpopularmovies;
+package com.sergiocruz.mostpopularmovies.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;

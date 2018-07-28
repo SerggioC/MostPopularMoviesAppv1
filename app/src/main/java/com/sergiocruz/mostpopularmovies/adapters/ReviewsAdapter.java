@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.sergiocruz.mostpopularmovies.R;
-import com.sergiocruz.mostpopularmovies.ReviewObject;
+import com.sergiocruz.mostpopularmovies.model.ReviewObject;
 
 import java.util.ArrayList;
 

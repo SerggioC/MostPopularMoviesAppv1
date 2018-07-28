@@ -12,7 +12,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.sergiocruz.mostpopularmovies.R;
-import com.sergiocruz.mostpopularmovies.VideoObject;
+import com.sergiocruz.mostpopularmovies.model.VideoObject;
 
 import java.util.ArrayList;
 

@@ -21,6 +21,8 @@
     <color name="color_800">#252221</color>
     <color name="color_900">#212121</color>
     <color name="grey_900">#212121</color>
+    <color name="grey_700">#616161</color>
+    <color name="grey_800T">#7d424242</color>
     <color name="color_A100">#f79668</color>
     <color name="color_A200">#f47438</color>
     <color name="color_A400">#f95300</color>

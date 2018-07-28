@@ -60,6 +60,7 @@
     </integer-array>
 
     <string name="default_language">en-US</string>
+    <string name="appbar_scrolling_view_behaviour">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
 
     <!-- Label ordering must match values -->
     <string-array name="pref_language_labels">

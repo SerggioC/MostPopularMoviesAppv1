@@ -1,6 +1,7 @@
 package com.sergiocruz.mostpopularmovies.adapters;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +13,7 @@ import android.widget.ListView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.sergiocruz.mostpopularmovies.MovieObject;
+import com.sergiocruz.mostpopularmovies.model.MovieObject;
 import com.sergiocruz.mostpopularmovies.R;
 import com.sergiocruz.mostpopularmovies.utils.AndroidUtils;
 
@@ -61,8 +62,9 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
      * @see #getItemViewType(int)
      * @see #onBindViewHolder(RecyclerView.ViewHolder, int)
      */
+    @NonNull
     @Override
-    public MovieViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.movie_item_layout, parent, false);
         return new MovieViewHolder(view);
     }
@@ -88,7 +90,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
      * @param position The position of the item within the adapter's data set.
      */
     @Override
-    public void onBindViewHolder(MovieViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
 
         String posterPath;
         if (isFavorite) {

@@ -11,7 +11,7 @@ import android.util.Log;
 
 import com.sergiocruz.mostpopularmovies.JSONParser;
 import com.sergiocruz.mostpopularmovies.movieDataBase.MovieContract;
-import com.sergiocruz.mostpopularmovies.ReviewObject;
+import com.sergiocruz.mostpopularmovies.model.ReviewObject;
 import com.sergiocruz.mostpopularmovies.utils.NetworkUtils;
 
 import java.lang.ref.WeakReference;

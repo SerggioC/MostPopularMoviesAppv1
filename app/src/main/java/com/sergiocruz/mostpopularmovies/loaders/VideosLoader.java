@@ -13,7 +13,7 @@ import android.util.Log;
 import com.sergiocruz.mostpopularmovies.JSONParser;
 import com.sergiocruz.mostpopularmovies.movieDataBase.MovieContract;
 import com.sergiocruz.mostpopularmovies.utils.NetworkUtils;
-import com.sergiocruz.mostpopularmovies.VideoObject;
+import com.sergiocruz.mostpopularmovies.model.VideoObject;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

@@ -15,9 +15,12 @@
     <style name="coordinatorTheme" parent="AppTheme">
         <!--<item name="android:windowActionBar">false</item>-->
         <!--<item name="android:windowNoTitle">true</item>-->
-        <item name="android:fitsSystemWindows">true</item>
-        <item name="windowActionBar">false</item><!-- Toolbar for API 23 -->
+        <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+
+        <item name="android:windowDrawsSystemBarBackgrounds">false</item>
+        <item name="android:fitsSystemWindows">false</item>
+        <!--<item name="windowActionBar">false</item>&lt;!&ndash; Toolbar for API 23 &ndash;&gt;-->
         <item name="android:windowTranslucentNavigation">true</item>
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:statusBarColor">@color/transparent</item>

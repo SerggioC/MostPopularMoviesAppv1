@@ -21,7 +21,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatRatingBar;
 import android.support.v7.widget.LinearLayoutManager;
@@ -43,18 +42,18 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.request.RequestOptions;
+import com.sergiocruz.mostpopularmovies.R;
+import com.sergiocruz.mostpopularmovies.TheMovieDB;
 import com.sergiocruz.mostpopularmovies.adapters.ReviewsAdapter;
 import com.sergiocruz.mostpopularmovies.adapters.VideosAdapter;
 import com.sergiocruz.mostpopularmovies.loaders.ReviewsLoader;
 import com.sergiocruz.mostpopularmovies.loaders.VideosLoader;
+import com.sergiocruz.mostpopularmovies.model.MovieObject;
+import com.sergiocruz.mostpopularmovies.model.ReviewObject;
+import com.sergiocruz.mostpopularmovies.model.VideoObject;
 import com.sergiocruz.mostpopularmovies.movieDataBase.MovieContract;
-import com.sergiocruz.mostpopularmovies.MovieObject;
-import com.sergiocruz.mostpopularmovies.R;
-import com.sergiocruz.mostpopularmovies.ReviewObject;
-import com.sergiocruz.mostpopularmovies.TheMovieDB;
 import com.sergiocruz.mostpopularmovies.utils.AndroidUtils;
 import com.sergiocruz.mostpopularmovies.utils.NetworkUtils;
-import com.sergiocruz.mostpopularmovies.VideoObject;
 
 import org.json.JSONArray;
 
@@ -63,12 +62,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
-import static com.sergiocruz.mostpopularmovies.activities.MainActivity.INTENT_EXTRA_IS_FAVORITE;
-import static com.sergiocruz.mostpopularmovies.activities.MainActivity.INTENT_MOVIE_EXTRA;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.BASE_IMAGE_URL;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.BASE_MOVIE_URL;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.REVIEWS_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.VIDEOS_PATH;
+import static com.sergiocruz.mostpopularmovies.activities.MainActivity.INTENT_EXTRA_IS_FAVORITE;
+import static com.sergiocruz.mostpopularmovies.activities.MainActivity.INTENT_MOVIE_EXTRA;
 
 public class DetailsActivity extends AppCompatActivity implements android.support.v4.app.LoaderManager.LoaderCallbacks,
         VideosAdapter.VideoClickListener, ReviewsAdapter.ReviewClickListener {
@@ -110,7 +109,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
 
     private void bindViews() {
         mainCoordinator = findViewById(R.id.main_coordinator);
-        toolbar = findViewById(R.id.toolbar);
+        //toolbar = findViewById(R.id.toolbar);
         titleTV = findViewById(R.id.title_textView);
         posterImageView = findViewById(R.id.poster_imageView);
         dateTV = findViewById(R.id.date_textView);
@@ -315,15 +314,15 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         reviewsRecyclerView.setAdapter(reviewsAdapter);
         reviewsRecyclerView.setLayoutManager(reviewsLinearLayoutManager);
 
-        ActionBar supportActionBar = getSupportActionBar();
-        if (supportActionBar != null) {
-            supportActionBar.setDisplayHomeAsUpEnabled(true);
-            supportActionBar.setDisplayShowHomeEnabled(true);
-        }
-
-        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_material);
-        toolbar.setTitle(null);
-        setSupportActionBar(toolbar);
+//        ActionBar supportActionBar = getSupportActionBar();
+//        if (supportActionBar != null) {
+//            supportActionBar.setDisplayHomeAsUpEnabled(true);
+//            supportActionBar.setDisplayShowHomeEnabled(true);
+//        }
+//
+//        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_material);
+//        toolbar.setTitle(null);
+//        setSupportActionBar(toolbar);
 
         // Intent that started this activity
         Intent intent = getIntent();

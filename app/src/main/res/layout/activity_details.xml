@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_coordinator"
+    style="@style/coordinatorTheme"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -17,13 +18,12 @@
             android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <ImageView
                 android:id="@+id/backdrop_imageview"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:layout_marginTop="?attr/actionBarSize"
+                android:layout_height="280dp"
                 android:contentDescription="@string/movie_poster"
                 android:fitsSystemWindows="false"
                 android:scaleType="centerCrop"
@@ -36,7 +36,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|center_horizontal"
-                android:layout_margin="4dp"
+                android:layout_margin="8dp"
                 android:background="@color/transparent"
                 android:fitsSystemWindows="true"
                 app:cardBackgroundColor="@color/transparent"
@@ -59,12 +59,12 @@
                         android:layout_gravity="center_horizontal"
                         android:layout_marginBottom="24dp"
                         android:layout_marginEnd="32dp"
-                        android:layout_marginLeft="16dp"
+                        android:layout_marginLeft="20dp"
                         android:layout_marginRight="32dp"
-                        android:layout_marginStart="16dp"
+                        android:layout_marginStart="20dp"
                         android:layout_marginTop="8dp"
                         android:autoSizeTextType="uniform"
-                        android:gravity="bottom|center|start"
+                        android:gravity="top|start"
                         android:maxLines="2"
                         android:textColor="@android:color/white"
                         android:textSize="30sp"
@@ -76,7 +76,6 @@
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
-
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/nested_scrollview"
         android:layout_width="match_parent"
@@ -84,231 +83,236 @@
         android:background="@drawable/gradient_background_black"
         android:scrollbars="none"
         app:behavior_overlapTop="24dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        app:layout_behavior="@string/appbar_scrolling_view_behaviour">
 
-        <LinearLayout
+        <android.support.v7.widget.CardView
+            android:id="@+id/main_cardview"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"
+            android:paddingBottom="24dp"
+            android:paddingEnd="@dimen/default_gap"
+            android:paddingStart="@dimen/default_gap"
+            android:paddingTop="@dimen/default_gap"
+            app:cardCornerRadius="@dimen/corner_radius"
+            app:cardElevation="4dp"
+            app:cardUseCompatPadding="false">
 
-            <android.support.v7.widget.CardView
-                android:id="@+id/main_cardview"
+            <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="8dp"
-                android:padding="@dimen/default_gap"
-                app:cardCornerRadius="@dimen/corner_radius"
-                app:cardElevation="8dp"
-                app:cardUseCompatPadding="false">
+                android:background="@drawable/gradient_card_black"
+                android:orientation="vertical"
+                android:padding="8dp">
 
-                <android.support.constraint.ConstraintLayout
+                <ImageView
+                    android:id="@+id/poster_imageView"
+                    android:layout_width="@dimen/details_image_width"
+                    android:layout_height="@dimen/details_image_height"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="4dp"
+                    android:contentDescription="@string/movie_poster"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/noimage"/>
+
+                <TextView
+                    android:id="@+id/date_textView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginStart="16dp"
+                    android:textSize="30sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/poster_imageView"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="2018"/>
+
+                <android.support.v7.widget.AppCompatRatingBar
+                    android:id="@+id/ratingBar"
+                    style="?android:attr/ratingBarStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:stepSize="0.1"
+                    app:layout_constraintStart_toStartOf="@+id/date_textView"
+                    app:layout_constraintTop_toBottomOf="@+id/date_textView"
+                    tools:numStars="5"
+                    tools:progress="70"/>
+
+                <TextView
+                    android:id="@+id/votes_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textColor="@color/color_300"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/ratingBar"
+                    app:layout_constraintTop_toBottomOf="@+id/ratingBar"
+                    tools:text="Votes"/>
+
+                <TextView
+                    android:id="@+id/rating_textView"
+                    android:layout_width="188dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="@+id/votes_textview"
+                    app:layout_constraintTop_toBottomOf="@+id/votes_textview"
+                    tools:text="9/10"/>
+
+                <TextView
+                    android:id="@+id/genres_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginTop="4dp"
+                    android:ellipsize="none"
+                    android:lineSpacingExtra="4dp"
+                    android:orientation="vertical"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/rating_textView"
+                    app:layout_constraintTop_toBottomOf="@+id/rating_textView"
+                    tools:text="genres genres genres genres genres genres genres genres "/>
+
+                <TextView
+                    android:id="@+id/synopsis_textView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="8dp"
+                    android:ellipsize="none"
+                    android:lineSpacingMultiplier="1.1"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="16sp"
+                    app:layout_constraintStart_toStartOf="@+id/poster_imageView"
+                    app:layout_constraintTop_toBottomOf="@+id/poster_imageView"
+                    tools:text="lorem"/>
+
+                <TextView
+                    android:id="@+id/VideosTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/default_gap"
+                    android:text="@string/videos"
+                    android:textColor="@color/color_300"
+                    android:textSize="14sp"
+                    app:layout_constraintStart_toStartOf="@+id/synopsis_textView"
+                    app:layout_constraintTop_toBottomOf="@+id/synopsis_textView"/>
+
+                <FrameLayout
+                    android:id="@+id/VideosFrameGroup"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/gradient_card_black"
-                    android:orientation="vertical"
-                    android:padding="8dp">
+                    app:layout_constraintStart_toStartOf="@+id/VideosTextView"
+                    app:layout_constraintTop_toBottomOf="@+id/VideosTextView">
 
-                    <ImageView
-                        android:id="@+id/poster_imageView"
-                        android:layout_width="@dimen/details_image_width"
-                        android:layout_height="@dimen/details_image_height"
-                        android:layout_marginLeft="4dp"
-                        android:layout_marginStart="4dp"
-                        android:layout_marginTop="4dp"
-                        android:contentDescription="@string/movie_poster"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:srcCompat="@drawable/noimage"/>
-
-                    <TextView
-                        android:id="@+id/date_textView"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
-                        android:layout_marginLeft="16dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginStart="16dp"
-                        android:textSize="30sp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/poster_imageView"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:text="2018"/>
-
-                    <android.support.v7.widget.AppCompatRatingBar
-                        android:id="@+id/ratingBar"
-                        style="?android:attr/ratingBarStyleSmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:stepSize="0.1"
-                        app:layout_constraintStart_toStartOf="@+id/date_textView"
-                        app:layout_constraintTop_toBottomOf="@+id/date_textView"
-                        tools:numStars="5"
-                        tools:progress="70"/>
-
-                    <TextView
-                        android:id="@+id/votes_textview"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:textColor="@color/color_300"
-                        android:textSize="12sp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintStart_toStartOf="@+id/ratingBar"
-                        app:layout_constraintTop_toBottomOf="@+id/ratingBar"
-                        tools:text="Votes"/>
-
-                    <TextView
-                        android:id="@+id/rating_textView"
-                        android:layout_width="188dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        app:layout_constraintStart_toStartOf="@+id/votes_textview"
-                        app:layout_constraintTop_toBottomOf="@+id/votes_textview"
-                        tools:text="9/10"/>
-
-                    <TextView
-                        android:id="@+id/genres_textview"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginTop="4dp"
-                        android:ellipsize="none"
-                        android:lineSpacingExtra="4dp"
-                        android:orientation="vertical"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="14sp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintStart_toStartOf="@+id/rating_textView"
-                        app:layout_constraintTop_toBottomOf="@+id/rating_textView"
-                        tools:text="genres genres genres genres genres genres genres genres "/>
-
-                    <TextView
-                        android:id="@+id/synopsis_textView"
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/videosRecyclerView"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="4dp"
-                        android:layout_marginStart="4dp"
-                        android:layout_marginTop="8dp"
-                        android:ellipsize="none"
-                        android:lineSpacingMultiplier="1.1"
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="16sp"
-                        app:layout_constraintStart_toStartOf="@+id/poster_imageView"
-                        app:layout_constraintTop_toBottomOf="@+id/poster_imageView"
-                        tools:text="@string/lorem"/>
+                        android:layout_height="match_parent"
+                        android:adjustViewBounds="true"
+                        android:orientation="horizontal"
+                        tools:itemCount="3"
+                        tools:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                        tools:listitem="@layout/video_item_layout"/>
 
-                </android.support.constraint.ConstraintLayout>
+                    <ProgressBar
+                        android:id="@+id/videos_loading_indicator"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:progressTint="@color/colorAccent"
+                        android:visibility="gone"/>
+                </FrameLayout>
 
-            </android.support.v7.widget.CardView>
-
-            <TextView
-                android:id="@+id/VideosTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginStart="8dp"
-                android:padding="4dp"
-                android:text="@string/videos"
-                android:textColor="@color/color_300"
-                android:textSize="14sp"/>
-
-            <FrameLayout
-                android:id="@+id/VideosFrameGroup"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="8dp">
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/videosRecyclerView"
-                    android:layout_width="match_parent"
+                <FrameLayout
+                    android:id="@+id/ReviewsFrameGroup"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="0dp"
-                    android:adjustViewBounds="true"
-                    android:padding="4dp"/>
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/ReviewsTextView"
+                    app:layout_constraintTop_toBottomOf="@+id/ReviewsTextView">
 
-                <ProgressBar
-                    android:id="@+id/videos_loading_indicator"
-                    android:layout_width="42dp"
-                    android:layout_height="42dp"
-                    android:progressTint="@color/colorAccent"
-                    android:visibility="gone"/>
-            </FrameLayout>
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/reviewsRecyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:adjustViewBounds="true"
+                        android:orientation="horizontal"
+                        tools:itemCount="3"
+                        tools:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                        tools:listitem="@layout/review_item_layout"/>
 
-            <TextView
-                android:id="@+id/ReviewsTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginStart="8dp"
-                android:padding="4dp"
-                android:text="@string/reviews"
-                android:textColor="@color/color_300"
-                android:textSize="14sp"/>
+                    <ProgressBar
+                        android:id="@+id/reviews_loading_indicator"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:layout_gravity="center"
+                        android:progressTint="@color/colorAccent"
+                        android:visibility="gone"/>
+                </FrameLayout>
 
-            <FrameLayout
-                android:id="@+id/ReviewsFrameGroup"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="8dp">
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/reviewsRecyclerView"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/ReviewsTextView"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:adjustViewBounds="true"
-                    android:padding="4dp"/>
+                    android:layout_marginTop="8dp"
+                    android:padding="4dp"
+                    android:text="@string/reviews"
+                    android:textColor="@color/color_300"
+                    android:textSize="14sp"
+                    app:layout_constraintStart_toStartOf="@+id/VideosFrameGroup"
+                    app:layout_constraintTop_toBottomOf="@+id/VideosFrameGroup"/>
 
-                <ProgressBar
-                    android:id="@+id/reviews_loading_indicator"
-                    android:layout_width="42dp"
-                    android:layout_height="42dp"
-                    android:layout_gravity="center"
-                    android:progressTint="@color/colorAccent"
-                    android:visibility="gone"/>
-            </FrameLayout>
+            </android.support.constraint.ConstraintLayout>
 
-        </LinearLayout>
+        </android.support.v7.widget.CardView>
 
     </android.support.v4.widget.NestedScrollView>
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/colorPrimary"
-        android:fitsSystemWindows="true"
-        app:theme="@style/ThemeOverlay.AppCompat.Dark">
+    <!--<android.support.v7.widget.Toolbar-->
+    <!--android:id="@+id/toolbar"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="?attr/actionBarSize"-->
+    <!--android:background="@color/colorPrimary"-->
+    <!--android:fitsSystemWindows="true"-->
+    <!--app:theme="@style/ThemeOverlay.AppCompat.Dark">-->
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
+    <!--<LinearLayout-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:orientation="horizontal">-->
 
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="0dp"/>
+    <!--<Space-->
+    <!--android:layout_width="0dp"-->
+    <!--android:layout_height="0dp"/>-->
 
-            <TextView
-                android:id="@+id/main_textview_title"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="8dp"
-                android:layout_marginStart="8dp"
-                android:gravity="center_vertical"
-                android:text="@string/app_name"
-                android:textColor="@android:color/white"
-                android:textSize="20sp"/>
+    <!--<TextView-->
+    <!--android:id="@+id/main_textview_title"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:layout_marginLeft="8dp"-->
+    <!--android:layout_marginStart="8dp"-->
+    <!--android:gravity="center_vertical"-->
+    <!--android:text="@string/app_name"-->
+    <!--android:textColor="@android:color/white"-->
+    <!--android:textSize="20sp"/>-->
 
-        </LinearLayout>
-    </android.support.v7.widget.Toolbar>
+    <!--</LinearLayout>-->
+    <!--</android.support.v7.widget.Toolbar>-->
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_star"

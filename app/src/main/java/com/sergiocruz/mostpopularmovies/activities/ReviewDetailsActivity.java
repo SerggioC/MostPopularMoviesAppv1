@@ -13,7 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sergiocruz.mostpopularmovies.R;
-import com.sergiocruz.mostpopularmovies.ReviewObject;
+import com.sergiocruz.mostpopularmovies.model.ReviewObject;
 import com.sergiocruz.mostpopularmovies.utils.AndroidUtils;
 
 import static com.sergiocruz.mostpopularmovies.activities.DetailsActivity.INTENT_REVIEW_EXTRA;

@@ -2,6 +2,10 @@ package com.sergiocruz.mostpopularmovies;
 
 import android.text.TextUtils;
 
+import com.sergiocruz.mostpopularmovies.model.MovieObject;
+import com.sergiocruz.mostpopularmovies.model.ReviewObject;
+import com.sergiocruz.mostpopularmovies.model.VideoObject;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

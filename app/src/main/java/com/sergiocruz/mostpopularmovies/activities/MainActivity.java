@@ -24,16 +24,17 @@ import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import com.sergiocruz.mostpopularmovies.MovieObject;
 import com.sergiocruz.mostpopularmovies.R;
 import com.sergiocruz.mostpopularmovies.TheMovieDB;
 import com.sergiocruz.mostpopularmovies.adapters.MovieAdapter;
 import com.sergiocruz.mostpopularmovies.loaders.MoviesLoader;
+import com.sergiocruz.mostpopularmovies.model.MovieObject;
 import com.sergiocruz.mostpopularmovies.movieDataBase.MovieContract;
 
 import java.util.ArrayList;
 
 import static android.widget.GridLayout.VERTICAL;
+import static com.sergiocruz.mostpopularmovies.TheMovieDB.LATEST_MOVIES_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.NOW_PLAYING_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.POPULAR_MOVIES_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.TOP_RATED_MOVIES_PATH;
@@ -46,12 +47,12 @@ import static com.sergiocruz.mostpopularmovies.utils.AndroidUtils.verifyStorageP
 public class MainActivity extends AppCompatActivity implements MovieAdapter.PosterClickListener,
         android.support.v4.app.LoaderManager.LoaderCallbacks<ArrayList<MovieObject>>, SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static final int LOADER_ID_INTERNET = 11;
-    private static final int LOADER_ID_DATABASE = 22;
     public static final int CHANGED_FAVORITES_REQUEST = 33;
     public static final String LOADER_BUNDLE = "movie_loader_bundle";
     public static final String INTENT_MOVIE_EXTRA = "intent_movie_extra";
     public static final String INTENT_EXTRA_IS_FAVORITE = "intent_extra_is_favorite";
+    private static final int LOADER_ID_INTERNET = 11;
+    private static final int LOADER_ID_DATABASE = 22;
     private static final String FAVORITE_MOVIES_SECTION = "favorite";
     private static final String SAVED_INSTANCE_STATE_KEY = "saved_instance_bundle";
 
@@ -87,6 +88,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         // Register the shared Preference listener
         sharedPrefs.registerOnSharedPreferenceChangeListener(this);
 
+//    public static final String POPULAR_MOVIES_PATH = "popular";
+//    public static final String TOP_RATED_MOVIES_PATH = "top_rated";
+//    public static final String UPCOMING_MOVIES_PATH = "upcoming";
+//    public static final String LATEST_MOVIES_PATH = "latest";
+//    public static final String NOW_PLAYING_PATH = "now_playing";
+
+        ChangeAppBarTitle(movieSection);
+
+
         int loaderID;
         String stringURI;
         if (movieSection.equals(FAVORITE_MOVIES_SECTION)) {
@@ -105,6 +115,34 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         if (savedInstanceState != null) {
             outStateRecyclerViewPosition = savedInstanceState.getInt(SAVED_INSTANCE_STATE_KEY);
         }
+    }
+
+    private void ChangeAppBarTitle(String movieSection) {
+        String title;
+        switch (movieSection) {
+            case FAVORITE_MOVIES_SECTION:
+                title = "My Favorite Movies";
+                break;
+            case POPULAR_MOVIES_PATH:
+                title = "Most Popular Movies";
+                break;
+            case TOP_RATED_MOVIES_PATH:
+                title = "Top Rated Movies";
+                break;
+            case UPCOMING_MOVIES_PATH:
+                title = "Upcoming movies";
+                break;
+            case LATEST_MOVIES_PATH:
+                title = "Latest Movies";
+                break;
+            case NOW_PLAYING_PATH:
+                title = "Movies Now Playing";
+                break;
+            default:
+                title = getString(R.string.app_name);
+                break;
+        }
+        getSupportActionBar().setTitle(title);
     }
 
     /**
@@ -271,6 +309,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPrefs.edit().putString(this.getString(R.string.movie_section_pref_key), section).apply();
         sharedPrefs.edit().putInt(this.getString(R.string.radio_selected_key), radioId).apply();
+        ChangeAppBarTitle(movieSection);
     }
 
     private void restartLoader(String section) {
@@ -293,7 +332,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         gridRecyclerView.smoothScrollToPosition(0);
     }
 
-    @Override @SuppressLint("RestrictedApi")
+    @Override
+    @SuppressLint("RestrictedApi")
     public void onPosterClicked(MovieObject movie, Boolean isFavorite, View itemView) {
         Intent detailsIntent = new Intent(MainActivity.this, DetailsActivity.class);
         detailsIntent.putExtra(INTENT_MOVIE_EXTRA, movie);
@@ -328,7 +368,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     public Loader<ArrayList<MovieObject>> onCreateLoader(int id, Bundle args) {
         Uri queryUri = Uri.parse(args.getString(LOADER_BUNDLE));
 
-        MoviesLoader moviesLoader = new MoviesLoader(getApplicationContext(), queryUri, id == LOADER_ID_DATABASE ? true : false);
+        MoviesLoader moviesLoader = new MoviesLoader(getApplicationContext(), queryUri, id == LOADER_ID_DATABASE);
 
         // forceLoad overridden in onStartLoading
         //moviesLoader.forceLoad();
