@@ -1,6 +1,7 @@
 package com.sergiocruz.mostpopularmovies.activities;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,9 +10,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.app.SharedElementCallback;
 import android.support.v4.content.Loader;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -21,7 +21,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
@@ -35,6 +34,8 @@ import com.sergiocruz.mostpopularmovies.model.MovieObject;
 import com.sergiocruz.mostpopularmovies.movieDataBase.MovieContract;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static android.widget.GridLayout.VERTICAL;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.LATEST_MOVIES_PATH;
@@ -43,16 +44,17 @@ import static com.sergiocruz.mostpopularmovies.TheMovieDB.POPULAR_MOVIES_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.TOP_RATED_MOVIES_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.UPCOMING_MOVIES_PATH;
 import static com.sergiocruz.mostpopularmovies.activities.DetailsActivity.FAVORITES_ACTIVITY_RESULT;
+import static com.sergiocruz.mostpopularmovies.activities.DetailsActivity.POSITION_ACTIVITY_RESULT;
 import static com.sergiocruz.mostpopularmovies.utils.AndroidUtils.getWindowSizeXY;
 import static com.sergiocruz.mostpopularmovies.utils.AndroidUtils.verifyStoragePermissions;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.PosterClickListener,
         android.support.v4.app.LoaderManager.LoaderCallbacks<ArrayList<MovieObject>>, SharedPreferences.OnSharedPreferenceChangeListener {
 
-    public static final int CHANGED_FAVORITES_REQUEST = 33;
+    public static final int DETAILS_ACTIVITY_REQUEST_CODE = 33;
     public static final String LOADER_BUNDLE = "movie_loader_bundle";
     public static final String INTENT_MOVIE_EXTRA = "intent_movie_extra";
-    public static final String INTENT_EXTRA_IS_FAVORITE = "intent_extra_is_favorite";
+    public static final String INTENT_EXTRA_POSITION = "intent_extra_is_favorite";
     private static final int LOADER_ID_INTERNET = 11;
     private static final int LOADER_ID_DATABASE = 22;
     private static final String FAVORITE_MOVIES_SECTION = "favorite";
@@ -65,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     private ProgressBar loading_indicator;
     private RecyclerView gridRecyclerView;
     private Integer outStateRecyclerViewPosition = null;
+    private Integer clickedPosition = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,12 +93,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         // Register the shared Preference listener
         sharedPrefs.registerOnSharedPreferenceChangeListener(this);
 
-//    public static final String POPULAR_MOVIES_PATH = "popular";
-//    public static final String TOP_RATED_MOVIES_PATH = "top_rated";
-//    public static final String UPCOMING_MOVIES_PATH = "upcoming";
-//    public static final String LATEST_MOVIES_PATH = "latest";
-//    public static final String NOW_PLAYING_PATH = "now_playing";
-
         ChangeAppBarTitle(movieSection);
 
         int loaderID;
@@ -118,6 +115,36 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         }
 
         initPopupMenu();
+
+    }
+    /**
+     * Prepares the shared element transition to the pager fragment,
+     * as well as the other transitions that affect the flow.
+     */
+    private void prepareTransitions() {
+
+        // A similar mapping is set at the ArticlePagerFragment with a setEnterSharedElementCallback.
+        SharedElementCallback exitSharedElementCallback = new SharedElementCallback() {
+            @Override
+            public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+                super.onMapSharedElements(names, sharedElements);
+
+                // Locate the ViewHolder for the clicked position.
+                RecyclerView.ViewHolder selectedViewHolder = gridRecyclerView.findViewHolderForAdapterPosition(clickedPosition);
+                if (selectedViewHolder == null || selectedViewHolder.itemView == null) {
+                    return;
+                }
+
+                // Map the first shared element name to the child ImageView.
+                sharedElements.put(names.get(0), selectedViewHolder.itemView.findViewById(R.id.movie_poster));
+            }
+        };
+
+        setExitSharedElementCallback(exitSharedElementCallback);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            postponeEnterTransition();
+        }
 
     }
 
@@ -202,7 +229,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null)
             supportActionBar.setTitle(title);
-
 
     }
 
@@ -340,24 +366,27 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
 
     @Override
     @SuppressLint("RestrictedApi")
-    public void onPosterClicked(MovieObject movie, Boolean isFavorite, View itemView) {
+    public void onPosterClicked(MovieObject movie, Integer position, Boolean isFavorite, View itemView) {
+        clickedPosition = position;
+
         Intent detailsIntent = new Intent(MainActivity.this, DetailsActivity.class);
+        movie.setFavorite(isFavorite);
         detailsIntent.putExtra(INTENT_MOVIE_EXTRA, movie);
-        detailsIntent.putExtra(INTENT_EXTRA_IS_FAVORITE, isFavorite);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        detailsIntent.putExtra(INTENT_EXTRA_POSITION, position);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 
-//            ActivityOptions activityOptions = ActivityOptions
-//                    .makeScaleUpAnimation(itemView, 0, 0, itemView.getWidth(), itemView.getHeight());
+            ActivityOptions activityOptions = ActivityOptions
+                    .makeScaleUpAnimation(itemView, (int) itemView.getPivotX(), (int) itemView.getPivotY(), itemView.getWidth(), itemView.getHeight());
 
-            ActivityOptionsCompat activityOptions = ActivityOptionsCompat
-                    .makeSceneTransitionAnimation(
-                            this,
-                            (ImageView) itemView,
-                            ViewCompat.getTransitionName(itemView));
+//            ActivityOptionsCompat activityOptions = ActivityOptionsCompat
+//                    .makeSceneTransitionAnimation(
+//                            this,
+//                            (ImageView) itemView,
+//                            ViewCompat.getTransitionName(itemView));
 
-            startActivityForResult(detailsIntent, CHANGED_FAVORITES_REQUEST, activityOptions.toBundle());
+            startActivityForResult(detailsIntent, DETAILS_ACTIVITY_REQUEST_CODE, activityOptions.toBundle());
         } else {
-            startActivityForResult(detailsIntent, CHANGED_FAVORITES_REQUEST);
+            startActivityForResult(detailsIntent, DETAILS_ACTIVITY_REQUEST_CODE);
         }
 
 
@@ -365,11 +394,17 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == CHANGED_FAVORITES_REQUEST && resultCode == RESULT_OK && data.getBooleanExtra(FAVORITES_ACTIVITY_RESULT, false)) {
-            restartLoader(FAVORITE_MOVIES_SECTION);
-            saveMovieSectionPreference(FAVORITE_MOVIES_SECTION, R.id.radio_favourite);
-            initPopupMenu();
+        if (requestCode == DETAILS_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
+            if (data.getBooleanExtra(FAVORITES_ACTIVITY_RESULT, false)) {
+                restartLoader(FAVORITE_MOVIES_SECTION);
+                saveMovieSectionPreference(FAVORITE_MOVIES_SECTION, R.id.radio_favourite);
+                initPopupMenu();
+            }
+
+            clickedPosition = data.getIntExtra(POSITION_ACTIVITY_RESULT, -1);
+
         }
+
     }
 
     /**

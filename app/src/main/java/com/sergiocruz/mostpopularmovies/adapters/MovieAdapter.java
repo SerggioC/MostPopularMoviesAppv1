@@ -93,6 +93,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
      */
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
+        setItemViewAnimation(holder.itemView, position);
 
         String posterPath;
         if (isFavorite) {
@@ -110,13 +111,14 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
                 .apply(new RequestOptions().error(R.drawable.noimage))
                 .into(holder.posterImageView);
 
-        setItemViewAnimation(holder.itemView, position);
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            ViewCompat.setTransitionName(holder.itemView, "transition" + mMovieData.get(position).getId());
+            int adapterPosition = holder.getAdapterPosition();
+            if (adapterPosition != -1) {
+                ViewCompat.setTransitionName(holder.itemView, "transition" + mMovieData.get(adapterPosition).getId());
+            }
         }
-    }
 
+    }
 
     private void setItemViewAnimation(View viewToAnimate, int position) {
         // If the bound view wasn't previously displayed on screen, it's animated
@@ -155,7 +157,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     }
 
     public interface PosterClickListener {
-        void onPosterClicked(MovieObject movie, Boolean isFavorite, View itemView);
+        void onPosterClicked(MovieObject movie, Integer position, Boolean isFavorite, View itemView);
     }
 
     public class MovieViewHolder extends RecyclerView.ViewHolder {
@@ -166,8 +168,9 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
             posterImageView = itemView.findViewById(R.id.movie_poster);
             posterImageView.setOnClickListener(v -> {
                 int clickedPosition = getAdapterPosition();
-                mPosterClickListener.onPosterClicked(mMovieData.get(clickedPosition), isFavorite, itemView);
+                mPosterClickListener.onPosterClicked(mMovieData.get(clickedPosition), clickedPosition, isFavorite, itemView);
             });
+
         }
     }
 

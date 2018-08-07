@@ -20,6 +20,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -59,7 +60,7 @@ import static com.sergiocruz.mostpopularmovies.TheMovieDB.BASE_IMAGE_URL;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.BASE_MOVIE_URL;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.REVIEWS_PATH;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.VIDEOS_PATH;
-import static com.sergiocruz.mostpopularmovies.activities.MainActivity.INTENT_EXTRA_IS_FAVORITE;
+import static com.sergiocruz.mostpopularmovies.activities.MainActivity.INTENT_EXTRA_POSITION;
 import static com.sergiocruz.mostpopularmovies.activities.MainActivity.INTENT_MOVIE_EXTRA;
 
 public class DetailsActivity extends AppCompatActivity implements android.support.v4.app.LoaderManager.LoaderCallbacks,
@@ -67,6 +68,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
 
     public static final String INTENT_REVIEW_EXTRA = "review_data_extra";
     public static final String FAVORITES_ACTIVITY_RESULT = "activity_result";
+    public static final String POSITION_ACTIVITY_RESULT = "position_activity_result";
     public static final String YOUTUBE_URL_PREFIX = "http://www.youtube.com/watch?v=";
     public static final String YOUTUBE_THUMBNAIL_URL = "http://img.youtube.com/vi/%s/0.jpg"; // /1.jpg /2.jpg /3.jpg /default.jpg
     private static final int VIDEOS_LOADER_ID = 101;
@@ -83,11 +85,11 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     private ReviewsAdapter reviewsAdapter;
     private Integer outStateScrollPosition = null;
     private ActivityDetailsBinding binding;
-    private Boolean gotFavorite;
+    private Integer clickedPosition;
     private OnPreDrawCompleteListener onPreDrawCompleteListener = new OnPreDrawCompleteListener() {
         @Override
         public void preDrawComplete() {
-            binding.shineButton.setChecked(gotFavorite, true);
+            binding.shineButton.setChecked(mMovieDataFromIntent.getFavorite(), true);
         }
     };
 
@@ -104,11 +106,11 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
 
         animateViewsOnStart();
 
-        LinearLayoutManager videosLinearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
+        GridLayoutManager videosManager = new GridLayoutManager(mContext, getResources().getInteger(R.integer.videos_span_count));
         videosAdapter = new VideosAdapter(this, this);
         videosAdapter.setHasStableIds(true);
         binding.videosRecyclerView.setAdapter(videosAdapter);
-        binding.videosRecyclerView.setLayoutManager(videosLinearLayoutManager);
+        binding.videosRecyclerView.setLayoutManager(videosManager);
 
         LinearLayoutManager reviewsLinearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
         reviewsAdapter = new ReviewsAdapter(this, this);
@@ -132,13 +134,13 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
             AndroidUtils.showSlimToast(mContext, getString(R.string.no_internet), Toast.LENGTH_SHORT);
         }
 
-        initializeUIPopulating(mMovieDataFromIntent, gotFavorite, hasInternet);
+        initializeUIPopulating(mMovieDataFromIntent, hasInternet);
 
         String receivedMovieId = mMovieDataFromIntent.getId().toString();
 
         Bundle bundle = new Bundle(3);
         bundle.putString(LOADER_BUNDLE_MOVIE_ID, receivedMovieId);
-        bundle.putBoolean(LOADER_BUNDLE_GOT_FAVORITE, gotFavorite);
+        bundle.putBoolean(LOADER_BUNDLE_GOT_FAVORITE, mMovieDataFromIntent.getFavorite());
         bundle.putBoolean(LOADER_BUNDLE_HAS_INTERNET, hasInternet);
 
         getSupportLoaderManager().initLoader(VIDEOS_LOADER_ID, bundle, this);
@@ -153,7 +155,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
 
     private void animateViewsOnStart() {
         AndroidUtils.animateViewsOnPreDraw(binding.mainCoordinator, onPreDrawCompleteListener, new View[]{
-                binding.titleTextView, binding.dateTextView, binding.ratingBar,
+                binding.dateTextView, binding.ratingBar,
                 binding.votesTextview, binding.ratingTextView, binding.synopsisTextView,
                 binding.genresTextview, binding.backdropImageview, binding.shineButton});
     }
@@ -166,13 +168,17 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         }
 
         mMovieDataFromIntent = intent.getParcelableExtra(INTENT_MOVIE_EXTRA);
-        gotFavorite = intent.getBooleanExtra(INTENT_EXTRA_IS_FAVORITE, false);
-        if (mMovieDataFromIntent == null && !gotFavorite) {
+        if (mMovieDataFromIntent == null) {
             closeNoData();
             return;
         }
-        if (!gotFavorite)
-            mMovieDataFromIntent.setFavorite(false);
+
+        clickedPosition = intent.getIntExtra(INTENT_EXTRA_POSITION, -1);
+        if (clickedPosition == -1) {
+            closeNoData();
+            return;
+        }
+
     }
 
     private void bindViews() {
@@ -276,6 +282,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     private void setActivityResult() {
         Intent intent = new Intent();
         intent.putExtra(FAVORITES_ACTIVITY_RESULT, true);
+        intent.putExtra(POSITION_ACTIVITY_RESULT, clickedPosition);
         setResult(Activity.RESULT_OK, intent);
     }
 
@@ -362,17 +369,11 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     }
 
     @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
-    }
-
-    @Override
     public void onBackPressed() {
         supportFinishAfterTransition();
     }
 
-    private void initializeUIPopulating(MovieObject movieData, Boolean gotFavorite, Boolean hasInternet) {
+    private void initializeUIPopulating(MovieObject movieData, Boolean hasInternet) {
 
         RequestOptions glideOptions = new RequestOptions()
                 .centerCrop()
@@ -385,7 +386,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
 //        http://image.tmdb.org/t/p/w92/cGOPbv9wA5gEejkUN892JrveARt.jpg 92/138
 //        http://image.tmdb.org/t/p/w342/vsjBeMPZtyB7yNsYY56XYxifaQZ.jpg 342/192
 
-        if (gotFavorite) {
+        if (movieData.getFavorite()) {
             String posterImageURI = movieData.getPosterFilePath();
             String backDropImageURI = movieData.getBackdropFilePath();
             Glide.with(mContext).load(posterImageURI).apply(glideOptions).transition(withCrossFade()).into(binding.posterImageView);

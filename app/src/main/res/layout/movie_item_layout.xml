@@ -6,4 +6,3 @@
     android:layout_height="@dimen/grid_image_height"
     android:adjustViewBounds="true"
     android:contentDescription="@string/movie_poster"/>
-
