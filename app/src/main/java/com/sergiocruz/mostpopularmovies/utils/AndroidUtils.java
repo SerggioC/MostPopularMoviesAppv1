@@ -1,6 +1,7 @@
 package com.sergiocruz.mostpopularmovies.utils;
 
 import android.Manifest;
+import android.animation.Animator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -13,15 +14,22 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
 import android.view.Display;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.sergiocruz.mostpopularmovies.R;
+import com.sergiocruz.mostpopularmovies.activities.DetailsActivity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -39,15 +47,16 @@ import static android.os.Environment.DIRECTORY_PICTURES;
 
 public final class AndroidUtils {
 
-    //Avoid instantiation
-    private AndroidUtils() {}
-
     // Storage Permissions
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static final String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
+
+    //Avoid instantiation
+    private AndroidUtils() {
+    }
 
     //    int width = size.x; returns window width
     //    int height = size.y; returns window height
@@ -103,29 +112,54 @@ public final class AndroidUtils {
         return width;
     }
 
-    /** pass new View[]{view1, view2, view3, view...} */
-    public static void animateViewsOnPreDraw(View parent, View[] viewsToAnimate) {
-
+    /**
+     * pass new View[]{view1, view2, view3, view...}
+     */
+    public static void animateViewsOnPreDraw(View parent, @Nullable DetailsActivity.OnPreDrawCompleteListener onPreDrawCompleteListener, View[] viewsToAnimate) {
         ViewTreeObserver.OnPreDrawListener listener = new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
                 Interpolator interpolator = new DecelerateInterpolator();
-                for (int i = 0; i < viewsToAnimate.length; ++i) {
+                int length = viewsToAnimate.length;
+                ViewPropertyAnimator animator = null;
+                for (int i = 0; i < length; i++) {
                     View view = viewsToAnimate[i];
                     view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
                     view.setAlpha(0);
                     view.setScaleX(0.8f);
                     view.setScaleY(0.8f);
                     view.setTranslationY(100);
-                    view.animate()
+                    animator = view.animate()
                             .setInterpolator(interpolator)
                             .alpha(1)
                             .scaleX(1)
                             .scaleY(1)
                             .translationY(0)
                             .setStartDelay(50 * (i + 1))
-                            .start();
+                            .setDuration(100);
+                    animator.start();
                 }
+
+                animator.setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        if (onPreDrawCompleteListener != null)
+                            onPreDrawCompleteListener.preDrawComplete();
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+                    }
+                });
+
                 parent.getViewTreeObserver().removeOnPreDrawListener(this);
                 return true;
             }
@@ -147,6 +181,17 @@ public final class AndroidUtils {
         }
     }
 
+    public static void showSlimToast(Context context, String toastText, int duration) {
+        LayoutInflater inflater = LayoutInflater.from(context);
+        TextView layout = (TextView) inflater.inflate(R.layout.toast_layout, null);
+        layout.setText(toastText);
+        Toast toast = new Toast(context);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.setDuration(duration);
+        toast.setView(layout);
+        toast.show();
+        layout.setAnimation(new RotateAnimation(90, 0));
+    }
 
     public static Bitmap getBitmapFromURL(Context context, String url) {
         Bitmap bitmap;

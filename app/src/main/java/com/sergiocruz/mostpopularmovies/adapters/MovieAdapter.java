@@ -1,7 +1,9 @@
 package com.sergiocruz.mostpopularmovies.adapters;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,8 +15,8 @@ import android.widget.ListView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.sergiocruz.mostpopularmovies.model.MovieObject;
 import com.sergiocruz.mostpopularmovies.R;
+import com.sergiocruz.mostpopularmovies.model.MovieObject;
 import com.sergiocruz.mostpopularmovies.utils.AndroidUtils;
 
 import java.util.ArrayList;
@@ -109,6 +111,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
                 .into(holder.posterImageView);
 
         setItemViewAnimation(holder.itemView, position);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            ViewCompat.setTransitionName(holder.itemView, "transition" + mMovieData.get(position).getId());
+        }
     }
 
 

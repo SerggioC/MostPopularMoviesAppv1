@@ -1,57 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginEnd="8dp"
-    android:layout_marginRight="8dp"
+    android:gravity="center_horizontal"
     android:orientation="vertical">
 
     <TextView
         android:id="@+id/videosTextView"
-        android:layout_width="200dp"
+        android:layout_width="320dp"
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
-        android:textSize="12sp"
-        android:maxLines="2"
-        android:lines="2"
         android:textColor="@color/color_300"
+        android:textSize="12sp"
         tools:text="TextView"/>
 
-    <android.support.v7.widget.CardView
-        android:layout_width="200dp"
-        android:layout_height="112dp"
-        android:layout_gravity="center"
-        android:background="@color/transparent"
-        android:padding="@dimen/default_gap"
-        app:cardBackgroundColor="@color/transparent"
-        app:cardCornerRadius="@dimen/corner_radius"
-        app:cardElevation="8dp"
-        app:layout_gravity="bottom">
+    <!-- 16:9 ratio -->
+    <FrameLayout
+        android:layout_width="320dp"
+        android:layout_height="180dp"
+        android:background="@drawable/gradient_card_black"
+        android:clipChildren="false"
+        android:duplicateParentState="true"
+        android:elevation="@dimen/cardview_default_elevation"
+        android:padding="@dimen/default_gap">
 
-        <FrameLayout
+        <ImageView
+            android:id="@+id/youtube_thumbnail"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/gradient_card_black"
-            android:duplicateParentState="true">
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/youtube_thumbnail"
+            android:scaleType="centerCrop"/>
 
-            <ImageView
-                android:id="@+id/youtube_thumbnail"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:contentDescription="@string/youtube_thumbnail"/>
+        <ImageView
+            android:id="@+id/video_icon"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_gravity="center"
+            android:contentDescription="@string/youtube_thumbnail"
+            tools:src="@drawable/video_play_icon"/>
+    </FrameLayout>
 
-            <ImageView
-                android:id="@+id/video_icon"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:contentDescription="@string/youtube_thumbnail"
-                tools:src="@drawable/video_play_icon"/>
 
-        </FrameLayout>
-
-    </android.support.v7.widget.CardView>
 </LinearLayout>

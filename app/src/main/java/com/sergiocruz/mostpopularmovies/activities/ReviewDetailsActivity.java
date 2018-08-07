@@ -35,7 +35,7 @@ public class ReviewDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.review_details_activity);
         bindViews();
 
-        AndroidUtils.animateViewsOnPreDraw(main_linear_layout, new View[]{
+        AndroidUtils.animateViewsOnPreDraw(main_linear_layout, null, new View[]{
                 reviewAuthorTextView, reviewDetailTextView, reviewURLTextView,});
 
         // Intent that started this activity
@@ -63,7 +63,6 @@ public class ReviewDetailsActivity extends AppCompatActivity {
         reviewURLTextView.setText(Html.fromHtml(url));
         reviewURLTextView.setLinksClickable(true);
         reviewURLTextView.setAutoLinkMask(Linkify.ALL);
-
     }
 
 

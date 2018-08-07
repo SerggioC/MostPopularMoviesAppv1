@@ -32,6 +32,11 @@ android {
         it.buildConfigField 'String', 'THEMOVIEDB_API_KEY_V4', TheMovieDBAPIKeyV4
     }
 
+    dataBinding {
+        enabled = true
+    }
+
+    // use Java 8 Lambdas
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8

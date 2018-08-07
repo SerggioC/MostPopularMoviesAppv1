@@ -49,7 +49,7 @@ public class VideosAdapter extends RecyclerView.Adapter<VideosAdapter.VideosView
         Glide.with(mContext)
                 .load(String.format(YOUTUBE_THUMBNAIL_URL, videoObjects.get(position).getKey()))
                 .transition(withCrossFade())
-                .apply(new RequestOptions().centerCrop().error(R.drawable.noimage))
+                .apply(new RequestOptions().error(R.drawable.noimage))
                 .into(holder.youtubeThumbnailIV);
 
         Glide.with(mContext)

@@ -33,10 +33,7 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewsV
 
     @Override
     public void onBindViewHolder(ReviewsAdapter.ReviewsViewHolder holder, int position) {
-
         holder.reviewTextView.setText(reviewObjects.get(position).getContent());
-        //
-
     }
 
     public void swapReviewData(ArrayList<ReviewObject> reviewData) {

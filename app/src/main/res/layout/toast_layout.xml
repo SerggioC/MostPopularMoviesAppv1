@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/slimtoast"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:layout_margin="@dimen/standard_margin"
+    android:background="@drawable/slim_toast_background"
+    android:elevation="@dimen/fab_elevation"
+    android:gravity="center"
+    android:padding="@dimen/standard_margin"
+    android:textAlignment="center"
+    android:textColor="@color/color_50"
+    android:textSize="16sp"
+    android:textStyle="bold"
+    tools:text="@tools:sample/full_names">
+</TextView>

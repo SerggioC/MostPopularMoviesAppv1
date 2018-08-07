@@ -6,4 +6,6 @@
     <dimen name="details_image_height">180dp</dimen>
     <dimen name="spacing_16dp">16dp</dimen>
     <dimen name="corner_radius">4dp</dimen>
+    <dimen name="standard_margin">8dp</dimen>
+    <dimen name="fab_elevation">6dp</dimen>
 </resources>

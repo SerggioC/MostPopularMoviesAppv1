@@ -22,12 +22,12 @@
     <string name="votes">votes</string>
     <string name="options_icon">Options Icon</string>
     <string name="reviews">Reviews</string>
-    <string name="videos">Videos</string>
+    <string name="trailers">Trailers</string>
     <string name="no_review_data">No review available</string>
     <string name="author">Author: </string>
     <string name="url">Url: </string>
     <string name="send_to">Send Movie data to:</string>
-    <string name="movie_in_favorites">Movie already saved in favorites.\n Long Press to remove from favorites.</string>
+    <string name="movie_in_favorites">Movie already saved in favorites.\nLong Press to remove from favorites.</string>
     <string name="youtube_thumbnail">Youtube video thumbnail</string>
     <string name="hey_check_this">Hey Check out this cool movie</string>
     <string name="android_app"> Android App</string>
@@ -61,6 +61,22 @@
 
     <string name="default_language">en-US</string>
     <string name="appbar_scrolling_view_behaviour">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
+    <string name="my_favorite_movies">My Favorite Movies</string>
+    <string name="most_popular_movies">Most Popular Movies</string>
+    <string name="top_rated_movies">Top Rated Movies</string>
+    <string name="upcoming_movies">Upcoming movies</string>
+    <string name="latest_movies">Latest Movies</string>
+    <string name="movies_now_playing">Movies Now Playing</string>
+    <string name="save_to_favorites">Save to favorites</string>
+    <string name="removed_from_favorites">Removed from favorites</string>
+    <string name="successfully">successfully.</string>
+    <string name="error_check_log">with errors... Check log.</string>
+    <string name="ic_most_popular">Menu item icon, most popular</string>
+    <string name="ic_highest_rated">Menu item icon, highest rated</string>
+    <string name="ic_upcoming">Menu item icon, upcoming</string>
+    <string name="ic_now_playing">Menu item icon, now playing</string>
+    <string name="ic_favorites">Menu item icon, favorites</string>
+    <string name="ic_settings">Menu item icon, settings</string>
 
     <!-- Label ordering must match values -->
     <string-array name="pref_language_labels">

@@ -9,23 +9,18 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
+import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.NavUtils;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatRatingBar;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.RelativeSizeSpan;
@@ -34,9 +29,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CursorAdapter;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -46,6 +38,7 @@ import com.sergiocruz.mostpopularmovies.R;
 import com.sergiocruz.mostpopularmovies.TheMovieDB;
 import com.sergiocruz.mostpopularmovies.adapters.ReviewsAdapter;
 import com.sergiocruz.mostpopularmovies.adapters.VideosAdapter;
+import com.sergiocruz.mostpopularmovies.databinding.ActivityDetailsBinding;
 import com.sergiocruz.mostpopularmovies.loaders.ReviewsLoader;
 import com.sergiocruz.mostpopularmovies.loaders.VideosLoader;
 import com.sergiocruz.mostpopularmovies.model.MovieObject;
@@ -72,142 +65,212 @@ import static com.sergiocruz.mostpopularmovies.activities.MainActivity.INTENT_MO
 public class DetailsActivity extends AppCompatActivity implements android.support.v4.app.LoaderManager.LoaderCallbacks,
         VideosAdapter.VideoClickListener, ReviewsAdapter.ReviewClickListener {
 
-    private static final int VIDEOS_LOADER_ID = 101;
-    private static final int REVIEWS_LOADER_ID = 202;
     public static final String INTENT_REVIEW_EXTRA = "review_data_extra";
     public static final String FAVORITES_ACTIVITY_RESULT = "activity_result";
+    public static final String YOUTUBE_URL_PREFIX = "http://www.youtube.com/watch?v=";
+    public static final String YOUTUBE_THUMBNAIL_URL = "http://img.youtube.com/vi/%s/0.jpg"; // /1.jpg /2.jpg /3.jpg /default.jpg
+    private static final int VIDEOS_LOADER_ID = 101;
+    private static final int REVIEWS_LOADER_ID = 202;
     private static final String LOADER_BUNDLE_MOVIE_ID = "movie_id_bundle";
     private static final String LOADER_BUNDLE_GOT_FAVORITE = "got_favorite_bundle";
     private static final String LOADER_BUNDLE_HAS_INTERNET = "has_internet_bundle";
     private static final String SAVED_INSTANCE_STATE_KEY = "saved_instance_bundle";
-    public static final String YOUTUBE_URL_PREFIX = "http://www.youtube.com/watch?v=";
-    public static final String YOUTUBE_THUMBNAIL_URL = "http://img.youtube.com/vi/%s/0.jpg"; // /1.jpg /2.jpg /3.jpg /default.jpg
-
     private MovieObject mMovieDataFromIntent;
     private ArrayList<VideoObject> mVideosObjects;
     private ArrayList<ReviewObject> mReviewObjects;
     private Context mContext;
-    private TextView titleTV;
-    private ImageView posterImageView;
-    private TextView dateTV;
-    private TextView ratingTV;
-    private TextView synopsisTV;
-    private Toolbar toolbar;
-    private FloatingActionButton favorite_star;
-    private ImageView backdropImageView;
-    private RecyclerView videosRecyclerView;
-    private RecyclerView reviewsRecyclerView;
     private VideosAdapter videosAdapter;
     private ReviewsAdapter reviewsAdapter;
-    private ProgressBar videos_loading_indicator;
-    private ProgressBar reviews_loading_indicator;
-    private CoordinatorLayout mainCoordinator;
-    private TextView genresTextView;
-    private AppCompatRatingBar ratingBar;
-    private TextView votesTextView;
     private Integer outStateScrollPosition = null;
+    private ActivityDetailsBinding binding;
+    private Boolean gotFavorite;
+    private OnPreDrawCompleteListener onPreDrawCompleteListener = new OnPreDrawCompleteListener() {
+        @Override
+        public void preDrawComplete() {
+            binding.shineButton.setChecked(gotFavorite, true);
+        }
+    };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mContext = getApplicationContext();
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_details);
+
+        getMovieDataFromIntent();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            ViewCompat.setTransitionName(binding.posterImageView, "transition" + mMovieDataFromIntent.getId());
+
+        animateViewsOnStart();
+
+        LinearLayoutManager videosLinearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
+        videosAdapter = new VideosAdapter(this, this);
+        videosAdapter.setHasStableIds(true);
+        binding.videosRecyclerView.setAdapter(videosAdapter);
+        binding.videosRecyclerView.setLayoutManager(videosLinearLayoutManager);
+
+        LinearLayoutManager reviewsLinearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
+        reviewsAdapter = new ReviewsAdapter(this, this);
+        reviewsAdapter.setHasStableIds(true);
+        binding.reviewsRecyclerView.setAdapter(reviewsAdapter);
+        binding.reviewsRecyclerView.setLayoutManager(reviewsLinearLayoutManager);
+
+//        ActionBar supportActionBar = getSupportActionBar();
+//        if (supportActionBar != null) {
+//            supportActionBar.setDisplayHomeAsUpEnabled(true);
+//            supportActionBar.setDisplayShowHomeEnabled(true);
+//        }
+//
+//        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_material);
+//        toolbar.setTitle(null);
+//        setSupportActionBar(toolbar);
+
+        // Intent that started this activity
+        Boolean hasInternet = NetworkUtils.hasActiveNetworkConnection(mContext);
+        if (!hasInternet) {
+            AndroidUtils.showSlimToast(mContext, getString(R.string.no_internet), Toast.LENGTH_SHORT);
+        }
+
+        initializeUIPopulating(mMovieDataFromIntent, gotFavorite, hasInternet);
+
+        String receivedMovieId = mMovieDataFromIntent.getId().toString();
+
+        Bundle bundle = new Bundle(3);
+        bundle.putString(LOADER_BUNDLE_MOVIE_ID, receivedMovieId);
+        bundle.putBoolean(LOADER_BUNDLE_GOT_FAVORITE, gotFavorite);
+        bundle.putBoolean(LOADER_BUNDLE_HAS_INTERNET, hasInternet);
+
+        getSupportLoaderManager().initLoader(VIDEOS_LOADER_ID, bundle, this);
+        getSupportLoaderManager().initLoader(REVIEWS_LOADER_ID, bundle, this);
+
+        if (savedInstanceState != null) {
+            outStateScrollPosition = savedInstanceState.getInt(SAVED_INSTANCE_STATE_KEY);
+        }
+
+        bindViews();
+    }
+
+    private void animateViewsOnStart() {
+        AndroidUtils.animateViewsOnPreDraw(binding.mainCoordinator, onPreDrawCompleteListener, new View[]{
+                binding.titleTextView, binding.dateTextView, binding.ratingBar,
+                binding.votesTextview, binding.ratingTextView, binding.synopsisTextView,
+                binding.genresTextview, binding.backdropImageview, binding.shineButton});
+    }
+
+    private void getMovieDataFromIntent() {
+        Intent intent = getIntent();
+        if (intent == null) {
+            closeNoData();
+            return;
+        }
+
+        mMovieDataFromIntent = intent.getParcelableExtra(INTENT_MOVIE_EXTRA);
+        gotFavorite = intent.getBooleanExtra(INTENT_EXTRA_IS_FAVORITE, false);
+        if (mMovieDataFromIntent == null && !gotFavorite) {
+            closeNoData();
+            return;
+        }
+        if (!gotFavorite)
+            mMovieDataFromIntent.setFavorite(false);
+    }
 
     private void bindViews() {
-        mainCoordinator = findViewById(R.id.main_coordinator);
-        //toolbar = findViewById(R.id.toolbar);
-        titleTV = findViewById(R.id.title_textView);
-        posterImageView = findViewById(R.id.poster_imageView);
-        dateTV = findViewById(R.id.date_textView);
-        ratingTV = findViewById(R.id.rating_textView);
-        synopsisTV = findViewById(R.id.synopsis_textView);
-        favorite_star = findViewById(R.id.fab_star);
-        backdropImageView = findViewById(R.id.backdrop_imageview);
-        videosRecyclerView = findViewById(R.id.videosRecyclerView);
-        reviewsRecyclerView = findViewById(R.id.reviewsRecyclerView);
-        videos_loading_indicator = findViewById(R.id.videos_loading_indicator);
-        reviews_loading_indicator = findViewById(R.id.reviews_loading_indicator);
-        genresTextView = findViewById(R.id.genres_textview);
-        ratingBar = findViewById(R.id.ratingBar);
-        votesTextView = findViewById(R.id.votes_textview);
-
-        favorite_star.setOnClickListener(view -> {
-
+        binding.shineButton.setOnClickListener(v -> {
             //  Check if DB already has the movie_id favorite
-            Uri queryUri = MovieContract.MovieTable.MOVIES_CONTENT_URI.buildUpon().appendPath(mMovieDataFromIntent.getId().toString()).build();
-            Cursor queryCursor = getContentResolver().query(queryUri, null, null, null, null);
-            if (queryCursor != null) queryCursor.close();
-
-            if (queryCursor != null && (mMovieDataFromIntent.getFavorite() || queryCursor.getCount() > 0)) {
-                Toast.makeText(mContext, R.string.movie_in_favorites, Toast.LENGTH_LONG).show();
+            if (isFavorite()) {
+                binding.shineButton.setChecked(true, false);
+                AndroidUtils.showSlimToast(mContext, getString(R.string.movie_in_favorites), Toast.LENGTH_SHORT);
                 return;
             }
-
-            AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
-
-                @Override
-                protected Void doInBackground(Void... nothing) {
-
-                    getContentResolver().insert(MovieContract.MovieTable.MOVIES_CONTENT_URI, saveToContentValues(mMovieDataFromIntent));
-
-                    int videos_inserted = 0;
-                    ContentValues[] saveVideosToContentValues = saveVideosToContentValues(mVideosObjects, mMovieDataFromIntent.getId());
-                    if (saveVideosToContentValues != null)
-                        videos_inserted = getContentResolver().bulkInsert(MovieContract.VideosTable.VIDEOS_CONTENT_URI, saveVideosToContentValues);
-
-                    int reviews_inserted = 0;
-                    ContentValues[] saveReviewsToContentValues = saveReviewsToContentValues(mReviewObjects, mMovieDataFromIntent.getId());
-                    if (saveReviewsToContentValues != null)
-                        reviews_inserted = getContentResolver().bulkInsert(MovieContract.ReviewsTable.REVIEWS_CONTENT_URI, saveReviewsToContentValues);
-
-                    setActivityResult();
-
-                    Log.i("Sergio>", this + " doInBackground\nvideos_inserted= %s, reviews_inserted= %s" + videos_inserted + " , " + reviews_inserted);
-                    return null;
-                }
-
-                @Override
-                protected void onPostExecute(Void nothing) {
-                    super.onPostExecute(nothing);
-                    favorite_star.setImageDrawable(ContextCompat.getDrawable(mContext, android.R.drawable.btn_star_big_on));
-                    mMovieDataFromIntent.setFavorite(true);
-                    Toast.makeText(mContext, R.string.saved_movie, Toast.LENGTH_LONG).show();
-                }
-            };
-            asyncTask.execute();
+            saveToFavorites();
         });
 
         // Delete favorite on Long click
-        favorite_star.setOnLongClickListener(v -> {
-
-            new AsyncTask<Void, Void, Boolean>() {
-                @Override
-                protected Boolean doInBackground(Void... voids) {
-                    int deletedRow = getContentResolver().delete(
-                            MovieContract.MovieTable.MOVIES_CONTENT_URI.buildUpon()
-                                    .appendPath(mMovieDataFromIntent.getId().toString())
-                                    .build()
-                            , null, null);
-                    Boolean deletedPoster = AndroidUtils.deleteImageFile(mMovieDataFromIntent.getPosterFilePath());
-                    Boolean deletedBackDrop = AndroidUtils.deleteImageFile(mMovieDataFromIntent.getBackdropFilePath());
-                    mMovieDataFromIntent.setPosterFilePath(null);
-                    mMovieDataFromIntent.setBackdropFilePath(null);
-
-                    if (deletedRow == 1) setActivityResult();
-
-                    Log.i("Sergio>", this + " doInBackground\n" +
-                            "deletedRow row = " + deletedRow + "\n" +
-                            "DeletedPoster = " + deletedPoster + "\n" +
-                            "deletedBackdrop = " + deletedBackDrop);
-
-                    return deletedRow == 1 && deletedPoster && deletedBackDrop;
-                }
-
-                @Override
-                protected void onPostExecute(Boolean success) {
-                    super.onPostExecute(success);
-                    favorite_star.setImageDrawable(ContextCompat.getDrawable(mContext, android.R.drawable.btn_star_big_off));
-                    mMovieDataFromIntent.setFavorite(false);
-                    Toast.makeText(mContext, "Removed from favorites" + (success ? " successfully." : " with errors...\nCheck log."), Toast.LENGTH_SHORT).show();
-                }
-            }.execute();
-
+        binding.shineButton.setOnLongClickListener(v -> {
+            if (!isFavorite())
+                return true;
+            removeFromFavorites();
             return true;
         });
+    }
+
+    private void removeFromFavorites() {
+        new AsyncTask<Void, Void, Boolean>() {
+            @Override
+            protected Boolean doInBackground(Void... voids) {
+                int deletedRow = getContentResolver().delete(
+                        MovieContract.MovieTable.MOVIES_CONTENT_URI.buildUpon()
+                                .appendPath(mMovieDataFromIntent.getId().toString())
+                                .build()
+                        , null, null);
+                Boolean deletedPoster = AndroidUtils.deleteImageFile(mMovieDataFromIntent.getPosterFilePath());
+                Boolean deletedBackDrop = AndroidUtils.deleteImageFile(mMovieDataFromIntent.getBackdropFilePath());
+                mMovieDataFromIntent.setPosterFilePath(null);
+                mMovieDataFromIntent.setBackdropFilePath(null);
+
+                if (deletedRow == 1) setActivityResult();
+
+                Log.i("Sergio>", this + " doInBackground\n" +
+                        "deletedRow row = " + deletedRow + "\n" +
+                        "DeletedPoster = " + deletedPoster + "\n" +
+                        "deletedBackdrop = " + deletedBackDrop);
+
+                return deletedRow == 1 && deletedPoster && deletedBackDrop;
+            }
+
+            @Override
+            protected void onPostExecute(Boolean success) {
+                super.onPostExecute(success);
+                binding.shineButton.setChecked(false, true);
+                mMovieDataFromIntent.setFavorite(false);
+                AndroidUtils.showSlimToast(mContext, getString(R.string.removed_from_favorites) +
+                                (success ? " " + getString(R.string.successfully) : " " +
+                                        getString(R.string.error_check_log)),
+                        Toast.LENGTH_SHORT);
+            }
+        }.execute();
+    }
+
+    private boolean isFavorite() {
+        Uri queryUri = MovieContract.MovieTable.MOVIES_CONTENT_URI.buildUpon().appendPath(mMovieDataFromIntent.getId().toString()).build();
+        Cursor queryCursor = getContentResolver().query(queryUri, null, null, null, null);
+        if (queryCursor != null) queryCursor.close();
+        return queryCursor != null && (mMovieDataFromIntent.getFavorite() || queryCursor.getCount() > 0);
+    }
+
+    private void saveToFavorites() {
+        AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... nothing) {
+
+                getContentResolver().insert(MovieContract.MovieTable.MOVIES_CONTENT_URI, saveToContentValues(mMovieDataFromIntent));
+
+                int videos_inserted = 0;
+                ContentValues[] saveVideosToContentValues = saveVideosToContentValues(mVideosObjects, mMovieDataFromIntent.getId());
+                if (saveVideosToContentValues != null)
+                    videos_inserted = getContentResolver().bulkInsert(MovieContract.VideosTable.VIDEOS_CONTENT_URI, saveVideosToContentValues);
+
+                int reviews_inserted = 0;
+                ContentValues[] saveReviewsToContentValues = saveReviewsToContentValues(mReviewObjects, mMovieDataFromIntent.getId());
+                if (saveReviewsToContentValues != null)
+                    reviews_inserted = getContentResolver().bulkInsert(MovieContract.ReviewsTable.REVIEWS_CONTENT_URI, saveReviewsToContentValues);
+
+                setActivityResult();
+
+                Log.i("Sergio>", this + " doInBackground\nvideos_inserted= %s, reviews_inserted= %s" + videos_inserted + " , " + reviews_inserted);
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void nothing) {
+                super.onPostExecute(nothing);
+                mMovieDataFromIntent.setFavorite(true);
+                AndroidUtils.showSlimToast(mContext, getString(R.string.saved_movie), Toast.LENGTH_SHORT);
+            }
+        };
+        asyncTask.execute();
     }
 
     private void setActivityResult() {
@@ -278,88 +341,17 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         values.put(MovieContract.MovieTable.RELEASE_DATE, movieObject.getReleaseDate());
         values.put(MovieContract.MovieTable.IS_FAVORITE, 1);
 
-        Uri posterFileUri = AndroidUtils.saveBitmapToDevice(mContext, posterImageView, relativePosterPath.replace("/", ""));
+        Uri posterFileUri = AndroidUtils.saveBitmapToDevice(mContext, binding.posterImageView, relativePosterPath.replace("/", ""));
         String posterStringUri = posterFileUri != null ? posterFileUri.toString() : "";
         values.put(MovieContract.MovieTable.POSTER_FILE_PATH, posterStringUri);
         mMovieDataFromIntent.setPosterFilePath(posterStringUri);
 
-        Uri backDropFileUri = AndroidUtils.saveBitmapToDevice(mContext, backdropImageView, relativeBackdropPath.replace("/", ""));
+        Uri backDropFileUri = AndroidUtils.saveBitmapToDevice(mContext, binding.backdropImageview, relativeBackdropPath.replace("/", ""));
         String backdropStringUri = backDropFileUri != null ? backDropFileUri.toString() : "";
         values.put(MovieContract.MovieTable.BACKDROP_FILE_PATH, backdropStringUri);
         mMovieDataFromIntent.setBackdropFilePath(backdropStringUri);
 
         return values;
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mContext = getApplicationContext();
-        setContentView(R.layout.activity_details);
-        bindViews();
-
-        AndroidUtils.animateViewsOnPreDraw(mainCoordinator, new View[]{titleTV,
-                posterImageView, dateTV, ratingBar,
-                votesTextView, ratingTV, favorite_star,
-                synopsisTV, genresTextView, backdropImageView});
-
-        LinearLayoutManager videosLinearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
-        videosAdapter = new VideosAdapter(mContext, this);
-        videosAdapter.setHasStableIds(true);
-        videosRecyclerView.setAdapter(videosAdapter);
-        videosRecyclerView.setLayoutManager(videosLinearLayoutManager);
-
-        LinearLayoutManager reviewsLinearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
-        reviewsAdapter = new ReviewsAdapter(this, this);
-        reviewsRecyclerView.setAdapter(reviewsAdapter);
-        reviewsRecyclerView.setLayoutManager(reviewsLinearLayoutManager);
-
-//        ActionBar supportActionBar = getSupportActionBar();
-//        if (supportActionBar != null) {
-//            supportActionBar.setDisplayHomeAsUpEnabled(true);
-//            supportActionBar.setDisplayShowHomeEnabled(true);
-//        }
-//
-//        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_material);
-//        toolbar.setTitle(null);
-//        setSupportActionBar(toolbar);
-
-        // Intent that started this activity
-        Intent intent = getIntent();
-        if (intent == null) {
-            closeNoData();
-            return;
-        }
-
-        mMovieDataFromIntent = intent.getParcelableExtra(INTENT_MOVIE_EXTRA);
-        Boolean gotFavorite = intent.getBooleanExtra(INTENT_EXTRA_IS_FAVORITE, false);
-        if (mMovieDataFromIntent == null && !gotFavorite) {
-            closeNoData();
-            return;
-        }
-        if (!gotFavorite)
-            mMovieDataFromIntent.setFavorite(false);
-
-        Boolean hasInternet = NetworkUtils.hasActiveNetworkConnection(mContext);
-        if (!hasInternet) {
-            Toast.makeText(mContext, R.string.no_internet, Toast.LENGTH_SHORT).show();
-        }
-
-        initializeUIPopulating(mMovieDataFromIntent, gotFavorite, hasInternet);
-
-        String receivedMovieId = mMovieDataFromIntent.getId().toString();
-
-        Bundle bundle = new Bundle(3);
-        bundle.putString(LOADER_BUNDLE_MOVIE_ID, receivedMovieId);
-        bundle.putBoolean(LOADER_BUNDLE_GOT_FAVORITE, gotFavorite);
-        bundle.putBoolean(LOADER_BUNDLE_HAS_INTERNET, hasInternet);
-
-        getSupportLoaderManager().initLoader(VIDEOS_LOADER_ID, bundle, this);
-        getSupportLoaderManager().initLoader(REVIEWS_LOADER_ID, bundle, this);
-
-        if (savedInstanceState != null) {
-            outStateScrollPosition = savedInstanceState.getInt(SAVED_INSTANCE_STATE_KEY);
-        }
     }
 
     @Override
@@ -375,6 +367,10 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         return true;
     }
 
+    @Override
+    public void onBackPressed() {
+        supportFinishAfterTransition();
+    }
 
     private void initializeUIPopulating(MovieObject movieData, Boolean gotFavorite, Boolean hasInternet) {
 
@@ -390,16 +386,13 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
 //        http://image.tmdb.org/t/p/w342/vsjBeMPZtyB7yNsYY56XYxifaQZ.jpg 342/192
 
         if (gotFavorite) {
-            favorite_star.setImageDrawable(ContextCompat.getDrawable(mContext, android.R.drawable.btn_star_big_on));
             String posterImageURI = movieData.getPosterFilePath();
             String backDropImageURI = movieData.getBackdropFilePath();
-            Glide.with(mContext).load(posterImageURI).apply(glideOptions).transition(withCrossFade()).into(posterImageView);
-            Glide.with(mContext).load(backDropImageURI).apply(glideOptions).transition(withCrossFade()).into(backdropImageView);
+            Glide.with(mContext).load(posterImageURI).apply(glideOptions).transition(withCrossFade()).into(binding.posterImageView);
+            Glide.with(mContext).load(backDropImageURI).apply(glideOptions).transition(withCrossFade()).into(binding.backdropImageview);
 
         } else {
-            favorite_star.setImageDrawable(ContextCompat.getDrawable(mContext, android.R.drawable.btn_star_big_off));
             if (hasInternet) {
-
                 int posterWidthDp = (int) mContext.getResources().getDimension(R.dimen.details_image_width);
                 String posterWidth = AndroidUtils.getOptimalImageWidth(mContext, posterWidthDp / 2);
 
@@ -408,28 +401,28 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
 
                 String posterImageURI = new StringBuilder(BASE_IMAGE_URL).append(posterWidth).append(movieData.getPosterPath()).toString();
                 String backDropImageURI = new StringBuilder(BASE_IMAGE_URL).append(backDropWidth).append(movieData.getBackdropPath()).toString();
-                Glide.with(mContext).load(posterImageURI).apply(glideOptions).transition(withCrossFade()).into(posterImageView);
-                Glide.with(mContext).load(backDropImageURI).apply(glideOptions).transition(withCrossFade()).into(backdropImageView);
+                Glide.with(mContext).load(posterImageURI).apply(glideOptions).transition(withCrossFade()).into(binding.posterImageView);
+                Glide.with(mContext).load(backDropImageURI).apply(glideOptions).transition(withCrossFade()).into(binding.backdropImageview);
             } else {
-                Glide.with(mContext).load(R.drawable.noimage).transition(withCrossFade()).into(posterImageView);
-                Glide.with(mContext).load(R.drawable.noimage).transition(withCrossFade()).into(backdropImageView);
+                Glide.with(mContext).load(R.drawable.noimage).transition(withCrossFade()).into(binding.posterImageView);
+                Glide.with(mContext).load(R.drawable.noimage).transition(withCrossFade()).into(binding.backdropImageview);
             }
         }
 
-        titleTV.setText(movieData.getTitle());
-        dateTV.setText(movieData.getReleaseDate().split("-")[0]);
+        binding.titleTextView.setText(movieData.getTitle());
+        binding.dateTextView.setText(movieData.getReleaseDate().split("-")[0]);
 
-        ObjectAnimator anim = ObjectAnimator.ofFloat(ratingBar, "rating", 0, movieData.getVoteAverage() / 2);
+        ObjectAnimator anim = ObjectAnimator.ofFloat(binding.ratingBar, "rating", 0, movieData.getVoteAverage() / 2);
         anim.setDuration(1500);
         anim.start();
 
         SpannableStringBuilder ssb = new SpannableStringBuilder(movieData.getVoteAverage().toString());
         ssb.setSpan(new RelativeSizeSpan(2), 0, ssb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         ssb.append("/10 ");
-        ratingTV.setText(ssb);
+        binding.ratingTextView.setText(ssb);
 
-        votesTextView.setText(movieData.getVoteCount() + " " + mContext.getString(R.string.votes));
-        synopsisTV.setText(movieData.getOverview());
+        binding.votesTextview.setText(movieData.getVoteCount() + " " + mContext.getString(R.string.votes));
+        binding.synopsisTextView.setText(movieData.getOverview());
 
         List<Integer> genreList = movieData.getGenreIDs();
         StringBuilder sb = new StringBuilder();
@@ -440,7 +433,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
             if (i < size - 1)
                 sb.append(", ");
         }
-        genresTextView.setText(sb);
+        binding.genresTextview.setText(sb);
 
     }
 
@@ -461,7 +454,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         Uri queryURI = null;
         switch (loaderID) {
             case VIDEOS_LOADER_ID:
-                videos_loading_indicator.setVisibility(View.VISIBLE);
+                binding.videosLoadingIndicator.setVisibility(View.VISIBLE);
                 if (gotFavorite) {
                     queryURI = MovieContract.VideosTable.VIDEOS_CONTENT_URI.buildUpon().appendPath(movieId).build();
                 } else {
@@ -476,7 +469,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
                     if (hasInternet)
                         queryURI = TheMovieDB.prepareAPIUri(mContext, REVIEWS_PATH, movieId);
                 }
-                reviews_loading_indicator.setVisibility(View.VISIBLE);
+                binding.reviewsLoadingIndicator.setVisibility(View.VISIBLE);
                 return new ReviewsLoader(mContext, queryURI, gotFavorite);
             default:
                 return null;
@@ -532,7 +525,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
                 break;
         }
         if (outStateScrollPosition != null) {
-            mainCoordinator.setScrollY(outStateScrollPosition);
+            binding.mainCoordinator.setScrollY(outStateScrollPosition);
             outStateScrollPosition = null;
         }
     }
@@ -540,13 +533,17 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     private void populateVideos(ArrayList<VideoObject> videoObjects) {
         this.mVideosObjects = videoObjects;
         videosAdapter.swapVideoData(videoObjects);
-        videos_loading_indicator.setVisibility(View.GONE);
+        int size = videoObjects == null ? 0 : videoObjects.size();
+        binding.VideosTextView.setText(getString(R.string.trailers) + " (" + size + ")");
+        binding.videosLoadingIndicator.setVisibility(View.GONE);
     }
 
     private void populateReviews(ArrayList<ReviewObject> reviewObjects) {
         this.mReviewObjects = reviewObjects;
         reviewsAdapter.swapReviewData(reviewObjects);
-        reviews_loading_indicator.setVisibility(View.GONE);
+        int size = reviewObjects == null ? 0 : reviewObjects.size();
+        binding.ReviewsTextView.setText(getString(R.string.reviews) + " (" + size + ")");
+        binding.reviewsLoadingIndicator.setVisibility(View.GONE);
     }
 
     /**
@@ -569,8 +566,8 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     }
 
     private void closeNoData() {
-        finish();
-        Toast.makeText(this, R.string.no_movie_data, Toast.LENGTH_SHORT).show();
+        supportFinishAfterTransition();
+        AndroidUtils.showSlimToast(mContext, getString(R.string.no_movie_data), Toast.LENGTH_SHORT);
     }
 
     @Override
@@ -578,7 +575,8 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
+                //NavUtils.navigateUpFromSameTask(this);
+                supportFinishAfterTransition();
                 return true;
             case R.id.menu_action_share:
                 shareMovieData();
@@ -596,7 +594,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         //sendIntent.setType("image/jpg");
         sendIntent.setType("image/jpeg");
 
-        Uri fileUri = AndroidUtils.saveBitmapToDevice(mContext, posterImageView, "share.jpg");
+        Uri fileUri = AndroidUtils.saveBitmapToDevice(mContext, binding.posterImageView, "share.jpg");
         File imageFile = new File(String.valueOf(fileUri));
 
 //        sendIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
@@ -623,18 +621,15 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
 
     }
 
-
     @Override
     public void onVideoClicked(VideoObject videoObject) {
-
         Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + videoObject.getKey()));
         Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(YOUTUBE_URL_PREFIX + videoObject.getKey()));
         try {
-            mContext.startActivity(appIntent);
+            startActivity(appIntent);
         } catch (ActivityNotFoundException ex) {
-            mContext.startActivity(webIntent);
+            startActivity(webIntent);
         }
-        Toast.makeText(mContext, "Clicked video " + videoObject.getName(), Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -653,8 +648,12 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        int position = mainCoordinator.getScrollY();
+        int position = binding.mainCoordinator.getScrollY();
         outState.putInt(SAVED_INSTANCE_STATE_KEY, position);
+    }
+
+    public interface OnPreDrawCompleteListener {
+        void preDrawComplete();
     }
 
 }
