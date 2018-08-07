@@ -29,6 +29,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.CursorAdapter;
 import android.widget.Toast;
 
@@ -86,16 +87,20 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     private Integer outStateScrollPosition = null;
     private ActivityDetailsBinding binding;
     private Integer clickedPosition;
+
     private OnPreDrawCompleteListener onPreDrawCompleteListener = new OnPreDrawCompleteListener() {
         @Override
         public void preDrawComplete() {
-            binding.shineButton.setChecked(mMovieDataFromIntent.getFavorite(), true);
+            binding.shineButton.setChecked(mMovieDataFromIntent.getFavorite() || isFavorite(), true);
         }
     };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+
         mContext = getApplicationContext();
         binding = DataBindingUtil.setContentView(this, R.layout.activity_details);
 
@@ -371,6 +376,8 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     @Override
     public void onBackPressed() {
         supportFinishAfterTransition();
+        setActivityResult();
+        super.onBackPressed();
     }
 
     private void initializeUIPopulating(MovieObject movieData, Boolean hasInternet) {
@@ -612,14 +619,14 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
                 .append(mMovieDataFromIntent.getReleaseDate()).append("\n")
                 .append(mMovieDataFromIntent.getOverview()).append("\n")
                 .append(BASE_MOVIE_URL + mMovieDataFromIntent.getId()).append("\n")
-                .append(getString(R.string.sent_from)).append(" ").append(getString(R.string.app_name)).append(" ").append(getString(R.string.android_app))
+                .append(getString(R.string.sent_from)).append(" ")
+                .append(getString(R.string.app_name)).append(" ")
+                .append(getString(R.string.android_app))
                 .toString();
 
         sendIntent.putExtra(Intent.EXTRA_TEXT, message);
 
-
         startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.send_to)));
-
     }
 
     @Override

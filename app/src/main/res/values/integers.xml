@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <integer name="recycler_animation_duration">250</integer>
     <integer name="animation_duration">200</integer>
     <integer name="videos_span_count">1</integer>
 </resources>

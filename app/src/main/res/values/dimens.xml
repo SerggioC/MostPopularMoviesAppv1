@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="default_gap">8dp</dimen>
     <dimen name="grid_image_width">180dp</dimen>
     <dimen name="grid_image_height">270dp</dimen>
     <dimen name="details_image_width">120dp</dimen>
@@ -8,4 +9,5 @@
     <dimen name="corner_radius">4dp</dimen>
     <dimen name="standard_margin">8dp</dimen>
     <dimen name="fab_elevation">6dp</dimen>
+    <dimen name="fab_right_margin">16dp</dimen>
 </resources>

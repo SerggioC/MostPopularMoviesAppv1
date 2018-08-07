@@ -11,12 +11,13 @@ import android.support.v4.os.OperationCanceledException;
 import android.util.Log;
 
 import com.sergiocruz.mostpopularmovies.JSONParser;
-import com.sergiocruz.mostpopularmovies.movieDataBase.MovieContract;
 import com.sergiocruz.mostpopularmovies.model.MovieObject;
+import com.sergiocruz.mostpopularmovies.movieDataBase.MovieContract;
 import com.sergiocruz.mostpopularmovies.utils.NetworkUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Sergio on 06/03/2018.
@@ -24,13 +25,14 @@ import java.util.ArrayList;
  * Load favorite Movies from Database or different Movie sections from Internet
  */
 
-public class MoviesLoader extends AsyncTaskLoader<ArrayList<MovieObject>> {
+public class MoviesLoader extends AsyncTaskLoader<List<MovieObject>> {
     private WeakReference<Context> weakContext;
     private Uri queryUri;
     private Boolean getFavorites;
 
-    // Initialize a ArrayList, this will hold all the data
-    private ArrayList<MovieObject> mMovieData;
+    // Initialize a List, this will hold all the data
+    private static List<MovieObject> mMovieData;
+    private Boolean isForceLoading = false;
 
     public MoviesLoader(@NonNull Context context, Uri uri, Boolean getFavorites) {
         super(context);
@@ -48,14 +50,16 @@ public class MoviesLoader extends AsyncTaskLoader<ArrayList<MovieObject>> {
      */
     @Override
     protected void onStartLoading() {
-        if (mMovieData != null) {
+        if (mMovieData != null && !isForceLoading) {
             // Delivers any previously loaded data immediately
             deliverResult(mMovieData);
-
-        } else {
-            // Force a new load
-            forceLoad();
         }
+    }
+
+    @Override
+    protected void onForceLoad() {
+        super.onForceLoad();
+        isForceLoading = true;
     }
 
     /**
@@ -85,11 +89,11 @@ public class MoviesLoader extends AsyncTaskLoader<ArrayList<MovieObject>> {
      */
     @Nullable
     @Override
-    public ArrayList<MovieObject> loadInBackground() {
+    public List<MovieObject> loadInBackground() {
 
         // Query and load all movie data in the background;
         // Use a try/catch block to catch any errors in loading data
-        ArrayList<MovieObject> data;
+        List<MovieObject> data = null;
 
         try {
             if (getFavorites) { // get all favorites from database
@@ -110,29 +114,22 @@ public class MoviesLoader extends AsyncTaskLoader<ArrayList<MovieObject>> {
 
                 data = JSONParser.parseMovieDataFromJSON(jsonDataFromAPI);
             }
-
         } catch (Exception e) {
             Log.e("Sergio>", "Failed to asynchronously load data.");
             e.printStackTrace();
-            return null;
         }
 
+        mMovieData = data;
+        // deliverResult sends the result of the load, ArrayList, to the registered listener
         super.deliverResult(data);
+        isForceLoading = false;
         return data;
     }
 
-    // deliverResult sends the result of the load, ArrayList, to the registered listener
-    public void deliverResult(ArrayList<MovieObject> data) {
-        mMovieData = data;
-        super.deliverResult(data);
-    }
-
-    private ArrayList<MovieObject> getArrayListFromCursor(Cursor cursor) {
+    private List<MovieObject> getArrayListFromCursor(Cursor cursor) {
         int cursorCount = cursor.getCount();
 
-        Log.i("Sergio>", this + " getArrayListFromCursor\n= columnCount" + cursor.getColumnCount());
-
-        ArrayList<MovieObject> arrayList = new ArrayList<>(cursorCount);
+        List<MovieObject> arrayList = new ArrayList<>(cursorCount);
 
         for (int i = 0; i < cursorCount; i++) {
             while (cursor.moveToNext()) {
@@ -158,7 +155,6 @@ public class MoviesLoader extends AsyncTaskLoader<ArrayList<MovieObject>> {
                         )); //add the movie
             }
         }
-
 
         return arrayList;
     }

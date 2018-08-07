@@ -12,6 +12,7 @@
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
         <item name="android:windowContentTransitions">true</item>
         <item name="android:windowActivityTransitions">true</item>
+        <!--<item name="android:windowSharedElementEnterTransition"></item>-->
     </style>
 
     <style name="coordinatorTheme" parent="AppTheme">

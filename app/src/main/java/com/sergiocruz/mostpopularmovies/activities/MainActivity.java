@@ -1,7 +1,6 @@
 package com.sergiocruz.mostpopularmovies.activities;
 
 import android.annotation.SuppressLint;
-import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,8 +9,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.v4.app.SharedElementCallback;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.Loader;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -33,9 +33,7 @@ import com.sergiocruz.mostpopularmovies.loaders.MoviesLoader;
 import com.sergiocruz.mostpopularmovies.model.MovieObject;
 import com.sergiocruz.mostpopularmovies.movieDataBase.MovieContract;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static android.widget.GridLayout.VERTICAL;
 import static com.sergiocruz.mostpopularmovies.TheMovieDB.LATEST_MOVIES_PATH;
@@ -49,7 +47,7 @@ import static com.sergiocruz.mostpopularmovies.utils.AndroidUtils.getWindowSizeX
 import static com.sergiocruz.mostpopularmovies.utils.AndroidUtils.verifyStoragePermissions;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.PosterClickListener,
-        android.support.v4.app.LoaderManager.LoaderCallbacks<ArrayList<MovieObject>>, SharedPreferences.OnSharedPreferenceChangeListener {
+        android.support.v4.app.LoaderManager.LoaderCallbacks<List<MovieObject>>, SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final int DETAILS_ACTIVITY_REQUEST_CODE = 33;
     public static final String LOADER_BUNDLE = "movie_loader_bundle";
@@ -115,36 +113,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         }
 
         initPopupMenu();
-
-    }
-    /**
-     * Prepares the shared element transition to the pager fragment,
-     * as well as the other transitions that affect the flow.
-     */
-    private void prepareTransitions() {
-
-        // A similar mapping is set at the ArticlePagerFragment with a setEnterSharedElementCallback.
-        SharedElementCallback exitSharedElementCallback = new SharedElementCallback() {
-            @Override
-            public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
-                super.onMapSharedElements(names, sharedElements);
-
-                // Locate the ViewHolder for the clicked position.
-                RecyclerView.ViewHolder selectedViewHolder = gridRecyclerView.findViewHolderForAdapterPosition(clickedPosition);
-                if (selectedViewHolder == null || selectedViewHolder.itemView == null) {
-                    return;
-                }
-
-                // Map the first shared element name to the child ImageView.
-                sharedElements.put(names.get(0), selectedViewHolder.itemView.findViewById(R.id.movie_poster));
-            }
-        };
-
-        setExitSharedElementCallback(exitSharedElementCallback);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            postponeEnterTransition();
-        }
 
     }
 
@@ -373,22 +341,24 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
         movie.setFavorite(isFavorite);
         detailsIntent.putExtra(INTENT_MOVIE_EXTRA, movie);
         detailsIntent.putExtra(INTENT_EXTRA_POSITION, position);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            ActivityOptionsCompat activityOptions;
 
-            ActivityOptions activityOptions = ActivityOptions
-                    .makeScaleUpAnimation(itemView, (int) itemView.getPivotX(), (int) itemView.getPivotY(), itemView.getWidth(), itemView.getHeight());
-
-//            ActivityOptionsCompat activityOptions = ActivityOptionsCompat
-//                    .makeSceneTransitionAnimation(
-//                            this,
-//                            (ImageView) itemView,
-//                            ViewCompat.getTransitionName(itemView));
+            // shared element transition
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                activityOptions = ActivityOptionsCompat
+                        .makeSceneTransitionAnimation(this, itemView, ViewCompat.getTransitionName(itemView));
+            } else {
+                // simple scale transition
+                activityOptions = ActivityOptionsCompat
+                        .makeScaleUpAnimation(itemView, (int) itemView.getPivotX(), (int) itemView.getPivotY(), itemView.getWidth(), itemView.getHeight());
+            }
 
             startActivityForResult(detailsIntent, DETAILS_ACTIVITY_REQUEST_CODE, activityOptions.toBundle());
         } else {
             startActivityForResult(detailsIntent, DETAILS_ACTIVITY_REQUEST_CODE);
         }
-
 
     }
 
@@ -400,11 +370,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
                 saveMovieSectionPreference(FAVORITE_MOVIES_SECTION, R.id.radio_favourite);
                 initPopupMenu();
             }
-
             clickedPosition = data.getIntExtra(POSITION_ACTIVITY_RESULT, -1);
-
         }
-
     }
 
     /**
@@ -416,18 +383,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
      */
     @NonNull
     @Override
-    public Loader<ArrayList<MovieObject>> onCreateLoader(int id, Bundle args) {
+    public Loader<List<MovieObject>> onCreateLoader(int id, Bundle args) {
         Uri queryUri = Uri.parse(args.getString(LOADER_BUNDLE));
-
         MoviesLoader moviesLoader = new MoviesLoader(getApplicationContext(), queryUri, id == LOADER_ID_DATABASE);
-
-        // forceLoad overridden in onStartLoading
-        //moviesLoader.forceLoad();
+        moviesLoader.forceLoad();
         return moviesLoader;
     }
 
     @Override
-    public void onLoadFinished(@NonNull Loader<ArrayList<MovieObject>> loader, ArrayList<MovieObject> data) {
+    public void onLoadFinished(@NonNull Loader<List<MovieObject>> loader, List<MovieObject> data) {
         Boolean isFavorite = loader.getId() == LOADER_ID_DATABASE;
         movieAdapter.swapMovieData(data, isFavorite);
         showDataView();
@@ -445,7 +409,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
      * @param loader The Loader that is being reset.
      */
     @Override
-    public void onLoaderReset(@NonNull Loader<ArrayList<MovieObject>> loader) {
+    public void onLoaderReset(@NonNull Loader<List<MovieObject>> loader) {
         Boolean isFavorite = loader.getId() == LOADER_ID_DATABASE;
         movieAdapter.swapMovieData(null, isFavorite);
     }
@@ -453,12 +417,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
     private void showDataView() {
         gridRecyclerView.setVisibility(View.VISIBLE);
         loading_indicator.setVisibility(View.GONE);
-
-//        LayoutAnimationController animation =
-//                AnimationUtils.loadLayoutAnimation(this, R.anim.layout_animation_slide_from_bottom);
-//
-//        gridRecyclerView.setLayoutAnimation(animation);
-//        gridRecyclerView.scheduleLayoutAnimation();
     }
 
     // Source for saving API KEY in Native code

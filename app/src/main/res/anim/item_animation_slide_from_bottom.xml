@@ -1,40 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<set
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:duration="400">
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="@integer/recycler_animation_duration">
 
     <translate
         android:fromYDelta="100%p"
-        android:interpolator="@android:anim/accelerate_decelerate_interpolator"
+        android:interpolator="@android:interpolator/anticipate"
         android:toYDelta="0"/>
 
     <alpha
         android:fromAlpha="0"
-        android:interpolator="@android:anim/accelerate_decelerate_interpolator"
+        android:interpolator="@android:interpolator/anticipate"
         android:toAlpha="1"/>
 
     <rotate
-        android:fromDegrees="-10"
+        android:fromDegrees="-45"
         android:pivotX="50%"
         android:pivotY="50%"
         android:toDegrees="0"
-        android:interpolator="@android:interpolator/decelerate_cubic"
+        android:interpolator="@android:interpolator/anticipate"
         />
 
     <scale
         android:fromXScale="0%"
         android:fromYScale="0%"
-        android:interpolator="@android:interpolator/linear"
+        android:interpolator="@android:interpolator/anticipate"
         android:pivotX="50%"
         android:pivotY="50%"
-        android:toXScale="105%"
-        android:toYScale="105%"
+        android:toXScale="110%"
+        android:toYScale="110%"
         />
 
     <scale
-        android:fromXScale="105%"
-        android:fromYScale="105%"
-        android:interpolator="@android:interpolator/decelerate_cubic"
+        android:fromXScale="110%"
+        android:fromYScale="110%"
+        android:interpolator="@android:interpolator/anticipate"
         android:pivotX="50%"
         android:pivotY="50%"
         android:toXScale="100%"

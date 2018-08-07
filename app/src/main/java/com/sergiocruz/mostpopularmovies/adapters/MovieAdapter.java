@@ -1,10 +1,12 @@
 package com.sergiocruz.mostpopularmovies.adapters;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +21,6 @@ import com.sergiocruz.mostpopularmovies.R;
 import com.sergiocruz.mostpopularmovies.model.MovieObject;
 import com.sergiocruz.mostpopularmovies.utils.AndroidUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
@@ -33,15 +34,23 @@ import static com.sergiocruz.mostpopularmovies.TheMovieDB.BASE_IMAGE_URL;
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
     final private PosterClickListener mPosterClickListener;
     private Context mContext;
-    private ArrayList<MovieObject> mMovieData;
+    private List<MovieObject> mMovieData;
     private String imageSize;
     private Boolean isFavorite;
-    private int previousPosition = -1;
+    private int midleItem;
 
     public MovieAdapter(Context context, PosterClickListener mPosterClickListener) {
         this.mContext = context;
         this.mPosterClickListener = mPosterClickListener;
         this.imageSize = AndroidUtils.getOptimalImageWidth(context, (int) context.getResources().getDimension(R.dimen.grid_image_width) / 2);
+    }
+
+    private Integer getScreenCapacity() {
+        Point windowSize = AndroidUtils.getWindowSizeXY(mContext);
+        float imageHeight = mContext.getResources().getDimension(R.dimen.grid_image_height);
+        float imageWidth = mContext.getResources().getDimension(R.dimen.grid_image_width);
+        float value = (windowSize.x * windowSize.y) / (imageWidth * imageHeight);
+        return (int) value;
     }
 
     /**
@@ -93,7 +102,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
      */
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
-        setItemViewAnimation(holder.itemView, position);
+        setItemViewAnimation(holder.itemView, holder.getLayoutPosition());
 
         String posterPath;
         if (isFavorite) {
@@ -121,15 +130,17 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     }
 
     private void setItemViewAnimation(View viewToAnimate, int position) {
-        // If the bound view wasn't previously displayed on screen, it's animated
-        if (position >= previousPosition) {
-            Animation bottomAnimation = AnimationUtils.loadAnimation(mContext, R.anim.item_animation_slide_from_bottom);
-            viewToAnimate.startAnimation(bottomAnimation);
-        } else if (position < previousPosition) {
+        if (position < midleItem) {
             Animation topAnimation = AnimationUtils.loadAnimation(mContext, R.anim.item_animation_slide_from_top);
+            topAnimation.setStartOffset(position * 20);
             viewToAnimate.startAnimation(topAnimation);
+            Log.i("Sergio>", this + " setItemViewAnimation\nTop");
+        } else {
+            Animation bottomAnimation = AnimationUtils.loadAnimation(mContext, R.anim.item_animation_slide_from_bottom);
+            bottomAnimation.setStartOffset(position * 20);
+            viewToAnimate.startAnimation(bottomAnimation);
+            Log.i("Sergio>", this + " setItemViewAnimation\nBottom");
         }
-        previousPosition = position;
     }
 
     /**
@@ -140,9 +151,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
      *
      * @param movieData the new List<MovieObject> to use as MovieAdapter data source
      */
-    public void swapMovieData(ArrayList<MovieObject> movieData, Boolean isFavorite) {
+    public void swapMovieData(List<MovieObject> movieData, Boolean isFavorite) {
         this.mMovieData = movieData;
         this.isFavorite = isFavorite;
+        int capacity = getScreenCapacity();
+        midleItem = getItemCount() > capacity ? (int) capacity / 2 : (int) getItemCount() / 2;
         notifyDataSetChanged();
     }
 

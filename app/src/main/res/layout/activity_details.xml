@@ -44,34 +44,25 @@
                     app:layout_collapseMode="parallax"
                     app:layout_collapseParallaxMultiplier="0.3">
 
-                    <!--app:cardBackgroundColor="@drawable/gradient_title"-->
-                    <!--<LinearLayout-->
-                        <!--android:id="@+id/main_linearlayout_title"-->
-                        <!--android:layout_width="match_parent"-->
-                        <!--android:layout_height="match_parent"-->
-                        <!--android:background="@drawable/gradient_title"-->
-                        <!--android:duplicateParentState="true"-->
-                        <!--android:orientation="vertical">-->
+                    <TextView
+                        android:id="@+id/title_textView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24dp"
+                        android:layout_marginEnd="32dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="32dp"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginTop="8dp"
+                        android:autoSizeTextType="uniform"
+                        android:gravity="top"
+                        android:maxLines="2"
+                        android:textColor="@android:color/white"
+                        android:textSize="30sp"
+                        tools:text="Big Title Hollywood Movie Name Taking Two Lines"/>
 
-                        <TextView
-                            android:id="@+id/title_textView"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="top"
-                            android:layout_marginBottom="24dp"
-                            android:layout_marginEnd="32dp"
-                            android:layout_marginLeft="20dp"
-                            android:layout_marginRight="32dp"
-                            android:layout_marginStart="20dp"
-                            android:layout_marginTop="8dp"
-                            android:autoSizeTextType="uniform"
-                            android:maxLines="2"
-                            android:textColor="@android:color/white"
-                            android:textSize="30sp"
-                            tools:text="Big Title Hollywood Movie Name Taking Two Lines"/>
+                </LinearLayout>
 
-                    </LinearLayout>
-                <!--</LinearLayout>-->
 
             </android.support.design.widget.CollapsingToolbarLayout>
         </android.support.design.widget.AppBarLayout>
@@ -272,7 +263,9 @@
             android:id="@+id/shine_button"
             android:layout_width="44dp"
             android:layout_height="44dp"
-            android:layout_margin="8dp"
+            android:layout_marginLeft="@dimen/default_gap"
+            android:layout_marginTop="@dimen/default_gap"
+            android:layout_marginRight="@dimen/fab_right_margin"
             android:contentDescription="@string/save_to_favorites"
             android:src="@android:color/darker_gray"
             app:allow_random_color="true"
