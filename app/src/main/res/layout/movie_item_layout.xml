@@ -5,4 +5,5 @@
     android:layout_width="@dimen/grid_image_width"
     android:layout_height="@dimen/grid_image_height"
     android:adjustViewBounds="true"
+    android:layout_gravity="center"
     android:contentDescription="@string/movie_poster"/>

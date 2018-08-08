@@ -1,41 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:app="http://schemas.android.com/apk/res-auto"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             android:background="@drawable/gradient_background_black2"
-             tools:context=".activities.AboutActivity">
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/about_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_background_black2"
+    tools:context=".activities.AboutActivity">
 
     <!-- The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,
          TextureView, etc. -->
 
     <LinearLayout
-        android:layout_height="match_parent"
+        android:id="@+id/fullscreen_content"
         android:layout_width="match_parent"
-        android:orientation="vertical"
-        android:gravity="center">
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/default_gap"
+        android:gravity="center"
+        android:orientation="vertical">
 
         <ImageView
             android:id="@+id/app_image"
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:layout_gravity="center_horizontal"
-            app:srcCompat="@drawable/ic_launcher"
-            android:contentDescription="@string/app_image"/>
+            android:contentDescription="@string/app_image"
+            app:srcCompat="@drawable/ic_launcher"/>
 
         <TextView
-            android:id="@+id/fullscreen_content"
+            android:id="@+id/content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif"
-            android:gravity="center"
             android:keepScreenOn="true"
             android:text="@string/about_content"
+            android:textAlignment="center"
             android:textColor="#b3a52e"
             android:textSize="24sp"
             android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/git_repo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/default_gap"
+            android:autoLink="web"
+            android:text="Git Repo:\nhttps://github.com/SerggioC/MostPopularMoviesAppv1"
+            android:textAlignment="center"
+            android:textColor="#b3a52e"
+            android:textSize="22sp"
+            android:textStyle="bold"/>
+
     </LinearLayout>
 
 
@@ -45,13 +62,12 @@
     <LinearLayout
         android:id="@+id/fullscreen_content_controls"
         style="?metaButtonBarStyle"
-        android:fitsSystemWindows="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="bottom|center_horizontal"
+        android:fitsSystemWindows="true"
         android:gravity="bottom"
         android:orientation="vertical">
-
 
         <Button
             android:id="@+id/about_button"

@@ -20,6 +20,9 @@ import android.view.View;
 import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.BounceInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.RotateAnimation;
@@ -136,29 +139,58 @@ public final class AndroidUtils {
                             .scaleY(1)
                             .translationY(0)
                             .setStartDelay(50 * (i + 1))
-                            .setDuration(100);
+                            .setDuration(250);
                     animator.start();
                 }
 
-                animator.setListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                    }
+                if (onPreDrawCompleteListener != null)
+                    animator.setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                        }
 
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        if (onPreDrawCompleteListener != null)
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+
                             onPreDrawCompleteListener.preDrawComplete();
-                    }
+                        }
 
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-                    }
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+                        }
 
-                    @Override
-                    public void onAnimationRepeat(Animator animation) {
-                    }
-                });
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {
+                        }
+                    });
+
+                parent.getViewTreeObserver().removeOnPreDrawListener(this);
+                return true;
+            }
+        };
+        parent.getViewTreeObserver().addOnPreDrawListener(listener);
+
+    }
+
+    public static void slideInViewsOnPreDraw(View parent, View[] viewsToAnimate) {
+        ViewTreeObserver.OnPreDrawListener listener = new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                Animation leftAnimation = AnimationUtils.loadAnimation(parent.getContext(), R.anim.slide_in_left);
+                Animation rightAnimation = AnimationUtils.loadAnimation(parent.getContext(), R.anim.slide_in_right);
+//                leftAnimation.setInterpolator(parent.getContext(), R.anim.slow_in_interpolator);
+//                rightAnimation.setInterpolator(parent.getContext(), R.anim.slow_in_interpolator);
+
+                leftAnimation.setInterpolator(new BounceInterpolator());
+                rightAnimation.setInterpolator(new BounceInterpolator());
+
+                int length = viewsToAnimate.length;
+                for (int i = 0; i < length; i++) {
+                    Animation animation = (i + 1) % 2 == 0 ? rightAnimation : leftAnimation; /* alternate animations */
+                    animation.setStartOffset(100 * i);
+                    viewsToAnimate[i].setAnimation(animation);
+                    viewsToAnimate[i].startAnimation(animation);
+                }
 
                 parent.getViewTreeObserver().removeOnPreDrawListener(this);
                 return true;
