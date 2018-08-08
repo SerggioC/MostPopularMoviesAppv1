@@ -95,54 +95,61 @@
         <item>de-DE</item>
     </string-array>
 
+    <string name="title_activity_about">About</string>
+    <string name="about_button">That\'s Cool</string>
+    <string name="about_content">Most Popular Movies app made by Sergio C. for the Android Developer Nanodegree By Google Udacity course. \nCourse Project 2</string>
+    <string name="action_about">About</string>
+    <string name="ic_info">About icon</string>
+    <string name="app_image">App image</string>
+
     <!--<string-array name="pref_language_labels">-->
-        <!--<item>Austria</item>-->
-        <!--<item>Australia</item>-->
-        <!--<item>Azerbaijan</item>-->
-        <!--<item>Bosnia and Herzegovina</item>-->
-        <!--<item>Belgium</item>-->
-        <!--<item>Bulgaria</item>-->
-        <!--<item>Canada (English)</item>-->
-        <!--<item>Canada (French)</item>-->
-        <!--<item>China</item>-->
-        <!--<item>Croatia</item>-->
-        <!--<item>Cyprus</item>-->
-        <!--<item>Czech Republic</item>-->
-        <!--<item>Denmark</item>-->
-        <!--<item>Germany</item>-->
-        <!--<item>Estonia</item>-->
-        <!--<item>Finland</item>-->
-        <!--<item>France</item>-->
-        <!--<item>Greece</item>-->
-        <!--<item>Hong Kong</item>-->
-        <!--<item>Hungary</item>-->
-        <!--<item>Ireland</item>-->
-        <!--<item>India</item>-->
-        <!--<item>Italy</item>-->
-        <!--<item>Japan</item>-->
-        <!--<item>Korea</item>-->
-        <!--<item>Latvia</item>-->
-        <!--<item>Lithuania</item>-->
-        <!--<item>Netherlands</item>-->
-        <!--<item>New Zealand</item>-->
-        <!--<item>Norway</item>-->
-        <!--<item>Poland</item>-->
-        <!--<item>Portugal</item>-->
-        <!--<item>Romania</item>-->
-        <!--<item>Russia</item>-->
-        <!--<item>Serbia</item>-->
-        <!--<item>Singapore</item>-->
-        <!--<item>Slovakia</item>-->
-        <!--<item>Slovenia</item>-->
-        <!--<item>South Africa</item>-->
-        <!--<item>Spain</item>-->
-        <!--<item>Sweden</item>-->
-        <!--<item>Switzerland</item>-->
-        <!--<item>Ukraine</item>-->
-        <!--<item>United Arab Emirates</item>-->
-        <!--<item>United Kingdom</item>-->
-        <!--<item>United States</item>-->
-        <!--<item>Viet Nam</item>-->
+    <!--<item>Austria</item>-->
+    <!--<item>Australia</item>-->
+    <!--<item>Azerbaijan</item>-->
+    <!--<item>Bosnia and Herzegovina</item>-->
+    <!--<item>Belgium</item>-->
+    <!--<item>Bulgaria</item>-->
+    <!--<item>Canada (English)</item>-->
+    <!--<item>Canada (French)</item>-->
+    <!--<item>China</item>-->
+    <!--<item>Croatia</item>-->
+    <!--<item>Cyprus</item>-->
+    <!--<item>Czech Republic</item>-->
+    <!--<item>Denmark</item>-->
+    <!--<item>Germany</item>-->
+    <!--<item>Estonia</item>-->
+    <!--<item>Finland</item>-->
+    <!--<item>France</item>-->
+    <!--<item>Greece</item>-->
+    <!--<item>Hong Kong</item>-->
+    <!--<item>Hungary</item>-->
+    <!--<item>Ireland</item>-->
+    <!--<item>India</item>-->
+    <!--<item>Italy</item>-->
+    <!--<item>Japan</item>-->
+    <!--<item>Korea</item>-->
+    <!--<item>Latvia</item>-->
+    <!--<item>Lithuania</item>-->
+    <!--<item>Netherlands</item>-->
+    <!--<item>New Zealand</item>-->
+    <!--<item>Norway</item>-->
+    <!--<item>Poland</item>-->
+    <!--<item>Portugal</item>-->
+    <!--<item>Romania</item>-->
+    <!--<item>Russia</item>-->
+    <!--<item>Serbia</item>-->
+    <!--<item>Singapore</item>-->
+    <!--<item>Slovakia</item>-->
+    <!--<item>Slovenia</item>-->
+    <!--<item>South Africa</item>-->
+    <!--<item>Spain</item>-->
+    <!--<item>Sweden</item>-->
+    <!--<item>Switzerland</item>-->
+    <!--<item>Ukraine</item>-->
+    <!--<item>United Arab Emirates</item>-->
+    <!--<item>United Kingdom</item>-->
+    <!--<item>United States</item>-->
+    <!--<item>Viet Nam</item>-->
     <!--</string-array>-->
 
     <!--"ar-AE",-->

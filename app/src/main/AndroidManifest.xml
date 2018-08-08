@@ -15,14 +15,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
+
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activities.DetailsActivity"
             android:parentActivityName=".activities.MainActivity"
@@ -31,7 +30,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity"/>
         </activity>
-
         <activity
             android:name=".activities.ReviewDetailsActivity"
             android:parentActivityName=".activities.DetailsActivity"
@@ -42,7 +40,7 @@
         </activity>
 
         <provider
-            android:name="com.sergiocruz.mostpopularmovies.movieDataBase.MovieProvider"
+            android:name=".movieDataBase.MovieProvider"
             android:authorities="com.sergiocruz.mostpopularmovies"
             android:enabled="true"
             android:exported="true"
@@ -58,7 +56,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity"/>
         </activity>
-
+        <activity
+            android:name=".activities.AboutActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_about"
+            android:parentActivityName=".activities.MainActivity"
+            android:theme="@style/FullscreenTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.sergiocruz.mostpopularmovies.activities.MainActivity"/>
+        </activity>
     </application>
 
 </manifest>

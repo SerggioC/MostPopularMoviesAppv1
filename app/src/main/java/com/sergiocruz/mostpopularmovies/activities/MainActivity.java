@@ -163,6 +163,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
             startActivity(startSettingsActivity);
         });
 
+        popupLayout.findViewById(R.id.menu_about).setOnClickListener(v -> {
+            popupWindow.dismiss();
+            Intent aboutActivity = new Intent(this, AboutActivity.class);
+            startActivity(aboutActivity);
+        });
+
     }
 
     private void onOverFlowMenuClick(View menuItemView) {

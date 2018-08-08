@@ -29,4 +29,6 @@
     <color name="color_A700">#e04b00</color>
     <color name="color_Y700">#ffc400</color>
     <color name="white">#ffffff</color>
+
+    <color name="black_overlay">#66000000</color>
 </resources>
