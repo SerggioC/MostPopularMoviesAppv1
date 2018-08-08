@@ -87,11 +87,13 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     private Integer outStateScrollPosition = null;
     private ActivityDetailsBinding binding;
     private Integer clickedPosition;
+    private Boolean gotFavorite;
+    private Boolean newFavorite;
 
     private OnPreDrawCompleteListener onPreDrawCompleteListener = new OnPreDrawCompleteListener() {
         @Override
         public void preDrawComplete() {
-            binding.shineButton.setChecked(mMovieDataFromIntent.getFavorite() || isFavorite(), true);
+            binding.shineButton.setChecked(isFavorite(), true);
         }
     };
 
@@ -142,10 +144,11 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         initializeUIPopulating(mMovieDataFromIntent, hasInternet);
 
         String receivedMovieId = mMovieDataFromIntent.getId().toString();
+        gotFavorite = mMovieDataFromIntent.getFavorite();
 
         Bundle bundle = new Bundle(3);
         bundle.putString(LOADER_BUNDLE_MOVIE_ID, receivedMovieId);
-        bundle.putBoolean(LOADER_BUNDLE_GOT_FAVORITE, mMovieDataFromIntent.getFavorite());
+        bundle.putBoolean(LOADER_BUNDLE_GOT_FAVORITE, gotFavorite);
         bundle.putBoolean(LOADER_BUNDLE_HAS_INTERNET, hasInternet);
 
         getSupportLoaderManager().initLoader(VIDEOS_LOADER_ID, bundle, this);
@@ -187,6 +190,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     }
 
     private void bindViews() {
+        // save favorite on Click
         binding.shineButton.setOnClickListener(v -> {
             //  Check if DB already has the movie_id favorite
             if (isFavorite()) {
@@ -199,8 +203,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
 
         // Delete favorite on Long click
         binding.shineButton.setOnLongClickListener(v -> {
-            if (!isFavorite())
-                return true;
+            if (!isFavorite()) return true;
             removeFromFavorites();
             return true;
         });
@@ -220,7 +223,10 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
                 mMovieDataFromIntent.setPosterFilePath(null);
                 mMovieDataFromIntent.setBackdropFilePath(null);
 
-                if (deletedRow == 1) setActivityResult();
+                if (deletedRow == 1) {
+                    newFavorite = true;
+                    setActivityResult(true);
+                }
 
                 Log.i("Sergio>", this + " doInBackground\n" +
                         "deletedRow row = " + deletedRow + "\n" +
@@ -268,7 +274,8 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
                 if (saveReviewsToContentValues != null)
                     reviews_inserted = getContentResolver().bulkInsert(MovieContract.ReviewsTable.REVIEWS_CONTENT_URI, saveReviewsToContentValues);
 
-                setActivityResult();
+                newFavorite = true;
+                setActivityResult(true);
 
                 Log.i("Sergio>", this + " doInBackground\nvideos_inserted= %s, reviews_inserted= %s" + videos_inserted + " , " + reviews_inserted);
                 return null;
@@ -284,9 +291,9 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
         asyncTask.execute();
     }
 
-    private void setActivityResult() {
+    private void setActivityResult(Boolean favorited) {
         Intent intent = new Intent();
-        intent.putExtra(FAVORITES_ACTIVITY_RESULT, true);
+        intent.putExtra(FAVORITES_ACTIVITY_RESULT, favorited);
         intent.putExtra(POSITION_ACTIVITY_RESULT, clickedPosition);
         setResult(Activity.RESULT_OK, intent);
     }
@@ -376,7 +383,7 @@ public class DetailsActivity extends AppCompatActivity implements android.suppor
     @Override
     public void onBackPressed() {
         supportFinishAfterTransition();
-        setActivityResult();
+        setActivityResult(newFavorite);
         super.onBackPressed();
     }
 

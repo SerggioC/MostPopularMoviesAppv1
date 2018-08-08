@@ -37,7 +37,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     private List<MovieObject> mMovieData;
     private String imageSize;
     private Boolean isFavorite;
-    private int midleItem;
+    private int middleItem;
 
     public MovieAdapter(Context context, PosterClickListener mPosterClickListener) {
         this.mContext = context;
@@ -102,6 +102,13 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
      */
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            int adapterPosition = holder.getAdapterPosition();
+            if (adapterPosition != -1) {
+                ViewCompat.setTransitionName(holder.itemView, "transition" + mMovieData.get(adapterPosition).getId());
+            }
+        }
         setItemViewAnimation(holder.itemView, holder.getLayoutPosition());
 
         String posterPath;
@@ -120,17 +127,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
                 .apply(new RequestOptions().error(R.drawable.noimage))
                 .into(holder.posterImageView);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            int adapterPosition = holder.getAdapterPosition();
-            if (adapterPosition != -1) {
-                ViewCompat.setTransitionName(holder.itemView, "transition" + mMovieData.get(adapterPosition).getId());
-            }
-        }
-
     }
 
     private void setItemViewAnimation(View viewToAnimate, int position) {
-        if (position < midleItem) {
+        if (position < middleItem) {
             Animation topAnimation = AnimationUtils.loadAnimation(mContext, R.anim.item_animation_slide_from_top);
             topAnimation.setStartOffset(position * 20);
             viewToAnimate.startAnimation(topAnimation);
@@ -155,7 +155,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         this.mMovieData = movieData;
         this.isFavorite = isFavorite;
         int capacity = getScreenCapacity();
-        midleItem = getItemCount() > capacity ? (int) capacity / 2 : (int) getItemCount() / 2;
+        middleItem = getItemCount() > capacity ? (int) capacity / 2 : (int) getItemCount() / 2;
         notifyDataSetChanged();
     }
 
@@ -179,7 +179,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         public MovieViewHolder(View itemView) {
             super(itemView);
             posterImageView = itemView.findViewById(R.id.movie_poster);
-            posterImageView.setOnClickListener(v -> {
+            itemView.setOnClickListener(v -> {
                 int clickedPosition = getAdapterPosition();
                 mPosterClickListener.onPosterClicked(mMovieData.get(clickedPosition), clickedPosition, isFavorite, itemView);
             });

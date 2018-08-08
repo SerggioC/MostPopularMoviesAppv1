@@ -371,6 +371,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Post
                 initPopupMenu();
             }
             clickedPosition = data.getIntExtra(POSITION_ACTIVITY_RESULT, -1);
+            gridRecyclerView.smoothScrollToPosition(clickedPosition);
         }
     }
 

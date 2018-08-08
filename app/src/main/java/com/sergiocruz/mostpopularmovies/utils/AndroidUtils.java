@@ -214,6 +214,7 @@ public final class AndroidUtils {
     @Nullable
     public static Uri saveBitmapToDevice(Context context, ImageView imageView, String fileName) {
         imageView.setDrawingCacheEnabled(true);
+        imageView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
         imageView.buildDrawingCache();
         Bitmap bitmap = imageView.getDrawingCache();
         return getUri(context, bitmap, fileName);
