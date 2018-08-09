@@ -27,6 +27,13 @@ ScreenShots
 
 <img src="https://github.com/SerggioC/MostPopularMoviesAppv1/blob/master/device-2018-08-09-004031.png" width="540" height="960" />
 
+<img src="https://github.com/SerggioC/MostPopularMoviesAppv1/blob/master/device-2018-08-09-004311.png" width="540" height="960" />
+
+<img src="https://github.com/SerggioC/MostPopularMoviesAppv1/blob/master/device-2018-08-09-004348.png" width="540" height="960" />
+<img src="https://github.com/SerggioC/MostPopularMoviesAppv1/blob/master/device-2018-08-09-004430.png" width="540" height="960" />
+<img src="https://github.com/SerggioC/MostPopularMoviesAppv1/blob/master/device-2018-08-09-004454.png" width="540" height="960" />
+<img src="https://github.com/SerggioC/MostPopularMoviesAppv1/blob/master/device-2018-08-09-004552.png" width="540" height="960" />
+
 <img src="https://github.com/SerggioC/MostPopularMoviesAppv1/blob/master/Screenshot_20180323-163250.png?raw=true" width="540" height="960" />
 
 <img src="https://github.com/SerggioC/MostPopularMoviesAppv1/blob/master/Screenshot_2018-03-23-16-33-15.jpg?raw=true" width="540" height="1466" />
