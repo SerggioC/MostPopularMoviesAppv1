@@ -20,8 +20,8 @@ Used tech
 - Custom layout animations in details activity onPreDraw 
 - Internet Connectivity HttpURLConnection + ByteArrayOutputStream
 
-Watch sample app behavior video on youtube: https://www.youtube.com/watch?v=9ibSIWC4REI
-[![App sample behaviour](http://img.youtube.com/vi/9ibSIWC4REI/0.jpg)](http://www.youtube.com/watch?v=9ibSIWC4REI "Most Popular Movies App")
+Watch sample app behavior video on youtube: https://www.youtube.com/watch?v=SPtsMA0nY0c
+[![App sample behaviour](http://img.youtube.com/vi/SPtsMA0nY0c/0.jpg)](https://www.youtube.com/watch?v=SPtsMA0nY0c "Cinema Now App")
 
 ScreenShots
 
