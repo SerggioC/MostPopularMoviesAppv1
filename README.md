@@ -20,6 +20,8 @@ Used tech
 - Custom layout animations in details activity onPreDraw 
 - Internet Connectivity HttpURLConnection + ByteArrayOutputStream
 
+Download it at GooglePlay Store https://play.google.com/store/apps/details?id=com.sergiocruz.mostpopularmovies
+
 Watch sample app behavior video on youtube: https://www.youtube.com/watch?v=SPtsMA0nY0c
 [![App sample behaviour](http://img.youtube.com/vi/SPtsMA0nY0c/0.jpg)](https://www.youtube.com/watch?v=SPtsMA0nY0c "Cinema Now App")
 
